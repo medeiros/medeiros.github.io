@@ -1,0 +1,32 @@
+# Site Settings
+title:               Medeiros
+tagline:             personal web site
+description:
+baseurl:            ""
+url:                "https://medeiros.arneam.com"
+github:
+  url:               #"https://medeiros.github.io"
+author:
+  name:              "Daniel Medeiros"
+  email:             "daniel@arneam.com"
+  twitter:           "dnlmed"
+  instagram:         #""
+  github:            "medeiros"
+  facebook:          #""
+  linkedin:          "dmassis"
+navigation:
+- title: About
+  url: /about
+- title: Writing
+  url: /writing
+- title: Contact
+  url: /contact
+
+paginate:            5
+disqus:              #"your-disqus"
+
+# Build settings
+markdown:            kramdown
+highlighter:         rouge
+permalink:           none
+gems:                [jekyll-paginate]
