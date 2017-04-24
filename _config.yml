@@ -23,7 +23,7 @@ navigation:
   url: /contact
 
 paginate:            5
-disqus:              #"your-disqus"
+disqus:              medeiros-1
 
 # Build settings
 markdown:            kramdown

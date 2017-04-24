@@ -3,6 +3,7 @@ layout: post
 title: "Why using microservices?"
 categories: journal
 tags: [microservices]
+comments: true
 image:
   feature: mountains.jpg
   teaser: mountains-teaser.jpg
