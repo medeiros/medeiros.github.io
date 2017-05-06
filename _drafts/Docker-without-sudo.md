@@ -19,19 +19,19 @@ However, this can be a pain in the ass. Isn't practical to keep informing `sudo`
 
 The concept is this: if your user is in a specific linux group (called "docker"), automatically you will be granted to run docker commands. Simple like that.
 
-So, it is necessary to create this group and then add your own user to it. To create the "docker" linux group, you can use the command: <a name="footnote"><sup>1</sup></a>
+So, it is necessary to create this group and then add your own user to it. To create the "docker" linux group, you can use the command: <sup>[1](#s1)</sup>
 
 ```bash
 sudo groupadd docker
 ```
 
-And then you have to bind your user to this group, using the command: <a name="footnote"><sup>1</sup></a>
+And then you have to bind your user to this group, using the command: <sup>[1](#s1)</sup>
 
 ```bash
 sudo usermod -a -G docker [your user]
 ```
 
-You can now restart docker service. In arch linux, the command is: <a name="footnote"><sup>1</sup></a>
+You can now restart docker service. In arch linux, the command is: <sup>[1](#s1)</sup>
 
 ```bash
 sudo systemctl start docker
@@ -44,4 +44,4 @@ docker run debian echo "hello world"
 
 ### Footnotes
 
-<sup>1</sup> comands here presents were tested in Arch Linux, and may not work correctly in other distros. But the general ideia is the same and Google is always for the rescue.
+<sup id="s1">1</sup> comands here presents were tested in Arch Linux, and may not work correctly in other distros. But the general ideia is the same and Google is always for the rescue.
