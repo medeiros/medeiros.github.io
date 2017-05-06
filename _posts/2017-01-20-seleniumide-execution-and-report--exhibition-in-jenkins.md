@@ -4,8 +4,8 @@ title: "SeleniumIDE execution and report exhibition in Jenkins"
 categories: journal
 tags: [selenium,continous-integration,jenkins]
 image:
-  feature: mountains.jpg
-  teaser: mountains-teaser.jpg
+  #feature: mountains.jpg
+  #teaser: mountains-teaser.jpg
   credit: Death to Stock Photo
   creditlink: ""
 ---

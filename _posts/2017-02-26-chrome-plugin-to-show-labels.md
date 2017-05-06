@@ -3,11 +3,11 @@ layout: post
 title: "Chrome plugin to show Trello label title"
 categories: journal
 tags: [chrome,plugin]
-image:
-  feature: trello.jpg
-  teaser: trello-teaser.jpg
-  credit: Death to Stock Photo
-  creditlink: ""
+#image:
+  #feature: trello.jpg
+  #teaser: trello-teaser.jpg
+  #credit: Death to Stock Photo
+  #creditlink: ""
 ---
 
 Trello is an awesome tool to keep tasks being executed. One of the cool features

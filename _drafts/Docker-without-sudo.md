@@ -4,11 +4,11 @@ title: "Docker without sudo"
 categories: journal
 tags: [docker,devops]
 comments: true
-image:
-  feature: docker.png
-  teaser: docker-teaser.png
-  credit:
-  creditlink: ""
+#image:
+  #feature: docker.png
+  #teaser: docker-teaser.png
+  #credit:
+  #creditlink: ""
 ---
 
 To run docker commands, it is necessary to prefix them with `sudo`. This linux command allows the current user to perform actions as `root`. Out of the box, to run docker commands you must have `root` privileges.
@@ -44,4 +44,4 @@ docker run debian echo "hello world"
 
 ### Footnotes
 
-<sup id="s1">1</sup> comands here presents were tested in Arch Linux, and may not work correctly in other distros. But the general ideia is the same and Google is always for the rescue.
+<sup id="s1">1</sup> The commands here presented were tested in Arch Linux, and may not work correctly in other distros. But the general ideia is the same and Google is there for the rescue.

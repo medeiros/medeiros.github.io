@@ -4,8 +4,8 @@ title: "Github commit emojis"
 categories: journal
 tags: [emoji,github]
 image:
-  feature: mountains.jpg
-  teaser: mountains-teaser.jpg
+  #feature: mountains.jpg
+  #teaser: mountains-teaser.jpg
   credit: Death to Stock Photo
   creditlink: ""
 ---

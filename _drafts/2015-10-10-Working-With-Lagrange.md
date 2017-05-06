@@ -3,11 +3,11 @@ layout: post
 title: "Working With Lagrange"
 categories: journal
 tags: [documentation,sample]
-image:
-  feature: room.jpg
-  teaser: room-teaser.jpg
-  credit:
-  creditlink:
+#image:
+#  feature: room.jpg
+#  teaser: room-teaser.jpg
+#  credit:
+#  creditlink:
 ---
 
 Lagrange was designed to be a minimalist theme in order for the focus to remain on your content.

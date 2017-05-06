@@ -3,14 +3,13 @@ layout: post
 title: "An evolutionary, MVP approach example to Microservices - part 1: Initial Concepts"
 categories: journal
 tags: [microservices,spring boot]
-image:
-  feature: mountains.jpg
-  teaser: mountains-teaser.jpg
-  credit: Death to Stock Photo
-  creditlink: ""
+comments: true
+#image:
+#  feature: mountains.jpg
+#  teaser: mountains-teaser.jpg
+#  credit: Death to Stock Photo
+#  creditlink: ""
 ---
-
-## An evolutionary, MVP approach example to Microservices
 
 In this series of articles, my main intent is to exercise the usage of microservice technologies and related concepts. Guided by the MVP values (Maximum value product), the idea is to develop the less usable feature and start using as soon as possible - and then keep increasing it until it incorporates microservices architectural style as a whole.
 

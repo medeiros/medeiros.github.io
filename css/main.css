@@ -140,6 +140,8 @@ blockquote p {
 
 .masthead-subtitle {
   color: #999;
+  font-size: 12px;
+  font-style: italic;
 }
 
 /*
@@ -151,9 +153,15 @@ blockquote p {
 }
 
 .posts {
-  margin-bottom: 5rem;
+  margin-bottom: 3rem;
   padding: 0px;
   list-style: none;
+}
+
+
+.posts h3 a {
+  text-decoration: none;
+  background-color: #eee;
 }
 
 .post-date {

@@ -1,6 +1,6 @@
 # Site Settings
 title:               Medeiros
-tagline:             personal web site
+tagline:             software engineering
 description:
 baseurl:            ""
 url:                "https://medeiros.arneam.com"
@@ -9,7 +9,7 @@ github:
 author:
   name:              "Daniel Medeiros"
   email:             "daniel@arneam.com"
-  twitter:           "dnlmed"
+  twitter:           #"dnlmed"
   instagram:         #""
   github:            "medeiros"
   facebook:          #""

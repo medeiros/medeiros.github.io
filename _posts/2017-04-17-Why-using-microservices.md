@@ -4,11 +4,11 @@ title: "Why using microservices?"
 categories: journal
 tags: [microservices]
 comments: true
-image:
-  feature: mountains.jpg
-  teaser: mountains-teaser.jpg
-  credit: Death to Stock Photo
-  creditlink: ""
+#image:
+  #feature: mountains.jpg
+  #teaser: mountains-teaser.jpg
+  #credit: Death to Stock Photo
+  #creditlink: ""
 ---
 
 Today, I watched the Sam Neil's video ["Why would you use microservices?"](https://www.oreilly.com/ideas/why-would-you-use-microservices). It's a very nice summarization of what microservices are and their value to adoption in organizations. Key points that I found particularly interesting are the following:

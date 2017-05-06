@@ -3,11 +3,11 @@ layout: post
 title: "Working With Jekyll"
 categories: journal
 tags: [documentation,sample]
-image:
-  feature: bag.jpg
-  teaser: bag-teaser.jpg
-  credit:
-  creditlink:
+#image:
+#  feature: bag.jpg
+#  teaser: bag-teaser.jpg
+#  credit:
+#  creditlink:
 ---
 
 ### Posts

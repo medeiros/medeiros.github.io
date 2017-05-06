@@ -3,11 +3,11 @@ layout: post
 title: "Exporting sonar data with SonarLint"
 categories: journal
 tags: [sonarqube,sonarlint,static-code-analisys]
-image:
-  feature: mountains.jpg
-  teaser: mountains-teaser.jpg
-  credit: Death to Stock Photo
-  creditlink: ""
+#image:
+  #feature: mountains.jpg
+  #teaser: mountains-teaser.jpg
+  #credit: Death to Stock Photo
+  #creditlink: ""
 ---
 
 SonarQube is currently the most popular static code analisys tool. There are a lot of features there, but one is not found: the possibility to export metrics.
