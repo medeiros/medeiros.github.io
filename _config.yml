@@ -21,7 +21,11 @@ navigation:
   url: /writing
 - title: Contact
   url: /contact
-
+image:
+  profilepicture:    profile-picture-daniel.jpg
+post:
+  tagline:           "A software engineer who refactor its thoughts through writing."
+  touch-message:     "If you'd like to get in touch, feel free to #contact# me"
 paginate:            5
 disqus:              medeiros-1
 

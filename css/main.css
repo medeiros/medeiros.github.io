@@ -467,6 +467,28 @@ pre {
   background-size: cover;
 }
 
+.author-small {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  float: left;
+}
+
+.author-name {
+  color: #666;
+  font-weight: bold;
+}
+
+.author-info {
+  display: inline-block;
+  padding-left: 15px;
+  line-height: 20px;
+}
+
 .form-style-2{
     max-width: 500px;
     padding: 20px 12px 10px 20px;

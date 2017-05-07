@@ -12,17 +12,26 @@ layout: default
 
 {{ content }}
 
+<br>
 <span class="post-date">
-  Written on
-  {% assign d = page.date | date: "%-d"  %}
-  {{ page.date | date: "%B" }}
-  {% case d %}
-    {% when '1' or '21' or '31' %}{{ d }}st
-    {% when '2' or '22' %}{{ d }}nd
-    {% when '3' or '23' %}{{ d }}rd
-    {% else %}{{ d }}th{% endcase %},
-  {{ page.date | date: "%Y" }}
-  by {{ site.author.name }}
+  <div class="author-small" style="background-image:url('/images/{{ site.image.profilepicture }}')"></div>
+  <div class="author-info">
+    <span class="author-name">{{ site.author.name }}</span>
+    <br>
+    {{ site.post.tagline }}<br>
+    {{ site.post.touch-message | replace: '#contact#', '<a href=/pages#contact#>contact</a>'
+      | replace: '#contact#', site.navigation[2].url }}<br>
+    Written on
+    {% assign d = page.date | date: "%-d"  %}
+    {{ page.date | date: "%B" }}
+    {% case d %}
+      {% when '1' or '21' or '31' %}{{ d }}st
+      {% when '2' or '22' %}{{ d }}nd
+      {% when '3' or '23' %}{{ d }}rd
+      {% else %}{{ d }}th{% endcase %},
+    {{ page.date | date: "%Y" }}
+  </div>
+
 </span>
 {% include social-sharing.html %}
 {% include related-posts.html %}
