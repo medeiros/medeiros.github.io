@@ -467,6 +467,14 @@ pre {
   background-size: cover;
 }
 
+.post-written {
+  font-size: 13px;
+  margin-top:-15px;
+  margin-left: 2px;
+  color: #999;
+  font-weight: bold;
+}
+
 .author-small {
   display: inline-block;
   width: 80px;
@@ -486,7 +494,7 @@ pre {
 .author-info {
   display: inline-block;
   padding-left: 15px;
-  line-height: 20px;
+  line-height: 25px;
 }
 
 .form-style-2{
