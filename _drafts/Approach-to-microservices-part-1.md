@@ -24,9 +24,9 @@ This series of articles consider that you may have the following environment:
 
 These are the application dependencies for development.
 
-## The 'Variable accounts' application
+## The 'Personal finance investment' application
 
-The idea is to implement an application to manage personal finances. The first module to be implemented is a simple CRUD to register all variable accounts.
+The idea is to implement an application to manage personal financial investments.
 
 ### Creating a Web Application
 
@@ -68,68 +68,85 @@ It is very easy to start a new project. There a a lot of possibilities, that can
 In our case, let's create a gradle project, using java version 8 with the dependencies ``spring-boot-starter-web`` (web application), ``spring-boot-starter-thymeleaf`` (front-end templating engine),  ``spring-boot-starter-data-mongodb`` (MongoDB NoSQL database) and ``spring-data-rest-webmvc`` (REST capabilities).
 
 ```bash
-$ spring init --build=gradle --java-version=1.8 --dependencies=web,thymeleaf,data-mongodb,data-rest, --packaging=war --artifactId=variable-accounts --groupId=com.arneam.finandeiros --package-name=com.arneam.finandeiros.variableaccounts --name="Variable Accounts" --description="Web application to handle variable accounts" variable-accounts
+$ spring init --build=gradle --java-version=1.8 --dependencies=web,thymeleaf,data-mongodb,data-rest --packaging=war --artifactId=variable-accounts --groupId=com.arneam.finandeiros --package-name=com.arneam.finandeiros.financialinvestment --name="Personal Financial Investment" --description="Web application to handle personal finance investments" financial-investment
 ```
 
-That's it. The bootstrap application is now set and ready.
+That's it. The bootstrap application is now set and ready. You can load the project into IntelliJ and then you'll be ready to start coding.
 
 ### Creating the domain entities
 
-Let's create a set of domain entities that represent the variable account concept. In order to simplify our job, we're going to use ``Lombok`` library, to generate getters, setters and stuff like that.
+Let's create a set of domain entities that represent the financial investment concept. In order to simplify our job, we're going to use ``Lombok`` library, to generate getters, setters and stuff like that. We also are going to use JSR-310 jackson library, to serialize JDK8 dates in JSON format (since our domain will have these kind of dates).
 
-
-The fist action is to add the following line to ```build.gradle``` file, in the ```dependencies``` section:
+The fist action is to add the following lines to ```build.gradle``` file, in the ```dependencies``` section:
 
 ```groovy
 compile('org.projectlombok:lombok:1.16.16')
+compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 ```
 
 After that, we are free to create the following classes. Create a domain subpackage and then make sure your classes seems like the following:
 
 ```java
-package com.arneam.finandeiros.variableaccounts.domain;
+package com.arneam.finandeiros.financialinvestment.domain;
 
 import lombok.Value;
 
 @Value
-public class PaymentCategory {
+public class Portfolio {
     private String name;
+    private String description;
 }
 ```
 
 ```java
-package com.arneam.finandeiros.variableaccounts.domain;
+package com.arneam.finandeiros.financialinvestment.domain;
 
 import lombok.Value;
 
 @Value
-public class PaymentMode {
+public class Fund {
     private String name;
 }
 ```
-The ```@Value``` annotation defines an immutable object: there are no setters and all attributes are initialized from the constructor. That's the idea with ```PaymentCategory``` and ```PaymentMode``` classes, entities that do not have identity, and can therefore be treated as [Value Objects](https://martinfowler.com/bliki/ValueObject.html).
+The ```@Value``` annotation defines an immutable object: there are no setters and all attributes are initialized from the constructor. That's the idea with ```Portfolio``` and ```Fund``` classes, entities that do not have identity, and can therefore be treated as [Value Objects](https://martinfowler.com/bliki/ValueObject.html).
 
 ```java
-package com.arneam.finandeiros.variableaccounts.domain;
+package com.arneam.finandeiros.financialinvestment.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter @Setter
-public class VariableAccount {
-    @Id public String id;
-    @NonNull private LocalDate date;
-    @NonNull private String description;
-    @NonNull private Float value;
-    @NonNull private PaymentMode paymentMode;
-    @NonNull private PaymentCategory paymentCategory;
+@Data
+public class Movement {
+    @Id
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private String id;
+
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @NonNull
+    private LocalDate date;
+
+    @NonNull private Portfolio portfolio;
+    @NonNull private Fund fund;
+    @NonNull private BigDecimal value;
+    private String description;
 }
 ```
 
-The ```VariableExpense``` class has nullity validation in all its attributes (by setters and constructors), throwing NullPointerException to any attempt of set null. This is a good thing because antecipates any issue regarding data inconsistency, avoiding NullPointer exceptions to grow under control (classic problem). The class is annotated with ```@Getter``` and ```@Setter``` in order to be trated as a traditional [Entity](https://martinfowler.com/bliki/EvansClassification.html), whose identity and data can be changed.
+The ```Movement'``` class has nullity validation in almost all its attributes (by setters and constructors), throwing NullPointerException to any attempt of set null (description attribute is not required). This is a good thing because antecipates any issue regarding data inconsistency, avoiding NullPointer exceptions to grow under control (classic problem). The class is annotated with ```@Data``` in order to be trated as a traditional [Entity](https://martinfowler.com/bliki/EvansClassification.html), whose internal data can be changed. The annotations in the id attribute define that it is an Id (unique identifier of database record) and that this attribute cannot have getter and setter (@Data annotation add getters and setters for all attributes, and we must override it to Id attribute). The @Json annotations define specific Jackson converters for JDK8 date format.
 
 ### Creating a CRUD functionality
 
@@ -137,10 +154,10 @@ Since the agregated root entity and its value objects are already created, the n
 
 This requirement is very simple to achieve with Spring Data Rest. We can have default implementations out-of-the-box for CRUD action, which is what we need right now.
 
-The first step is to chage the class ```VariableAccountsApplication```, adding the following content:
+The first step is to change the class ```PersonalFinancialInvestmentApplication```, adding the following content:
 
 ```java
-package com.arneam.finandeiros.variableexpense;
+package com.arneam.finandeiros.financialinvestment;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -148,17 +165,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
+import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 
 @SpringBootApplication
 @Import({RepositoryRestMvcConfiguration.class})
 @EnableMongoRepositories
-public class VariableAccountsApplication {
+public class PersonalFinancialInvestmentApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(VariableAccountsApplication.class, args);
+		SpringApplication.run(PersonalFinancialInvestmentApplication.class, args);
 	}
 
 	@Bean
@@ -176,21 +193,21 @@ public class VariableAccountsApplication {
 
 The ```@Import``` annotation brings configuration classes to Spring Data and REST. The ```@EnableMongoRepositories``` is self-explanatory. The ```repositoryRestConfigurer``` method defines an entrypoint (```"/api"```) to those services.
 
-Now that the application is properly configured, we need to create a repository interface for Spring Boot to construct the CRUD implementation. We have to create the ```VariableAccountRepository``` interface, which respective code follows:
+Now that the application is properly configured, we need to create a repository interface for Spring Boot to construct the CRUD implementation. We have to create the ```MovementRepository``` interface, which respective code follows:
 
 ```java
-package com.arneam.finandeiros.variableaccounts.domain;
+package com.arneam.finandeiros.financialinvestment.domain;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(path = "variable-account", collectionResourceRel="variable-account")
-public interface VariableAccountRepository extends MongoRepository<VariableAccount, String>{
+@RepositoryRestResource(path = "movement", collectionResourceRel="movement")
+public interface MovementRepository extends MongoRepository<Movement, String>{
 
 }
 ```
 
-That's it. Now we have a CRUD REST API to Variable Accounts domain, that must be validated.
+That's it. Now we have a CRUD REST API to Finance Investment domain, that must be validated.
 
 
 ### Testing CRUD with cURL
@@ -202,13 +219,14 @@ Let's start our testing. First of all, the Spring Boot application and MongoDB d
 $ systemctl start mongodb
 
 #start webapp
+gradle clean
 gradle bootRun
 ```
 
 Spring Boot will inform that Tomcat is started on port 8080. Let's then check if the application is responding, executing the cURL command in linux bash:
 
 ```bash
-$ curl http://localhost:8080/api
+curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/'
 ```
 
 If the application is running properly, the following JSON will be returned:
@@ -217,7 +235,7 @@ If the application is running properly, the following JSON will be returned:
 {
   "_links" : {
     "variable-account" : {
-      "href" : "http://localhost:8080/api/variable-account{?page,size,sort}",
+      "href" : "http://localhost:8080/api/movement{?page,size,sort}",
       "templated" : true
     },
     "profile" : {
@@ -239,7 +257,7 @@ compile('io.springfox:springfox-swagger-ui:2.6.1')
 compile('io.springfox:springfox-data-rest:2.6.1')
 ```
 
-Then, we need to change the ```VariableAccount``` class to enable Swagger into the application:
+Then, we need to change the ```PersonalFinancialInvestmentApplication``` class to enable Swagger into the application:
 
 ```java
 // ...
@@ -253,7 +271,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Import({RepositoryRestMvcConfiguration.class, SpringDataRestConfiguration.class})
 // ...
 @EnableSwagger2
-public class VariableExpensesApplication {
+public class PersonalFinancialInvestmentApplication {
 // ...
   @Bean
   public Docket swaggerAPIDocumentation() {
@@ -265,28 +283,55 @@ public class VariableExpensesApplication {
 // ...
 ```
 
-After all that, restart the application. Access the url http://localhost:8080/swagger-ui.html#/VariableAccount_Entity to check the API documentation. Now we have enough information to test the API.
+After all that, restart the application. Access the url http://localhost:8080/swagger-ui.html#/Movement_Entity to check the API documentation. Now we have enough information to test the API.
 
 #### Getting back to API testing ...
 
-So let's explore the API according to CRUD actions and HTTP verbs. First, lets test the Create action, sending a POST request to the application, and then check the data load, sending a GET request to retrieve all data. We can use Swagger page to perform all these actions, but I'll use cURL to keep the CLI approach.
+So lets explore the API according to CRUD actions and HTTP verbs. First, lets test the Create action, sending a POST request to the application, and then check the data load, sending a GET request to retrieve all data. We can use Swagger page to perform all these actions, but I'll use cURL to keep the CLI approach.
 
 ```bash
-curl -H "Content-Type: application/json" -X POST -d  '{
-  "date": "2017-05-05",
-  "description": "cat food",
-  "paymentCategory": {
-    "name": "house"
-  },
-  "paymentMode": {
-    "name": "citibank account"
-  },
-  "value": 36.15
-}' http://localhost:8080/api/variable-account
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
+   "date": "2017-05-07",
+   "description": "",
+   "fund": {
+     "name": "TD NTNB 2045"
+   },
+   "portfolio": {
+     "description": "My retirement savings",
+     "name": "Retirement"
+   },
+   "value": 1200.00
+ }' 'http://localhost:8080/api/movement'
 ```
 
+If everything goes OK, the server will respond with data of this new resource (including its ID).
+
 We can now test a GET to a specific element, by its ID.
+Lets try to call the API, passing the recovered ID from previous step.
+
+```bash
+curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/movement/590e8d981cc93227062cd71c'
+```
+
+The server respond with the resource data, in JSON format.
+
+Lets change the investment value:
+
+```bash
+curl -X PATCH --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
+   "value": 1350.00
+ }' 'http://localhost:8080/api/movement/590e8d981cc93227062cd71c'
+```
+
+We can see in the response that the value was correctly changed.
 
 Let's now remove (with a DELETE action) and check if it was really removed (another GET request to get all data must be empty).
 
-This could also be tested automatically with Spring test. Lets consider this approach also (or before?).
+```bash
+$ curl -X DELETE --header 'Accept: application/json' 'http://localhost:8080/api/movement/590e8d981cc93227062cd71c'
+$ curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/movement/590e8d981cc93227062cd71c'
+```
+
+We can see that the resource no longer exists.
+
+[This could also be tested automatically with Spring test. Lets consider this approach also (or before?). -- we can also print the output here, with http status codes for each situation]
