@@ -532,3 +532,11 @@ pre {
     background: #EAEAEA;
     color: #000;
 }
+
+table {
+  border: 1px solid #bbb;
+}
+
+table td, th {
+  border: 1px solid #ddd;
+}
