@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "An evolutionary, MVP approach example to Microservices - part 1: Initial Concepts"
+title: "An evolutionary, MVP approach example to Microservices - part 1: Initial Concepts and CRUD Backend"
 categories: journal
 tags: [microservices,spring boot]
 comments: true
@@ -268,9 +268,9 @@ import springfox.documentation.spring.data.rest.configuration.SpringDataRestConf
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 // ...
-@Import({RepositoryRestMvcConfiguration.class, SpringDataRestConfiguration.class})
-// ...
 @EnableSwagger2
+@EnableMongoRepositories
+@Import({RepositoryRestMvcConfiguration.class, SpringDataRestConfiguration.class})
 public class PersonalFinancialInvestmentApplication {
 // ...
   @Bean
@@ -335,3 +335,5 @@ $ curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/mov
 We can see that the resource no longer exists.
 
 [This could also be tested automatically with Spring test. Lets consider this approach also (or before?). -- we can also print the output here, with http status codes for each situation]
+
+In the first part of this series, we were able to construct a CRUD backend with well documented REST API. In the next part, we're going to create the front-end to consume this back-end.
