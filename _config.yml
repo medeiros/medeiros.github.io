@@ -1,36 +1,59 @@
-# Site Settings
-title:               Medeiros
-tagline:             software engineering
-description:
-baseurl:            ""
-url:                "https://medeiros.arneam.com"
-github:
-  url:               #"https://medeiros.github.io"
-author:
-  name:              "Daniel Medeiros"
-  email:             "daniel@arneam.com"
-  twitter:           #"dnlmed"
-  instagram:         #""
-  github:            "medeiros"
-  facebook:          #""
-  linkedin:          "dmassis"
-navigation:
-- title: About
-  url: /about
-- title: Writing
-  url: /writing
-- title: Contact
-  url: /contact
-image:
-  profilepicture:    profile-picture-daniel.jpg
-post:
-  tagline:           "A software engineer who refactor its thoughts through writing."
-  touch-message:     "If you'd like to get in touch, feel free to #contact# me"
-paginate:            5
-disqus:              medeiros-1
+title: Medeiros' Stack
+description: My Personal Stack
+author: Daniel Medeiros
+github: https://github.com/medeiros
+about: Software engineer
+#disqus_shortname: medeiros-1
+#google_analytics: UA-XXXXXXXX-Y
+avatar_url: /static/img/profile-picture-daniel.jpg
 
-# Build settings
-markdown:            kramdown
-highlighter:         rouge
-permalink:           none
-gems:                [jekyll-paginate]
+enableTags: true
+tagarray: []
+
+collections:
+  project:
+    output: true
+    permalink: /project/:path/
+
+social:
+    #- icon: fa-facebook
+    #  link: "#"
+    - icon: fa-github
+      link: "https://github.com/medeiros"
+    - icon: fa-linkedin
+      link: "https://www.linkedin.com/in/dmassis"
+    - icon: fa-stack-exchange
+      link: "https://stackoverflow.com/users/5457366/medeiros"
+    - icon: fa-twitter
+      link: "https://twitter.com/dnlmed"
+
+share:
+  twitter_username: dnlmed
+  #fb_appid: 1234567890123456
+
+#urls:
+    #- text: Home
+    #  url: /
+    #- text: About Me
+    #  url: /about/
+    #- text: My Projects
+    #  url: /projects/
+    #- text: XML Feed
+    #  url: /feed.xml
+
+url: "http://medeiros.arneam.com"
+baseurl: ""
+paginate: 20
+per_page: 20
+paginate_path: "/page/:num/"
+markdown: kramdown
+gems:
+  - jekyll-paginate
+  - jekyll-gist
+
+compress_html:
+  clippings: all
+  comments: ["<!-- ", " -->"]
+  endings: all
+  ignore:
+    envs: ['development']

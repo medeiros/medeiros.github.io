@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Why using microservices?"
-categories: journal
+categories: microservices
 tags: [microservices]
 comments: true
 #image:
