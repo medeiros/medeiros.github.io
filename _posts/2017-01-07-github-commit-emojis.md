@@ -1,13 +1,13 @@
 ---
 layout: post
 title: "Github commit emojis"
-categories: journal
+categories: misc
 tags: [emoji,github]
 image:
   #feature: mountains.jpg
   #teaser: mountains-teaser.jpg
-  credit: Death to Stock Photo
-  creditlink: ""
+  #credit: Death to Stock Photo
+  #creditlink: ""
 ---
 
 Github APIv3 provide a [list of emojis](https://api.github.com/emojis)[^1] that can be used in the commit messages. The names must be used between colon punctuation marks in any point of the the comment message.

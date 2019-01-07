@@ -1,13 +1,13 @@
 ---
 layout: post
 title: "SeleniumIDE execution and report exhibition in Jenkins"
-categories: journal
-tags: [selenium,continous-integration,jenkins]
+categories: infrastructure
+tags: [selenium,continuous-integration,jenkins]
 image:
   #feature: mountains.jpg
   #teaser: mountains-teaser.jpg
-  credit: Death to Stock Photo
-  creditlink: ""
+  #credit: Death to Stock Photo
+  #creditlink: ""
 ---
 
 Jenkins is the most used tool to provide continuous integration and automation of tasks in this regard.

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Binding Godaddy subdomains to Github pages"
-categories: journal
+categories: infrastructure
 tags: [github]
 comments: true
 ---

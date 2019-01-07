@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "Exporting sonar data with SonarLint"
-categories: journal
-tags: [sonarqube,sonarlint,static-code-analisys]
+categories: infrastructure
+tags: [sonarqube,sonarlint,static-code-analysis]
 #image:
   #feature: mountains.jpg
   #teaser: mountains-teaser.jpg

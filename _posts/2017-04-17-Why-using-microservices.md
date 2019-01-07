@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Why using microservices?"
-categories: microservices
+categories: distributed-architecture
 tags: [microservices]
 comments: true
 #image:

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Docker without sudo"
-categories: journal
+categories: infrastructure
 tags: [docker,devops]
 comments: true
 #image:

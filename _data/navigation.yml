@@ -6,8 +6,23 @@
 #  url: /projects/
 - title: Categories
   sublinks:
-    - title: Microservices and API
-      url: "/category/microservices"
+    - title: Distributed Architecture
+      url: "/category/distributed-architecture"
+    - title: separator
+    - title: Batch Processing
+      url: "/category/batch-processing"
+    - title: separator
+    - title: Infrastructure
+      url: "/category/infrastructure"
+    - title: separator
+    - title: Big Data
+      url: "/category/big-data"
+    - title: separator
+    - title: Linux
+      url: "/category/linux"
+    - title: separator
+    - title: Misc
+      url: "/category/misc"
     - title: separator
 #    - title: Posts by Date
 #      url: "/"
@@ -17,5 +32,7 @@
 #    - title: separator
 #    - title: Archives
 #      url:  /archives/
+- title: News
+  url: /news
 - title: XML Feed
   url: /feed.xml

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Chrome plugin to show Trello label title"
-categories: journal
+categories: misc
 tags: [chrome,plugin]
 #image:
   #feature: trello.jpg
