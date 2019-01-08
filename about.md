@@ -3,6 +3,32 @@ layout: page
 title: About
 permalink: /about/
 ---
+<p>
+<h4>Curriculum</h4>
+  <li><a href="/static/docs/cv-danielmedeiros-english.pdf" target="_blank">Curriculum Vitae (PDF)</a> (english)</li>
+  <li><a href="http://lattes.cnpq.br/2731981942197270" target="_blank">Curriculum Lattes</a> (portuguese)</li>
+</p>
+
+<hr>
+
+<p>
+<h4>Publications (portuguese)</h4>
+
+  <li>Master Thesis: Dificuldades na adoção e uso de método Scrum em empresas brasileiras não-projetizadas com processos plan-driven: estudos de caso múltiplos (<a href="/static/docs/2016_EC_Daniel_Medeiros Assis.pdf" target="_blank">link PDF</a> | <a href="https://www.ipt.br/pos_graduacao_ipt/solucoes/dissertacoes/838-dificuldades_na_adocao_e_uso_de_metodo_scrum_em_empresas_brasileiras_nao_projetizadas_com_processos_plan_driven_:_estudo.htm" target="_blank">link Web IPT</a>)</li>
+
+  <li><a href="https://www.devmedia.com.br/revista-java-magazine-147/34121" target="_blank">Java Magazine 147</a> (Jan 2016): Testes unitários, de integração e de aceitação (Unit, Integration and Acceptance tests) </li>
+  <li><a href="https://www.devmedia.com.br/revista-java-magazine-146/33970" target="_blank">Java Magazine 146</a> (Dec 2015): Dominando os testes automatizados (Mastering automated tests) </li>
+  <li><a href="https://www.devmedia.com.br/revista-java-magazine-144/33490" target="_blank">Java Magazine 144</a>, p.14-26 (Oct 2015): Modelagem e implementação com TDD e DDD (Modeling and implementation with TDD and
+  DDD) </li>
+  <li><a href="https://www.devmedia.com.br/revista-easy-java-magazine-51/32725" target="_blank">easy Java Magazine 51</a> (Jun 2015): Como adotar a análise estática de código (How to adopt static code analysis)
+  </li>
+</p>
+
+<hr>
+
+<p>
+<h4>Hello there!</h4>
+</p>
 
 Hello. My name is Daniel Medeiros. I'm a Software Engineer from São Paulo area, Brazil.
 
