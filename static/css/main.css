@@ -170,6 +170,10 @@ div.col-sm-3 img.profile-avatar {
     display: inline;
 }
 
+.mobile-show {
+  display: none;
+}
+
 /* Responsive Conditional */
 @media (min-width: 1024px) {
   .fixed-condition {
@@ -181,4 +185,5 @@ div.col-sm-3 img.profile-avatar {
   div.col-sm-3 {
     margin-top: 30px;
   }
+  .mobileShow {display: inline;}
 }

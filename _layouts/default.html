@@ -113,7 +113,6 @@ layout: compress
     {% endif %}
   </head>
   <body>
-
     <nav id="navbar" class="collapse navbar-collapse" style="max-width: 720px;margin-left: auto;margin-right: auto;text-align: center;">
       <ul class="nav navbar-nav">
         {% for i in site.urls %}
@@ -171,6 +170,11 @@ layout: compress
           <div class="search" id="js-search">
             <input type="text" placeholder="(sitemap)~$ type to search" class="search__input form-control" id="js-search__input">
             <ul class="search__results" id="js-search__results"></ul>
+          </div>
+          <div class="mobile-show">
+          {% for link in site.data.navigation %}
+            <a href="{{ link.url }}">{{ link.title }}</a> |
+          {% endfor %}
           </div>
           <hr />
         </div>
