@@ -173,7 +173,18 @@ layout: compress
           </div>
           <div class="mobile-show">
           {% for link in site.data.navigation %}
-            <a href="{{ link.url }}">{{ link.title }}</a> |
+            <a href="{{ link.url }}">{{ link.title }}</a>
+
+            {% if link.sublinks %}
+              {
+              {% for sublink in link.sublinks %}
+                  {% if sublink.title != 'separator' %}
+                          <a href="{{ site.baseurl }}{{ sublink.url }}">{{ sublink.title }}</a>&nbsp;
+                  {% endif %}
+              {% endfor %}
+            }
+            {% endif %}
+            |
           {% endfor %}
           </div>
           <hr />
