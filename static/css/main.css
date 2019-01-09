@@ -185,5 +185,5 @@ div.col-sm-3 img.profile-avatar {
   div.col-sm-3 {
     margin-top: 30px;
   }
-  .mobile-show {display: inline;}
+  .mobile-show {display: block;}
 }
