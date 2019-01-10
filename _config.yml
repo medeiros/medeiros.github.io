@@ -26,7 +26,8 @@ social:
       link: "https://stackoverflow.com/users/5457366/medeiros"
     - icon: fa-twitter
       link: "https://twitter.com/dnlmed"
-
+    - icon: fa-envelope
+      link: "mailto:daniel@arneam.com"
 share:
   twitter_username: dnlmed
   #fb_appid: 1234567890123456
