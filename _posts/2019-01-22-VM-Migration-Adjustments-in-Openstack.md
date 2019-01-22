@@ -12,6 +12,7 @@ The following snippet was used to configure virtual machine in Openstack
 (Red Hat 6.8).
 
 ## Snippet
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard('pre.highlight > code')"/>
 
 ```bash
 vim /etc/resolv.conf

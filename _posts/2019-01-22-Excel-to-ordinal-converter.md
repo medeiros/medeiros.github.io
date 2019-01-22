@@ -15,6 +15,7 @@ Excel and should then be mapped in a positional to a CSV parser, such as
 [Univocity](https://github.com/uniVocity/univocity-parsers){:target="_blank"}
 
 ## Java 8 snippet
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard('pre.highlight > code')"/>
 
 ```java
 // Converts an Excel position(column) to an ordinal position(index)
@@ -32,6 +33,7 @@ public String excelToOrdinalConverter(String excelColumn) {
 
 ## Javascript snippet
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard('pre.highlight > code', 1)"/>
 ```javascript
 // @marcos3m
 var foo = function(val) {

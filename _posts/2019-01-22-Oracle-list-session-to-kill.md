@@ -13,6 +13,7 @@ snippet let us to list all open sessions and also create statements that
 could be run in order to kill them.  
 
 ## SQL snippet
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard('pre.highlight > code')"/>
 
 ```sql
 -- query sessions
