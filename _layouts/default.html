@@ -112,14 +112,15 @@ layout: compress
       </script>
     {% endif %}
     <script>
-    const copyToClipboard = str, index => {
+    const copyToClipboard = index => {
 
       const el = document.createElement('textarea');
 
-      var items = document.querySelectorAll(str);
+      var items = document.querySelectorAll('pre > code');
       var i = 0;
+      console.log("index: " + index);
       if (index != undefined) i = index;
-      el.value = document.querySelectorAll(str)[i].innerText;
+      el.value = items[i].innerText;
 
       document.body.appendChild(el);
       el.select();

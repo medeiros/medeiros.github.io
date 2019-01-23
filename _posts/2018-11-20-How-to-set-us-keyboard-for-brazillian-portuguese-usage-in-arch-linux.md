@@ -22,6 +22,7 @@ Let's cover both.
 ### Console configuration
 
 The following command must be executed in order to change keyboard layout in console:
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(0)"/>
 
 ```bash
 $ localectl --no-convert set-keymap br-latin1-us
@@ -41,6 +42,7 @@ the console configuration.
 The first step is to set the keyboard. The following command get the job done
 in a persistent way:
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(2)"/>
 ```bash
 $ localectl --no-convert set-x11-keymap us_intl
 ```
@@ -63,6 +65,7 @@ necessary to change the default US locale (en_US.UTF-8) to brazillian portuguese
 locale.
 The following command does the trick:
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(4)"/>
 ```bash
 $ localectl set-locale LANG=pt_BR.UTF8
 ```
@@ -76,6 +79,7 @@ LANG=pt_BR.UTF-8
 In Arch, `pt_BR.UTF8` layout details can be found in `/usr/share/X11/locale/pt_BR.UTF-8/Compose` file.
 The cedilla behavior in each locale can be perceived comparing both locale files:
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(6)"/>
 ```bash
 $ cat /usr/share/X11/locale/en_US.UTF-8/Compose | grep ccedil -i
 

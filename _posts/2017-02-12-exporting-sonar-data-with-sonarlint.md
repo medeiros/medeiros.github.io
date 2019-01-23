@@ -32,7 +32,8 @@ from the parent project.
 Since the client used Windows, one batch script was created in order to export
 the data within those constraints. The batch is presented below:
 
-```batch
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(0)"/>
+```language-bat
 @echo off
 
 set drive-tool=d:

@@ -60,6 +60,7 @@ Jenkins is composed of several `Jobs`. These jobs can be configured to execute a
   - Add a new `Inject Environment Variables` section
   - Enter the following variables (remember to change the content of these variables according to your own environment):
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(0)"/>
 ```shell
 SITE_DOMAIN="http://localhost:8081"
 SUITE_TEST_DIR=/Users/dma/data/
@@ -78,6 +79,7 @@ REPORT_PATH=$WORKSPACE/$REPORT_DIR/$SUITE_TEST_NAME-results.html
   - Add a new `Execute shell` section
   - Enter the following script ([^1]):
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(1)"/>
 ```shell
 java -Dwebdriver.gecko.driver=$SEL_PATH/geckodriver -jar $SEL_PATH/selenium-html-runner-3.0.1.jar -htmlSuite $SUITE $SITE_DOMAIN $SUITE_TEST_PATH $TMP_REPORT_PATH > /dev/null 2>&1 || true
 mv $TMP_REPORT_PATH/firefox.results $REPORT_PATH

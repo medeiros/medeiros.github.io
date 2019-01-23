@@ -19,27 +19,32 @@ However, this can be painful. Is not practical to keep informing `sudo` every ti
 
 And there is a simpler way. The concept is this: if your user is in a specific linux group (called "docker"), automatically you will be granted to run docker commands. Simple like that.
 
-So, it is necessary to create this group and then add your own user to it. To create the "docker" linux group, you can use the command: <sup>[1](#s1)</sup>
+So, it is necessary to create this group and then add your own user to it. To create the "docker" linux group, you can use the command (non-root): <sup>[1](#s1)</sup>
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(0)"/>
 ```bash
-$ sudo groupadd docker
+sudo groupadd docker
 ```
 
-And then you have to associate your user to this group, using the command: <sup>[1](#s1)</sup>
+And then you have to associate your user to this group, using the command (non-root): <sup>[1](#s1)</sup>
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(1)"/>
 ```bash
-$ sudo usermod -a -G docker [your user]
+sudo usermod -a -G docker [your user]
 ```
 
-You can now restart docker service. In Arch Linux, the command is: <sup>[1](#s1)</sup>
+You can now restart docker service. In Arch Linux, the command is (non-root): <sup>[1](#s1)</sup>
 
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(2)"/>
 ```bash
-$ sudo systemctl start docker
+sudo systemctl start docker
 ```
 
 And now we can test, using a very simple Docker command to print a message on the screen using an Debian container. The command will work without sudo:
+
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(3)"/>
 ```bash
-$ docker run debian echo "hello world"
+docker run debian echo "hello world"
 ```
 
 ### Footnotes

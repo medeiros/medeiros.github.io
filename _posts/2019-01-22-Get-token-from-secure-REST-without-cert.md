@@ -12,7 +12,7 @@ The following snippet performs a POST request sending JSON in a SSL connection
 (secure) but does no verify for security (the certificate is not required).  
 
 ## Bash snippet
-<input type="button" value="Copy to Clipboard" onclick="copyToClipboard('pre.highlight > code')"/>
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard()"/>
 
 ```bash
 curl –k –d ‘{ "clientId": "x", "secret": "y" }’ –X POST https://<some cool domain> -H ”Content-Type: application/json”
