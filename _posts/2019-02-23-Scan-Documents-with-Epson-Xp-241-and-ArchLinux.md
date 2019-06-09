@@ -31,8 +31,8 @@ fi
 
 A4_X=210
 A4_Y=297
-DEVICE="utsushi:esci:usb:/sys/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3.1/1-3.1:1.0"
-
+#DEVICE="utsushi:esci:usb:/sys/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3.1/1-3.1:1.0"
+DEVICE=$(scanimage -L | grep -i 'xp-240_series' | cut -d"'" -f1 | cut -d'`' -f2)
 USER_PATH="$2"
 DEFAULT_PATH='.'
 PDF_PATH="${USER_PATH:-$DEFAULT_PATH}"/$1.pdf
