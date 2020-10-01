@@ -1,6 +1,8 @@
 # Config
 # ========================================================================================
 
+encoding: UTF-8
+
 # IMPORTANT: Set the URL of your site.
 # Set to https://<username>.github.io when hosting on GitHub Pages
 # (unless you are using a custom domain).
