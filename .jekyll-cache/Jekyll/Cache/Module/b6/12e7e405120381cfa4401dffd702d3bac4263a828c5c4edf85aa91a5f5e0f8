@@ -1,0 +1,112 @@
+I"è
+
+
+
+
+
+<article id="post-blog-snippets-Excel-to-ordinal-converter" class="page post mb6" role="article">
+  <header>
+    <h1 class="post-title flip-project-title">
+      
+        Excel to Ordinal Converter
+      
+    </h1>
+
+    <div class="post-date">
+      
+        
+        <time datetime="2019-01-22T00:00:00-02:00">22 Jan 2019</time>
+      
+      
+      
+      
+      
+      
+
+
+
+
+
+
+
+
+
+in <a href="/blog/snippets/" class="flip-title">Snippets</a>
+
+      
+
+
+
+
+
+
+
+
+
+on <span>Java</span>, <span>Javascript</span>
+
+    </div>
+
+    
+    
+
+    
+
+
+
+  <div class="hr pb0"></div>
+
+
+  </header>
+
+  
+    <p>Indexes and Excel handled with java and javascript snippets.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#ordinal-and-excel-indexes" id="markdown-toc-ordinal-and-excel-indexes">Ordinal and Excel indexes</a></li>
+  <li><a href="#java-8-snippet" id="markdown-toc-java-8-snippet">Java 8 snippet</a></li>
+  <li><a href="#javascript-snippet" id="markdown-toc-javascript-snippet">Javascript snippet</a></li>
+</ul>
+
+<h2 id="ordinal-and-excel-indexes">Ordinal and Excel indexes</h2>
+
+<p>Sometimes, it is necessary to convert from some excel indexes (represented as
+letters, such as A, B, C) to ordinal indexes (0, 1, 2). This is particularly
+useful in scenarios is which a CSV file with a lot of rows is opened/edited on
+Excel and should then be mapped in a positional to a CSV parser, such as
+<a href="https://github.com/uniVocity/univocity-parsers" target="_blank">Univocity</a></p>
+
+<h2 id="java-8-snippet">Java 8 snippet</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Converts an Excel position(column) to an ordinal position(index)</span>
+<span class="c1">// To be applied with ExcelCSV-&gt;Univocity parsing mechanism</span>
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">excelToOrdinalConverter</span><span class="o">(</span><span class="nc">String</span> <span class="n">excelColumn</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">OptionalInt</span> <span class="n">value</span> <span class="o">=</span> <span class="nc">IntStream</span><span class="o">.</span><span class="na">range</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">excelColumn</span><span class="o">.</span><span class="na">length</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">i</span> <span class="o">-&gt;</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="o">?</span> <span class="o">(</span><span class="n">excelColumn</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">i</span><span class="o">)</span> <span class="o">-</span> <span class="mi">64</span><span class="o">)</span>
+            <span class="o">:</span> <span class="o">((</span><span class="n">excelColumn</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">)</span> <span class="o">-</span> <span class="mi">64</span><span class="o">)</span> <span class="o">*</span> <span class="mi">26</span><span class="o">)</span> <span class="o">+</span> <span class="o">(</span><span class="n">excelColumn</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">i</span><span class="o">)</span> <span class="o">-</span> <span class="mi">64</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">reduce</span><span class="o">((</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">b</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="n">excelColumn</span> <span class="o">+</span> <span class="s">": @Parsed(index = "</span> <span class="o">+</span> <span class="o">(</span><span class="n">value</span><span class="o">.</span><span class="na">getAsInt</span><span class="o">()</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span> <span class="o">+</span> <span class="s">")"</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="javascript-snippet">Javascript snippet</h2>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// @marcos3m</span>
+<span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">base</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">ABCDEFGHIJKLMNOPQRSTUVWXYZ</span><span class="dl">'</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">j</span><span class="p">,</span> <span class="nx">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">j</span> <span class="o">=</span> <span class="nx">val</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">val</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">j</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">result</span> <span class="o">+=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">pow</span><span class="p">(</span><span class="nx">base</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="nx">base</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">val</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">([</span><span class="dl">'</span><span class="s1">IQ</span><span class="dl">'</span><span class="p">].</span><span class="nx">map</span><span class="p">(</span><span class="nx">foo</span><span class="p">));</span>
+</code></pre></div></div>
+
+  
+</article>
+:ET

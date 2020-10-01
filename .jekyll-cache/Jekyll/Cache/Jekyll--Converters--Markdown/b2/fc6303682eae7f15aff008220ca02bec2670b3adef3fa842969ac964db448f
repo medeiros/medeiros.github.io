@@ -1,0 +1,2 @@
+I"!<p>The purpose of this application is to summarize a daily list of information regarding Covid-19 numbers across countries, ranking Brazil in that context. The metrics are: new cases, total cases, new deaths, total deaths, new recovered and total recovered. This is a Kafka Streams application. It gets its input JSON data from a topic that was previously loaded by <a href="/projects/kafka-connect-covid19api/">“kafka-connect-covid19api”</a> Kafka connector, and delivers output JSON data to a topic that will be later sink to Twitter.</p>
+:ET

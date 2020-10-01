@@ -1,0 +1,42 @@
+I"q<p class="lead">Snippet code for incremental backup can be found here.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#incremental-backup-using-tar" id="markdown-toc-incremental-backup-using-tar">Incremental Backup using TAR</a></li>
+  <li><a href="#snippet" id="markdown-toc-snippet">Snippet</a></li>
+  <li><a href="#final-notes" id="markdown-toc-final-notes">Final notes</a></li>
+</ul>
+
+<h2 id="incremental-backup-using-tar">Incremental Backup using TAR</h2>
+
+<p>The following shell script perform incremental backup using TAR.</p>
+
+<p>It mounts a pendrive and then backs up all subdirectories under <code class="language-plaintext highlighter-rouge">/home/daniel</code>, as a compressed <strong>.tar.gz</strong> file, to the target pendrive (excluding some directories which do not require backup, such as cache, dropbox, etc). Finally, the pedrive is unmounted.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">backup-snapshot.file</code> is the file used to control the increments, and it is managed by TAR itself.</p>
+
+<h2 id="snippet">Snippet</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nv">SRC_PATHS</span><span class="o">=</span><span class="s1">'/home/daniel'</span>
+<span class="nv">DIRS_TO_EXCLUDE</span><span class="o">=</span><span class="s1">'--exclude=Dropbox --exclude=tmp --exclude=.cache --exclude=.mozilla --exclude=.IdeaIC2018.2 --exclude=.m2 --exclude=.npm --exclude=.Trash-1000 --exclude=.v8* --exclude=.vagrant.d'</span>
+<span class="nv">DEST_PATH</span><span class="o">=</span>/home/daniel/tmp/pendrive
+
+mount /dev/sdb1 <span class="nv">$DEST_PATH</span>
+<span class="k">if </span><span class="nb">grep</span> <span class="nt">-qs</span> <span class="nv">$DEST_PATH</span> /proc/mounts<span class="p">;</span> <span class="k">then
+	</span><span class="nb">tar</span> <span class="nt">--listed-incremental</span><span class="o">=</span>/home/daniel/data/backup-snapshot.file <span class="nv">$DIRS_TO_EXCLUDE</span> <span class="nt">-cvpzf</span> <span class="nv">$DEST_PATH</span>/backup-<span class="sb">`</span><span class="nb">date</span> +%y-%m-%d-%H-%M-%S<span class="sb">`</span>.tar.gz <span class="nv">$SRC_PATHS</span>
+	umount <span class="nv">$DEST_PATH</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<p>The script above can be added to <strong>crontab</strong> to perform daily incremental backups, with the following entry (to backup everyday at 21pm, for instance): <code class="language-plaintext highlighter-rouge">00 21 * * * /home/daniel/code/script/backup.sh</code>.</p>
+
+<h2 id="final-notes">Final notes</h2>
+
+<p>To extract (and preserve the final state) of overall backup, for each backup file in order, use the param <code class="language-plaintext highlighter-rouge">--listed-incremental=/dev/null</code>. e.g.:</p>
+
+<p><code class="language-plaintext highlighter-rouge">tar --listed-incremental=/dev/null -xvf backup-19-02-24.tar.gz</code>
+<code class="language-plaintext highlighter-rouge">tar --listed-incremental=/dev/null -xvf backup-19-02-25.tar.gz</code></p>
+
+<p>and so forth.</p>
+:ET

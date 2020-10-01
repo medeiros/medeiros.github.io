@@ -1,0 +1,12 @@
+I"/
+
+
+html {
+  --accent-color: #4fb1ba;
+  --accent-color-faded: #{fade-out(#4fb1ba, 0.5)};
+  --accent-color-darkened: #{darken(#4fb1ba, 7.5%)};
+  --theme-color: rgb(8,46,57);
+  --dark-mode-body-bg: #{hsl(hue(rgb(8,46,57)), 10%, 17.5%)};
+  --dark-mode-border-color: #{hsl(hue(rgb(8,46,57)), 10%, 22.5%)};
+}
+:ET

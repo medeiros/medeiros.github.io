@@ -1,0 +1,42 @@
+I" <p>Killing sessions in Oracle - the nice way.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#oracle-list-sessions-to-kill" id="markdown-toc-oracle-list-sessions-to-kill">Oracle list sessions to kill</a></li>
+  <li><a href="#sql-snippet" id="markdown-toc-sql-snippet">SQL snippet</a></li>
+</ul>
+
+<h2 id="oracle-list-sessions-to-kill">Oracle list sessions to kill</h2>
+
+<p>Sometimes it is useful to kill all active Oracle sessions. The following
+snippet let us to list all open sessions and also create statements that
+could be run in order to kill them.</p>
+
+<h2 id="sql-snippet">SQL snippet</h2>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- query sessions</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">.</span><span class="n">username</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">osuser</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">program</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="nb">serial</span><span class="o">#</span>
+<span class="k">FROM</span> <span class="n">v</span><span class="err">$</span><span class="k">session</span> <span class="n">a</span> <span class="k">order</span> <span class="k">by</span> <span class="n">username</span><span class="p">;</span>
+
+<span class="c1">-- query session and related process</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">.</span><span class="n">username</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">osuser</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">program</span><span class="p">,</span> <span class="n">spid</span><span class="p">,</span><span class="n">module</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="nb">serial</span><span class="o">#</span>
+<span class="k">FROM</span> <span class="n">v</span><span class="err">$</span><span class="k">session</span> <span class="n">a</span><span class="p">,</span> <span class="n">v</span><span class="err">$</span><span class="n">process</span> <span class="n">b</span> <span class="k">WHERE</span> <span class="n">a</span><span class="p">.</span><span class="n">paddr</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">addr</span> <span class="k">order</span> <span class="k">by</span> <span class="n">username</span><span class="p">;</span>
+
+<span class="c1">-- query sessions without any related process</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">.</span><span class="n">username</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">osuser</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">program</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="nb">serial</span><span class="o">#</span>
+<span class="k">FROM</span> <span class="n">v</span><span class="err">$</span><span class="k">session</span> <span class="n">a</span>
+<span class="k">WHERE</span> <span class="n">a</span><span class="p">.</span><span class="n">paddr</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">select</span> <span class="n">b</span><span class="p">.</span><span class="n">addr</span> <span class="k">from</span> <span class="n">v</span><span class="err">$</span><span class="n">process</span> <span class="n">b</span><span class="p">)</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">username</span><span class="p">;</span>
+
+<span class="c1">-- kill oracle sessio</span>
+<span class="k">ALTER</span> <span class="k">SYSTEM</span> <span class="n">KILL</span> <span class="k">SESSION</span> <span class="s1">'a,b'</span><span class="p">;</span>
+
+<span class="c1">-- list all sessions to kill</span>
+<span class="k">SELECT</span> <span class="s1">'ALTER SYSTEM KILL SESSION </span><span class="se">''</span><span class="s1">'</span><span class="o">||</span><span class="n">sid</span><span class="o">||</span><span class="s1">','</span><span class="o">||</span><span class="nb">serial</span><span class="o">#||</span><span class="s1">'</span><span class="se">''</span><span class="s1">;'</span>
+<span class="k">FROM</span> <span class="n">v</span><span class="err">$</span><span class="k">session</span><span class="p">;</span>
+
+<span class="c1">-- identify sessions that are locking tables (A.OS_User_Name=v$session.username)</span>
+<span class="k">SELECT</span> <span class="n">B</span><span class="p">.</span><span class="k">Owner</span><span class="p">,</span> <span class="n">B</span><span class="p">.</span><span class="n">Object_Name</span><span class="p">,</span> <span class="n">A</span><span class="p">.</span><span class="n">Oracle_Username</span><span class="p">,</span> <span class="n">A</span><span class="p">.</span><span class="n">OS_User_Name</span>
+<span class="k">FROM</span> <span class="n">V</span><span class="err">$</span><span class="n">Locked_Object</span> <span class="n">A</span><span class="p">,</span> <span class="n">All_Objects</span> <span class="n">B</span>
+<span class="k">WHERE</span> <span class="n">A</span><span class="p">.</span><span class="n">Object_ID</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">Object_ID</span>
+</code></pre></div></div>
+:ET

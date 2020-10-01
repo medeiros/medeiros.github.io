@@ -1,0 +1,21 @@
+I"�<p>Using curl with a k.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#get-token-from-secure-rest-service-without-cert" id="markdown-toc-get-token-from-secure-rest-service-without-cert">Get token from secure REST service without cert</a></li>
+  <li><a href="#bash-snippet" id="markdown-toc-bash-snippet">Bash snippet</a></li>
+</ul>
+
+<h2 id="get-token-from-secure-rest-service-without-cert">Get token from secure REST service without cert</h2>
+
+<p>The following snippet performs a POST request sending JSON in a SSL connection
+(secure) but does no verify for security (the certificate is not required).</p>
+
+<h2 class="lead" id="bash-snippet">Bash snippet</h2>
+
+<ul class="large-only">
+  <li>Table of Contents</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl –k –d ‘<span class="o">{</span> <span class="s2">"clientId"</span>: <span class="s2">"x"</span>, <span class="s2">"secret"</span>: <span class="s2">"y"</span> <span class="o">}</span>’ –X POST https://&lt;some cool domain&gt; <span class="nt">-H</span> ”Content-Type: application/json”
+</code></pre></div></div>
+:ET

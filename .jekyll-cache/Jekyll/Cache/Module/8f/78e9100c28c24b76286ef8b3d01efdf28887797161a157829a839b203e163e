@@ -1,0 +1,104 @@
+I"|
+
+
+
+
+
+<article id="post-blog-snippets-Scan-Documents-with-Epson-Xp-241-and-ArchLinux" class="page post mb6" role="article">
+  <header>
+    <h1 class="post-title flip-project-title">
+      
+        Scan Documents with Epson XP-241 and Archlinux
+      
+    </h1>
+
+    <div class="post-date">
+      
+        
+        <time datetime="2019-02-23T00:00:00-03:00">23 Feb 2019</time>
+      
+      
+      
+      
+      
+      
+
+
+
+
+
+
+
+
+
+in <a href="/blog/snippets/" class="flip-title">Snippets</a>
+
+      
+
+
+
+
+
+
+
+
+
+on <span>Linux</span>
+
+    </div>
+
+    
+    
+
+    
+
+
+
+  <div class="hr pb0"></div>
+
+
+  </header>
+
+  
+    <p>Dealing with Epson printer and arch.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#scan-documents-with-epson-xp-241-and-archlinux" id="markdown-toc-scan-documents-with-epson-xp-241-and-archlinux">Scan Documents with Epson XP-241 and Archlinux</a></li>
+  <li><a href="#snippet" id="markdown-toc-snippet">Snippet</a></li>
+</ul>
+
+<h2 id="scan-documents-with-epson-xp-241-and-archlinux">Scan Documents with Epson XP-241 and Archlinux</h2>
+
+<p>The following shell script was applied to scan documents using Epson XP-241 multifunctional in Arch Linux operational system.</p>
+
+<p>If no param is informed, the <em>usage</em> screen appears. The user must inform the name of output file without extension (<em>mandatory</em>) and the path to save the output file (<em>optional</em>).</p>
+
+<p>The DEVICE variable was set based on the result of <code class="language-plaintext highlighter-rouge">scanimage -L</code> command, and varies for each environment. More information about scanimage and SANE can be found at <a href="https://wiki.archlinux.org/index.php/SANE" target="_blank">Arch Linux Wiki about SANE</a>.</p>
+
+<p>The script requires <strong>scanimage</strong> <em>(to convert the digital document to image)</em> and <strong>convert</strong> <em>(to convert the output image to a PDF file)</em>.</p>
+
+<h2 id="snippet">Snippet</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="o">[[</span> <span class="nv">$# </span><span class="nt">-eq</span> 0 <span class="o">]]</span><span class="p">;</span> <span class="k">then
+	</span><span class="nb">echo
+	echo</span> <span class="s1">'Usage: scan-to-pdf &lt;file name (omit extension)&gt; &lt;path (optional)&gt;'</span>
+	<span class="nb">echo</span> <span class="s1">' file name: the PDF file name to be generated.'</span>
+	<span class="nb">echo</span> <span class="s1">' path: the path to save pdf. If not informed, it is set to current directory.'</span>
+	<span class="nb">echo
+	exit </span>0
+<span class="k">fi
+
+</span><span class="nv">A4_X</span><span class="o">=</span>210
+<span class="nv">A4_Y</span><span class="o">=</span>297
+<span class="c">#DEVICE="utsushi:esci:usb:/sys/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3.1/1-3.1:1.0"</span>
+<span class="nv">DEVICE</span><span class="o">=</span><span class="si">$(</span>scanimage <span class="nt">-L</span> | <span class="nb">grep</span> <span class="nt">-i</span> <span class="s1">'xp-240_series'</span> | <span class="nb">cut</span> <span class="nt">-d</span><span class="s2">"'"</span> <span class="nt">-f1</span> | <span class="nb">cut</span> <span class="nt">-d</span><span class="s1">'`'</span> <span class="nt">-f2</span><span class="si">)</span>
+<span class="nv">USER_PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span>
+<span class="nv">DEFAULT_PATH</span><span class="o">=</span><span class="s1">'.'</span>
+<span class="nv">PDF_PATH</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">USER_PATH</span><span class="k">:-</span><span class="nv">$DEFAULT_PATH</span><span class="k">}</span><span class="s2">"</span>/<span class="nv">$1</span>.pdf
+
+scanimage <span class="nt">-x</span> <span class="nv">$A4_X</span> <span class="nt">-y</span> <span class="nv">$A4_Y</span> <span class="nt">--device</span> <span class="nv">$DEVICE</span> <span class="nt">--format</span><span class="o">=</span>png | convert png:- <span class="nv">$PDF_PATH</span>
+</code></pre></div></div>
+
+  
+</article>
+:ET

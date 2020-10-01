@@ -1,0 +1,121 @@
+I"�!<p>Configuring keyboard for pt-br.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#us-keyboards-and-other-languages" id="markdown-toc-us-keyboards-and-other-languages">US Keyboards and other languages</a></li>
+  <li><a href="#two-main-ways" id="markdown-toc-two-main-ways">Two main ways</a>    <ul>
+      <li><a href="#console-configuration" id="markdown-toc-console-configuration">Console configuration</a></li>
+      <li><a href="#xorg-configuration" id="markdown-toc-xorg-configuration">XOrg configuration</a>        <ul>
+          <li><a href="#problem-locale" id="markdown-toc-problem-locale">Problem: Locale</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#final-notes" id="markdown-toc-final-notes">Final notes</a></li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+</ul>
+
+<h2 id="us-keyboards-and-other-languages">US Keyboards and other languages</h2>
+
+<p>It is a very common practice to adopt US keyboards worldwide, but the layout of
+these keyboards are far from ideal for many languages, which have characters sets
+different from the english language.
+The goal of this article is to explain how to configure an US keyboard to support
+brazillian portuguese keymap in Arch Linux.</p>
+
+<h2 id="two-main-ways">Two main ways</h2>
+
+<p>There are two different sets of configurations: for console and for XOrg (X Window System).
+Let’s cover both.</p>
+
+<h3 id="console-configuration">Console configuration</h3>
+
+<p>The following command must be executed in order to change keyboard layout in console:
+<input type="button" value="Copy to Clipboard" onclick="copyToClipboard(0)" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>localectl <span class="nt">--no-convert</span> set-keymap br-latin1-us
+</code></pre></div></div>
+<p>This will add the following entry in <code class="language-plaintext highlighter-rouge">/etc/vconsole.conf</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">KEYMAP</span><span class="o">=</span>br-latin1-us
+</code></pre></div></div>
+
+<p>This is enough to allow brazillian keymap, including cedilla, in console.
+But another different configuration is required for XOrg, since it does not inherit
+the console configuration.</p>
+
+<h3 id="xorg-configuration">XOrg configuration</h3>
+
+<p>The first step is to set the keyboard. The following command get the job done
+in a persistent way:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>localectl <span class="nt">--no-convert</span> set-x11-keymap us_intl
+</code></pre></div></div>
+<p>This will add the following entry in <code class="language-plaintext highlighter-rouge">/etc/X11/xorg.conf.d/00-keyboard.conf</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Section <span class="s2">"InputClass"</span>
+        Identifier <span class="s2">"system-keyboard"</span>
+        MatchIsKeyboard <span class="s2">"on"</span>
+        Option <span class="s2">"XkbLayout"</span> <span class="s2">"us_intl"</span>
+EndSection
+</code></pre></div></div>
+
+<p>It will work, with one (important) exception: for <code class="language-plaintext highlighter-rouge">dead_acute + C key</code> combination,
+instead of cedilla, the character U0106 (ć) is presented.</p>
+
+<h4 id="problem-locale">Problem: Locale</h4>
+<p>The problem is related to different locale. In order to change this, it is
+necessary to change the default US locale (en_US.UTF-8) to brazillian portuguese
+locale.
+The following command does the trick:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>localectl set-locale <span class="nv">LANG</span><span class="o">=</span>pt_BR.UTF8
+</code></pre></div></div>
+
+<p>This will add the following in <code class="language-plaintext highlighter-rouge">/etc/locale.conf</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">LANG</span><span class="o">=</span>pt_BR.UTF-8
+</code></pre></div></div>
+
+<p>In Arch, <code class="language-plaintext highlighter-rouge">pt_BR.UTF8</code> layout details can be found in <code class="language-plaintext highlighter-rouge">/usr/share/X11/locale/pt_BR.UTF-8/Compose</code> file.
+The cedilla behavior in each locale can be perceived comparing both locale files:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat</span> /usr/share/X11/locale/en_US.UTF-8/Compose | <span class="nb">grep </span>ccedil <span class="nt">-i</span>
+
+&lt;dead_cedilla&gt; &lt;C&gt;                    : <span class="s2">"Ç"</span>   Ccedilla <span class="c"># LATIN CAPITAL LETTER C WITH CEDILLA</span>
+&lt;Multi_key&gt; &lt;comma&gt; &lt;C&gt;               : <span class="s2">"Ç"</span>   Ccedilla <span class="c"># LATIN CAPITAL LETTER C WITH CEDILLA</span>
+&lt;Multi_key&gt; &lt;C&gt; &lt;comma&gt;               : <span class="s2">"Ç"</span>   Ccedilla <span class="c"># LATIN CAPITAL LETTER C WITH CEDILLA</span>
+&lt;Multi_key&gt; &lt;cedilla&gt; &lt;C&gt;             : <span class="s2">"Ç"</span>   Ccedilla <span class="c"># LATIN CAPITAL LETTER C WITH CEDILLA</span>
+&lt;dead_cedilla&gt; &lt;c&gt;                    : <span class="s2">"ç"</span>   ccedilla <span class="c"># LATIN SMALL LETTER C WITH CEDILLA</span>
+&lt;Multi_key&gt; &lt;comma&gt; &lt;c&gt;               : <span class="s2">"ç"</span>   ccedilla <span class="c"># LATIN SMALL LETTER C WITH CEDILLA</span>
+&lt;Multi_key&gt; &lt;c&gt; &lt;comma&gt;               : <span class="s2">"ç"</span>   ccedilla <span class="c"># LATIN SMALL LETTER C WITH CEDILLA</span>
+&lt;Multi_key&gt; &lt;cedilla&gt; &lt;c&gt;             : <span class="s2">"ç"</span>   ccedilla <span class="c"># LATIN SMALL LETTER C WITH CEDILLA</span>
+&lt;dead_acute&gt; &lt;Ccedilla&gt;               : <span class="s2">"Ḉ"</span>   U1E08 <span class="c"># LATIN CAPITAL LETTER C WITH CEDILLA AND ACUTE</span>
+&lt;Multi_key&gt; &lt;acute&gt; &lt;Ccedilla&gt;        : <span class="s2">"Ḉ"</span>   U1E08 <span class="c"># LATIN CAPITAL LETTER C WITH CEDILLA AND ACUTE</span>
+&lt;Multi_key&gt; &lt;apostrophe&gt; &lt;Ccedilla&gt;   : <span class="s2">"Ḉ"</span>   U1E08 <span class="c"># LATIN CAPITAL LETTER C WITH CEDILLA AND ACUTE</span>
+&lt;dead_acute&gt; &lt;ccedilla&gt;               : <span class="s2">"ḉ"</span>   U1E09 <span class="c"># LATIN SMALL LETTER C WITH CEDILLA AND ACUTE</span>
+&lt;Multi_key&gt; &lt;acute&gt; &lt;ccedilla&gt;        : <span class="s2">"ḉ"</span>   U1E09 <span class="c"># LATIN SMALL LETTER C WITH CEDILLA AND ACUTE</span>
+&lt;Multi_key&gt; &lt;apostrophe&gt; &lt;ccedilla&gt;   : <span class="s2">"ḉ"</span>   U1E09 <span class="c"># LATIN SMALL LETTER C WITH CEDILLA AND ACUTE</span>
+&lt;dead_currency&gt; &lt;Ccedilla&gt;            : <span class="s2">"₵"</span>   U20B5               <span class="c"># CEDI SIGN</span>
+&lt;dead_currency&gt; &lt;ccedilla&gt;            : <span class="s2">"₵"</span>   U20B5               <span class="c"># CEDI SIGN</span>
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat</span> /usr/share/X11/locale/pt_BR.UTF-8/Compose | <span class="nb">grep </span>ccedil <span class="nt">-i</span>
+
+&lt;dead_acute&gt; &lt;C&gt; 			: <span class="s2">"Ç"</span> Ccedilla	<span class="c"># LATIN CAPITAL LETTER C WITH CEDILLA</span>
+&lt;dead_acute&gt; &lt;c&gt; 			: <span class="s2">"ç"</span> ccedilla	<span class="c"># LATIN SMALL LETTER C WITH CEDILLA</span>
+</code></pre></div></div>
+
+<h2 id="final-notes">Final notes</h2>
+
+<p>It is also possible to configure keyboard layout on the fly, without persisting
+configuration, using <code class="language-plaintext highlighter-rouge">setxkbmap -layout us -variant intl</code>;
+however, the cedilla character will also only work with the brazillian-portuguese locale previously set.</p>
+
+<h2 id="references">References</h2>
+
+<p><a href="https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration">Xorg/Keyboard configuration</a></p>
+
+<p><a href="https://wiki.archlinux.org/index.php/Locale">Locale</a></p>
+
+<p><a href="https://wiki.archlinux.org/index.php/Xorg">Xorg</a></p>
+:ET
