@@ -1,0 +1,33 @@
+I"�<p>It’s nice to know how to commit using emojis.</p>
+
+
+<p>Github APIv3 provide a <a href="https://api.github.com/emojis">list of emojis</a><sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote">1</a></sup> that can be used in the commit messages. The names must be used between colon punctuation marks in any point of the the comment message.</p>
+
+<p>For instance, the following value (returned from the api):</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"beer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.githubassets.com/images/icons/emoji/unicode/1f37a.png?v8"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Returns the following image:</p>
+
+<p><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f37a.png?v8" alt="Beer" /></p>
+
+<p>And this image can be used in a commit message, as following:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git commit <span class="nt">-m</span> <span class="s2">":beer: adding post that explains emoji usage in github commits"</span>
+</code></pre></div></div>
+
+<p>The result is the following:</p>
+
+<p><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f37a.png?v8" alt="Emoji Commit" width="32px" height="32px" /> adding post that explains emoji usage in github commits</p>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>There is also a cheat sheet that <a href="http://www.webpagefx.com/tools/emoji-cheat-sheet/">presents all the emojis</a>, pointed by the <a href="https://guides.github.com/features/mastering-markdown/">GitHub Guide “Mastering Markdown” page</a> <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+    </li>
+  </ol>
+</div>
+:ET

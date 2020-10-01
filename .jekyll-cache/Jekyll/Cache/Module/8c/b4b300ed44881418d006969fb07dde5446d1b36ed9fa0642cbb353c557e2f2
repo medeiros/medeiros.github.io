@@ -1,0 +1,34 @@
+I"#
+
+
+
+
+
+
+
+
+
+
+
+
+
+<article class="project-card">
+  <a href="/blog/snippets/2019-02-24-Incremental-backup-using-tar/" class="no-hover no-print-link flip-project" tabindex="-1">
+    <div class="project-card-img aspect-ratio sixteen-nine flip-project-img">
+      
+    </div>
+  </a>
+  <h3 class="project-card-title flip-project-title">
+    <a href="/blog/snippets/2019-02-24-Incremental-backup-using-tar/" class="flip-title">Incremental Backup using TAR</a>
+  </h3>
+  
+    <p class="project-card-text fine" property="disambiguatingDescription">
+      Snippet code for backing up data using tar.
+
+    </p>
+  
+  
+  <a class="fill-card no-hover" href="/blog/snippets/2019-02-24-Incremental-backup-using-tar/" tabindex="-1"><span class="sr-only">Continue reading Incremental Backup using TAR
+</span></a>
+</article>
+:ET

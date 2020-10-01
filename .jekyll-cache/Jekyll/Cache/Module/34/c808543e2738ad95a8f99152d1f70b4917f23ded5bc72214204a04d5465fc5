@@ -1,0 +1,59 @@
+I"ª
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<article
+  class="project-card"
+  vocab="http://schema.org/" typeof="CreativeWork" resource="/projects/kafka-streams-covid19api/#project"
+  >
+  <meta property="name" content="kafka-streams-covid19api"/>
+  <meta property="image" content="/assets/img/projects/kafka.png"/>
+
+  <a href="/projects/kafka-streams-covid19api/" class="no-hover no-print-link flip-project" tabindex="-1">
+    <div class="project-card-img aspect-ratio sixteen-nine flip-project-img">
+      
+        
+
+
+<img
+  
+    src="/assets/img/projects/kafka.png"
+  
+  alt="kafka-streams-covid19api"
+  
+  
+  width="864"
+  height="486"
+  loading="lazy"
+/>
+
+      
+    </div>
+  </a>
+  <h3 class="project-card-title flip-project-title">
+    <a href="/projects/kafka-streams-covid19api/" class="flip-title" property="mainEntityOfPage">kafka-streams-covid19api</a>
+  </h3>
+  
+    <p class="project-card-text fine" property="disambiguatingDescription">
+      Kafka Stream application to summarize and rank Covid19 data for Brazil.
+
+    </p>
+  
+  
+  <a class="fill-card no-hover" href="/projects/kafka-streams-covid19api/" tabindex="-1"><span class="sr-only">Continue reading kafka-streams-covid19api
+</span></a>
+</article>
+:ET

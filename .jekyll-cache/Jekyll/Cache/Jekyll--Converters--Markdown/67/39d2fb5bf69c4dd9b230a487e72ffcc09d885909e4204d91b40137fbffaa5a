@@ -1,0 +1,39 @@
+I"0<p>It is handy to use docker without the need of sudo.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#concept-and-solution" id="markdown-toc-concept-and-solution">Concept and solution</a></li>
+  <li><a href="#footnotes" id="markdown-toc-footnotes">Footnotes</a></li>
+</ul>
+
+<p>To run docker commands, it is necessary to prefix them with <code class="language-plaintext highlighter-rouge">sudo</code>. This linux command allows the current user to perform actions as <code class="language-plaintext highlighter-rouge">root</code>. To run docker commands, you must have <code class="language-plaintext highlighter-rouge">root</code> privileges (default).</p>
+
+<p>However, this can be painful. Is not practical to keep informing <code class="language-plaintext highlighter-rouge">sudo</code> every time. There should be a simpler way to run docker commands, without the hassle of keep using <code class="language-plaintext highlighter-rouge">sudo</code>.</p>
+
+<h3 id="concept-and-solution">Concept and solution</h3>
+
+<p>And there is a simpler way. The concept is this: if your user is in a specific linux group (called “docker”), automatically you will be granted to run docker commands. Simple like that.</p>
+
+<p>So, it is necessary to create this group and then add your own user to it. To create the “docker” linux group, you can use the command (non-root): <sup><a href="#s1">1</a></sup></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>groupadd docker
+</code></pre></div></div>
+
+<p>And then you have to associate your user to this group, using the command (non-root): <sup><a href="#s1">1</a></sup></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>usermod <span class="nt">-a</span> <span class="nt">-G</span> docker <span class="o">[</span>your user]
+</code></pre></div></div>
+
+<p>You can now restart docker service. In Arch Linux, the command is (non-root): <sup><a href="#s1">1</a></sup></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>systemctl start docker
+</code></pre></div></div>
+
+<p>And now we can test, using a very simple Docker command to print a message on the screen using an Debian container. The command will work without sudo:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run debian <span class="nb">echo</span> <span class="s2">"hello world"</span>
+</code></pre></div></div>
+
+<h3 id="footnotes">Footnotes</h3>
+
+<p><sup id="s1">1</sup> The commands here presented were tested in Arch Linux, and may not work correctly in other distros. But the general ideia is the same and Google is there for the rescue.</p>
+:ET

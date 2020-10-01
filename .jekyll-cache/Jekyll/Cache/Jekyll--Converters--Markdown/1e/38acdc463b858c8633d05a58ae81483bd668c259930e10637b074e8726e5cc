@@ -1,0 +1,37 @@
+I"‘<p>A little information about virtualization.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#vm-migration-adjustments-openstack" id="markdown-toc-vm-migration-adjustments-openstack">VM migration adjustments (Openstack)</a></li>
+  <li><a href="#snippet" id="markdown-toc-snippet">Snippet</a></li>
+</ul>
+
+<h2 id="vm-migration-adjustments-openstack">VM migration adjustments (Openstack)</h2>
+
+<p>The following snippet was used to configure virtual machine in Openstack
+(Red Hat 6.8).</p>
+
+<h2 id="snippet">Snippet</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim /etc/resolv.conf
+	nameserver &lt;ip&gt;
+
+vim /etc/hosts
+  &lt;configure&gt;
+
+vim /etc/sysconfig/network-scripts/ifcfg-eth0
+	<span class="nv">DEVICE</span><span class="o">=</span>eth0
+	<span class="nv">IPADDR</span><span class="o">=</span>&lt;some ip&gt;
+	<span class="nv">BOOTPROTO</span><span class="o">=</span>dhcp
+	<span class="nv">ONBOOT</span><span class="o">=</span><span class="nb">yes
+	</span><span class="nv">USERCTL</span><span class="o">=</span>no
+
+<span class="k">if </span>70-persistent-net.rules present
+	<span class="nb">rm</span> /etc/udev/rules.d/70-persistent-net.rules
+	reboot
+
+ifconfig
+service network restart
+service iptables restart
+netstat <span class="nt">-tanp</span> | <span class="nb">grep </span>LISTEN | <span class="nb">grep </span>22
+</code></pre></div></div>
+:ET

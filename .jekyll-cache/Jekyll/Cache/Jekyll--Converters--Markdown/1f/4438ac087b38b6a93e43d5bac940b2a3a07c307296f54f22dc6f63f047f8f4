@@ -1,0 +1,32 @@
+I"x<p>How to configure Chrome (with plugins) for Trello</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#trello-as-a-board-tool---and-the-missing-feature" id="markdown-toc-trello-as-a-board-tool---and-the-missing-feature">Trello as a board tool - and the missing feature</a></li>
+  <li><a href="#chrome-plugin-to-the-rescue" id="markdown-toc-chrome-plugin-to-the-rescue">Chrome plugin to the rescue</a></li>
+</ul>
+
+<p>Trello is an awesome tool to keep tasks being executed. One of the cool features
+of this tool is the labeling of cards. However, there is no way no natively
+show label’s text (only colors are displayed). In this post I’ll show how to
+do this with Chrome plugins.</p>
+
+<h2 id="trello-as-a-board-tool---and-the-missing-feature">Trello as a board tool - and the missing feature</h2>
+
+<p>Trello allows you to keep your tasks organized, providing a board with nice
+features. One feature that would be nice to have is the ability to show, in
+the board, the names of the labels (since only show the colors are not
+enough).</p>
+
+<h2 id="chrome-plugin-to-the-rescue">Chrome plugin to the rescue</h2>
+
+<p>There is a Chrome plugin that can show the title in the labels, directly in
+the board. The steps are the following:</p>
+
+<ul>
+  <li>type, in your chrome bar: <code class="language-plaintext highlighter-rouge">chrome://extensions/</code></li>
+  <li>click in ‘Obtain more extensions’ (or something like that); it will lead
+you to the Chrome Web Store</li>
+  <li>search for “Card Color Titles for Trello”</li>
+  <li>Install it and open your Trello board. Check to see that your labels now contains related text.</li>
+</ul>
+:ET

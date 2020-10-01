@@ -1,0 +1,178 @@
+I"ú
+
+
+  <aside class="about related mt4 mb4" role="complementary">
+    
+    
+
+<div class="author mt4">
+  
+
+  
+    
+
+
+<img
+  
+    src="/assets/img/me-2.png"
+    srcset="/assets/img/me-2.png 1x,https://placehold.it/256x256 2x"
+    
+  
+  alt="Daniel Assis"
+  class="avatar"
+  
+  width="120"
+  height="120"
+  loading="lazy"
+/>
+
+  
+
+  
+  
+  <h2  class="page-title hr-bottom">
+    About
+  </h2>
+
+  <p>Daniel is a <a href="/resume/">software engineer</a> that enjoys architecture and development
+of Java distributed applications, adopts <a href="https://wiki.archlinux.org/">Arch Linux</a> w/ <a href="https://i3wm.org/">i3wm</a> as
+his de facto operational system (no dual boot), knows what Scrum is about
+and believes <a href="https://clojure.org/">Clojure</a> is the most elegant functional programming language ever.
+Currently, he is focusing on specialization of <a href="http://kafka.apache.org">Kafka</a>
+and <a href="http://aws.amazon.com">AWS</a> technologies.</p>
+
+
+  <div class="sidebar-social">
+    <span class="sr-only">Social:</span>
+<ul>
+  
+    
+      
+
+
+
+  
+
+  
+  
+  
+  
+
+  
+
+  
+
+  <li>
+    <a href="https://www.linkedin.com/in/dmassis" title="LinkedIn" class="no-mark-external">
+      <span class="icon-linkedin2"></span>
+      <span class="sr-only">LinkedIn</span>
+    </a>
+  </li>
+
+
+    
+      
+
+
+
+  
+
+  
+  
+  
+  
+
+  
+
+  
+
+  <li>
+    <a href="https://github.com/medeiros" title="GitHub" class="no-mark-external">
+      <span class="icon-github"></span>
+      <span class="sr-only">GitHub</span>
+    </a>
+  </li>
+
+
+    
+      
+
+
+
+  
+
+  
+  
+  
+  
+
+  
+
+  
+
+  <li>
+    <a href="mailto:daniel@arneam.com" title="Email" class="no-mark-external">
+      <span class="icon-mail"></span>
+      <span class="sr-only">Email</span>
+    </a>
+  </li>
+
+
+    
+      
+
+
+
+  
+
+  
+  
+  
+  
+
+  
+
+  
+
+  <li>
+    <a href="https://twitter.com/dnlmed" title="Twitter" class="no-mark-external">
+      <span class="icon-twitter"></span>
+      <span class="sr-only">Twitter</span>
+    </a>
+  </li>
+
+
+    
+      
+
+
+
+  
+
+  
+  
+  
+  
+
+  
+
+  
+
+  <li>
+    <a href="http://stackoverflow.com/users/5457366/medeiros" title="Stack Overflow" class="no-mark-external">
+      <span class="icon-stackoverflow"></span>
+      <span class="sr-only">Stack Overflow</span>
+    </a>
+  </li>
+
+
+    
+  
+</ul>
+
+  </div>
+</div>
+
+  </aside>
+
+:ET

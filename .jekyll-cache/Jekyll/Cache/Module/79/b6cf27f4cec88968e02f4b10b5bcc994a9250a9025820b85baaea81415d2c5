@@ -1,0 +1,81 @@
+I"
+
+
+
+
+
+<article id="post-blog-snippets-Incremental-backup-using-tar" class="page post mb6" role="article">
+  <header>
+    <h1 class="post-title flip-project-title">
+      <a href="/blog/snippets/2019-02-24-Incremental-backup-using-tar/" class="flip-title">
+        Incremental Backup using TAR
+      </a>
+    </h1>
+
+    <div class="post-date">
+      
+        
+        <time datetime="2019-02-24T00:00:00-03:00">24 Feb 2019</time>
+      
+      
+      
+      
+      
+      
+
+
+
+
+
+
+
+
+
+in <a href="/blog/snippets/" class="flip-title">Snippets</a>
+
+      
+
+
+
+
+
+
+
+
+
+on <span>Linux</span>
+
+    </div>
+
+    
+    
+
+    
+
+
+
+  
+    <p class="note-sm" >
+      Snippet code for backing up data using tar.
+
+    </p>
+  
+
+
+  </header>
+
+  
+    <p class="lead">Snippet code for incremental backup can be found here.</p>
+
+
+    
+    
+    <footer>
+      <p class="read-more">
+        Continue reading <a class="heading flip-title" href="/blog/snippets/2019-02-24-Incremental-backup-using-tar/">Incremental Backup using TAR</a>
+
+      </p>
+    </footer>
+  
+</article>
+:ET

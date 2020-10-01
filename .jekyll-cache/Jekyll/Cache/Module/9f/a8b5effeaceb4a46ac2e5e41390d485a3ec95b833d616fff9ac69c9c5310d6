@@ -1,0 +1,200 @@
+I"�'
+
+
+
+
+
+<article id="post-blog-infrastructure-seleniumide-execution-and-report--exhibition-in-jenkins" class="page post mb6" role="article">
+  <header>
+    <h1 class="post-title flip-project-title">
+      
+        SeleniumIDE execution and report exhibition in Jenkins
+      
+    </h1>
+
+    <div class="post-date">
+      
+        
+        <time datetime="2017-01-20T00:00:00-02:00">20 Jan 2017</time>
+      
+      
+      
+      
+      
+      
+
+
+
+
+
+
+
+
+
+in <a href="/blog/infrastructure/" class="flip-title">Infrastructure</a>
+
+      
+
+
+
+
+
+
+
+
+
+on <span>Selenium</span>, <span>Continuous-integration</span>, <span>Jenkins</span>
+
+    </div>
+
+    
+    
+
+    
+
+
+
+  <div class="hr pb0"></div>
+
+
+  </header>
+
+  
+    <p>Exploring Selenium IDE and Jenkins.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#a-little-about-selenium-ide" id="markdown-toc-a-little-about-selenium-ide">A little about Selenium IDE</a>    <ul>
+      <li><a href="#tests-cases-and-suites" id="markdown-toc-tests-cases-and-suites">Tests cases and suites</a></li>
+    </ul>
+  </li>
+  <li><a href="#jenkins-installation" id="markdown-toc-jenkins-installation">Jenkins installation</a>    <ul>
+      <li><a href="#installation-of-supporting-tools" id="markdown-toc-installation-of-supporting-tools">Installation of supporting tools</a></li>
+    </ul>
+  </li>
+  <li><a href="#creating-and-configuring-the-job" id="markdown-toc-creating-and-configuring-the-job">Creating and configuring the job</a>    <ul>
+      <li><a href="#configuring-the-job" id="markdown-toc-configuring-the-job">Configuring the Job</a></li>
+    </ul>
+  </li>
+  <li><a href="#results" id="markdown-toc-results">Results</a></li>
+  <li><a href="#final-considerations" id="markdown-toc-final-considerations">Final considerations</a></li>
+</ul>
+
+<p>Jenkins is the most used tool to provide continuous integration and automation of tasks in this regard.
+In this article, I’ll explain how can we use Jenkins to run SeleniumIDE test suites and then present the results in reports.</p>
+
+<h2 id="a-little-about-selenium-ide">A little about Selenium IDE</h2>
+<p>Selenium IDE is a Firefox plugin that allows the application tests to record functional, black-box tests. As output, it generates
+a HTML file that can be used as a script for further executions. Is suggested that both SeleniumIDE (2.9.1.1-signed) and Selenium Expert (Selenium IDE) (0.25.1-signed.1-signed) Firefox plugins are installed for proper Selenium execution.</p>
+
+<p>After that, it’s all about recording actions in Firefox and then save them as scripts for further usage.</p>
+
+<h3 id="tests-cases-and-suites">Tests cases and suites</h3>
+
+<p>These concepts are important. The test suite is a grouping of tests cases. Each test case generates as output a single HTML file, and
+the test suite is another HTML file, whose purpose is to group all the HTML test case files.</p>
+
+<p>It’s important to know this because Jenkins plugins consider only test suites, instead of test cases. So, your test cases
+must be grouped in suites before being automated in Jenkins.</p>
+
+<h2 id="jenkins-installation">Jenkins installation</h2>
+
+<p>Download and install Jenkins latest version.
+After that, the following plugins must also been installed:</p>
+
+<ul>
+  <li>Selenium HTML report</li>
+  <li>Hudson Seleniumhq plugin</li>
+  <li>Environment Injector Plugin</li>
+</ul>
+
+<p>You can install these plugins directly by the Jenkins interface (as admin, navigate through <code class="language-plaintext highlighter-rouge">/Manage Jenkins/Manage plugins</code>). Some application restart may be required.</p>
+
+<h3 id="installation-of-supporting-tools">Installation of supporting tools</h3>
+
+<p>Two more tools are necessary:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">selenium-html-runner-3.0.1.jar:</code> this library has the responsibility of execute the selenium script, providing results. It will be executed by Jenkins Job. It can be downloaded from the <a href="http://www.seleniumhq.org/download/">SeleniumHQ website</a>, and also using the <a href="https://goo.gl/Br1P0Z">direct link</a>. At the moment of this writing, the latest release version, which I’m adopting, is 3.0.1;</li>
+  <li><code class="language-plaintext highlighter-rouge">geckodriver</code>: the required bridge from W3C WebDriver to Gecko browser technology. It will also be used by the Jenkins Job. It can be downloaded from git <a href="https://github.com/mozilla/geckodriver/releases">Github repository releases’page</a>. At the moment of this writing, the latest release version, which I’m adopting, is v.0.13.0.</li>
+</ul>
+
+<p>Download and save these artifacts (they’ll be referenced by Jenkins Jobs, as described in the next sections). To execute the examples in this article, they must be saved in <code class="language-plaintext highlighter-rouge">/Users/dma/apps/selenium-server</code>.</p>
+
+<h2 id="creating-and-configuring-the-job">Creating and configuring the job</h2>
+
+<p>Since the installation step is done, let’s proceed to the configuration.</p>
+
+<p>Jenkins is composed of several <code class="language-plaintext highlighter-rouge">Jobs</code>. These jobs can be configured to execute a very broad range of actions. Each job execution is called a <code class="language-plaintext highlighter-rouge">build</code>, and each build has it’s own history of events and procedures. In this scenario, let’s create a single Job and configure it to process SeleniumIDE script test suite, providing the result of tests execution using some sort of reports.</p>
+
+<h3 id="configuring-the-job">Configuring the Job</h3>
+
+<ul>
+  <li>Create the new Job. Let’s call it <code class="language-plaintext highlighter-rouge">PoC-selenium</code>.</li>
+  <li>In the <code class="language-plaintext highlighter-rouge">Configure</code> options/<code class="language-plaintext highlighter-rouge">Build</code> section:
+    <ul>
+      <li>Add a new <code class="language-plaintext highlighter-rouge">Inject Environment Variables</code> section</li>
+      <li>Enter the following variables (remember to change the content of these variables according to your own environment):</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">SITE_DOMAIN</span><span class="o">=</span><span class="s2">"http://localhost:8081"</span>
+<span class="nv">SUITE_TEST_DIR</span><span class="o">=</span>/Users/dma/data/
+<span class="nv">SUITE_TEST_NAME</span><span class="o">=</span>selenium-test-jmeter-stub-application-suite
+
+<span class="nv">SUITE</span><span class="o">=</span><span class="s2">"*firefox"</span>
+<span class="nv">REPORT_DIR</span><span class="o">=</span>selenium-reports
+<span class="nv">SEL_PATH</span><span class="o">=</span>/Users/dma/apps/selenium-server/
+
+<span class="nv">SUITE_TEST_PATH</span><span class="o">=</span><span class="nv">$SUITE_TEST_DIR</span>/<span class="nv">$SUITE_TEST_NAME</span>.htm
+<span class="nv">TMP_REPORT_PATH</span><span class="o">=</span><span class="nv">$SUITE_TEST_DIR</span>/<span class="nv">$REPORT_DIR</span>
+<span class="nv">REPORT_PATH</span><span class="o">=</span><span class="nv">$WORKSPACE</span>/<span class="nv">$REPORT_DIR</span>/<span class="nv">$SUITE_TEST_NAME</span><span class="nt">-results</span>.html
+</code></pre></div></div>
+
+<ul>
+  <li>Still in the <code class="language-plaintext highlighter-rouge">Configure</code> options/<code class="language-plaintext highlighter-rouge">Build</code> section:
+    <ul>
+      <li>Add a new <code class="language-plaintext highlighter-rouge">Execute shell</code> section</li>
+      <li>Enter the following script (<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote">1</a></sup>):</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="nt">-Dwebdriver</span>.gecko.driver<span class="o">=</span><span class="nv">$SEL_PATH</span>/geckodriver <span class="nt">-jar</span> <span class="nv">$SEL_PATH</span>/selenium-html-runner-3.0.1.jar <span class="nt">-htmlSuite</span> <span class="nv">$SUITE</span> <span class="nv">$SITE_DOMAIN</span> <span class="nv">$SUITE_TEST_PATH</span> <span class="nv">$TMP_REPORT_PATH</span> <span class="o">&gt;</span> /dev/null 2&gt;&amp;1 <span class="o">||</span> <span class="nb">true
+mv</span> <span class="nv">$TMP_REPORT_PATH</span>/firefox.results <span class="nv">$REPORT_PATH</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Still in the <code class="language-plaintext highlighter-rouge">Configure</code> options/<code class="language-plaintext highlighter-rouge">Post-Build</code> section:
+    <ul>
+      <li>Create a <code class="language-plaintext highlighter-rouge">Publish Selenium HTML Report</code>
+        <ul>
+          <li>set the value to <code class="language-plaintext highlighter-rouge">selenium-reports</code></li>
+        </ul>
+      </li>
+      <li>Create a <code class="language-plaintext highlighter-rouge">Publish Selenium Report</code>
+        <ul>
+          <li>set the value to <code class="language-plaintext highlighter-rouge">selenium-reports/*.html</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="results">Results</h2>
+
+<p>After Job execution, you can check the report in a Job-basis (enter into the Job details to see information related to the latest execution results) or in a build-basis (enter into the build details and you’ll see an option to show details about Selenium execution in that build).</p>
+
+<h2 id="final-considerations">Final considerations</h2>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>There is a <a href="https://github.com/mozilla/geckodriver/issues/210">bug</a> in Selenium HTML Runner which does not return the execution properly, causing the process to fail, even if the report is properly generated. So, in the shell script, the output is send to infinity and the execution is assumed as successfully, so the report can be properly generated. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+    </li>
+  </ol>
+</div>
+
+  
+</article>
+:ET

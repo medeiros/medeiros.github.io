@@ -1,0 +1,43 @@
+I"3<p>Thoughts about microservice usage in 2017.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#more-information" id="markdown-toc-more-information">More information</a></li>
+</ul>
+
+<p>Today, I watched the Sam Neil’s video <a href="https://www.oreilly.com/ideas/why-would-you-use-microservices">“Why would you use microservices?”</a>. It’s a very nice summarization of what microservices are and their value to adoption in organizations. Key points that I found particularly interesting are the following:</p>
+
+<ul>
+  <li>Small teams, responsible for its own codebase (restricted to the team domain(s)), perform better and are happier;</li>
+  <li>People are talking a lot about the <a href="https://en.wikipedia.org/wiki/Conway%27s_law">Conway Law</a> in recent times. The idea that the architecture evolves with the organization, however, seems a little bit romantic in my opinion;</li>
+</ul>
+
+<blockquote>
+  <p>organizations which design systems … are constrained to produce designs which are copies of the communication structures of these organizations — M. Conway</p>
+</blockquote>
+
+<ul>
+  <li>The good and old scenario of having to change a single line in a monolith and then stop and redeploy the entire application seems more and more absurd;</li>
+  <li>The suggested book <a href="https://www.amazon.com.br/Art-Scalability-Architecture-Organizations-Enterprise/dp/0134032802">“The Art of Scalability”</a> seems pretty much interesting, since is a very important topic in the regards of microservices archutectural style;</li>
+  <li>The three axis presented (<em>“Horizontal Duplication”</em>, <em>“Data Partitioning”</em> and <em>“Functional Decomposition - Microservices”</em>) are a perfect concept. Those three items are recurrent problems when we continuosly have to deal when handling with modularization of different domains in a physical level.
+    <ul>
+      <li>In the regards of <em>“Functional Decomposition”</em>, it is nice to figure that DDD patterns (thinking of code in terms of business domain) <em>finally</em> finds its place. <strong>Bounded Context</strong> are one of the patterns to adopt in order to achieve functional decomposition. Hope people value <strong>Eric Evans</strong> work now.</li>
+    </ul>
+  </li>
+  <li>The idea that each part of the application can scale independently gives a lot of flexibility to infrastructure people (DevOps, if you can do it). Add <em>Docker</em> to all this and you have a lot of exciting and interesting material to study and work for several years!
+    <blockquote>
+      <p>It’s a nice time to work in applications’ infrastructure</p>
+    </blockquote>
+  </li>
+  <li>Adopt different technologies easier: this is also great. Thanks to API, there is flexibility to develop microservices using your preferred tools and technologies. For instance, it would be nice to get a bunch of enthusiastic, self-taught people to develop a specific Clojure/Datomic microservice to gather some banking account data without the hassle of hear something like: “this is not the official language of the company; we’re not able to train all developers of the company to code in Clojure!”
+    <ul>
+      <li>It was nice and surprising that Sam talked in the video about Clojure in the same viewpoint I also consider (<em>“the next best thing”</em>) :D</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="more-information">More information</h2>
+
+<p>This video is great. Besides it, there are also a lot of informative content regarding this subject that I have been gathering and studying. I liked a lot the very instructive Udemy course <a href="https://www.udemy.com/microservices-with-spring-cloud/learn/v4/">“Microservices with Spring Cloud”</a>, along with the readings: <a href="https://www.amazon.com/Building-Microservices-Designing-Fine-Grained-Systems/dp/1491950358">“Building Microservices: Designing Fine-Grained Systems”</a> (from the same author of this video) (Amazon), <a href="http://www.oreilly.com/programming/free/microservices-in-production.csp">“Microservices in Production”</a> from Susan Fowler (Free) and <a href="https://content.pivotal.io/white-papers/migrating-an-esb-to-a-cloud-native-platform">“Migrating and ESB to a Cloud-Native Platform”</a> from Pivotal (Free White paper).</p>
+
+<p>They are all very nice materials to start learning microservices.</p>
+:ET

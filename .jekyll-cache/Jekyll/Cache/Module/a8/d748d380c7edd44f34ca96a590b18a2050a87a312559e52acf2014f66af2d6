@@ -1,0 +1,17 @@
+I"Ñ
+
+
+<img
+  
+    src="/assets/img/me-2.png"
+    srcset="/assets/img/me-2.png 1x,https://placehold.it/256x256 2x"
+    
+  
+  alt="Daniel Assis"
+  class="avatar"
+  
+  width="120"
+  height="120"
+  loading="lazy"
+/>
+:ET

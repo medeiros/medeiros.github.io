@@ -1,0 +1,119 @@
+I" 
+
+
+
+
+
+<article id="post-blog-infrastructure-Binding-Godaddy-subdomains-Github-pages" class="page post mb6" role="article">
+  <header>
+    <h1 class="post-title flip-project-title">
+      
+        Binding Godaddy subdomains to Github pages
+      
+    </h1>
+
+    <div class="post-date">
+      
+        
+        <time datetime="2017-05-11T00:00:00-03:00">11 May 2017</time>
+      
+      
+      
+      
+      
+      
+
+
+
+
+
+
+
+
+
+in <a href="/blog/infrastructure/" class="flip-title">Infrastructure</a>
+
+      
+
+
+
+
+
+
+
+
+
+on <span>Github</span>
+
+    </div>
+
+    
+    
+
+    
+
+
+
+  <div class="hr pb0"></div>
+
+
+  </header>
+
+  
+    <p>How to configure Godaddy for Github pages.</p>
+
+<ul class="large-only" id="markdown-toc">
+  <li><a href="#godaddy" id="markdown-toc-godaddy">Godaddy</a></li>
+  <li><a href="#github" id="markdown-toc-github">Github</a></li>
+  <li><a href="#why-not-to-forward" id="markdown-toc-why-not-to-forward">Why not to forward?</a></li>
+</ul>
+
+<p>The procedure to bind your Godaddy subdomain to Github pages is very simple and brings a great cost/benefit. In this article, I’m going to show how to bind <code class="language-plaintext highlighter-rouge">[user].github.io</code> Github Pages URL to <code class="language-plaintext highlighter-rouge">test.[domain-name].com</code> subdomain.</p>
+
+<h2 id="godaddy">Godaddy</h2>
+
+<p>In Godaddy administration area, follow the steps:</p>
+
+<ul>
+  <li>Go to your domain configuration, and then to DNS Management.</li>
+  <li>Add a new Record, as below:</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Type</th>
+      <th style="text-align: center">Host</th>
+      <th style="text-align: center">Points To</th>
+      <th style="text-align: center">TTL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">CNAME</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">test</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">[user].github.io</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">1 hour</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="github">Github</h2>
+
+<p>In Github, follow the single step:</p>
+
+<ul>
+  <li>In your Github Page repository (typically <code class="language-plaintext highlighter-rouge">[user].github.io</code> repo), add a text file called <code class="language-plaintext highlighter-rouge">CNAME</code> in the root folder. The file must contains just one line, with the content <code class="language-plaintext highlighter-rouge">[user].github.io</code></li>
+</ul>
+
+<p>That’s it!</p>
+
+<h2 id="why-not-to-forward">Why not to forward?</h2>
+
+<p>Godaddy has a feature that allows you to forward your domain to another, and that results in HTTP 301 and 302 status codes. This solution, however, will not really bind your domain to Github pages, but just forward it. It will not allow the domain name from Gadaddy to wrap the Github pages URL. You can mask the domain in Godaddy, but the outcome is a fixed domain that will not change when navigating between pages, so permalinks will be not possible.</p>
+
+<p>Use forward only if you really want to forward (i.e: site changes its location), and not for binding.</p>
+
+  
+</article>
+:ET
