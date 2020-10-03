@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="en" /><updated>2020-10-03T06:40:29-03:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Daniel’s</title><subtitle>Daniel's is a website about my thoughts in the software engineering field.
+</subtitle><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><entry><title type="html">Solve error when executing Jekyll using GitHubPages Version</title><link href="http://localhost:4000/blog/misc/2020-10-01-Solve-error-when-executing-Jekyll-using-GithubPages-Version/" rel="alternate" type="text/html" title="Solve error when executing Jekyll using GitHubPages Version" /><published>2020-10-01T00:00:00-03:00</published><updated>2020-10-01T07:52:29-03:00</updated><id>http://localhost:4000/blog/misc/Solve-error-when-executing-Jekyll-using-GithubPages-Version</id><content type="html" xml:base="http://localhost:4000/blog/misc/2020-10-01-Solve-error-when-executing-Jekyll-using-GithubPages-Version/">&lt;p&gt;There are some issues when running Jekyll in different version of supported
+by Github Pages.&lt;/p&gt;
+
+&lt;ul class=&quot;lead large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#the-problem&quot; id=&quot;markdown-toc-the-problem&quot;&gt;The problem&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#the-solution-set-proper-environment-variables&quot; id=&quot;markdown-toc-the-solution-set-proper-environment-variables&quot;&gt;The solution: Set proper environment variables&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#references&quot; id=&quot;markdown-toc-references&quot;&gt;References&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;the-problem&quot;&gt;The problem&lt;/h2&gt;
+
+&lt;p&gt;According to the &lt;a href=&quot;https://pages.github.com/versions/&quot;&gt;GitHub Pages’ Dependencies Version&lt;/a&gt;, the supported Jekyll version for GitHub Pages is 3.9.0. However, my theme was
+using a 4.1 version, which is incompatible.&lt;/p&gt;
+
+&lt;p&gt;It was necessary to downgrade the Jekyll version. In order to do so, the
+Gemfile was changed, as below:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gem &quot;jekyll&quot;, &quot;~&amp;gt; 3.9.0&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;When trying to run locally, the following error start to happen:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Invalid US-ASCII character &quot;\\xE2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;the-solution-set-proper-environment-variables&quot;&gt;The solution: Set proper environment variables&lt;/h2&gt;
+
+&lt;p&gt;In my particular situation (Arch Linux), it was necessary to add the following
+environment variables:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;LC_ALL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;en_US.UTF-8
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;LANG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;en_US.UTF-8
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;LANGUAGE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;en_US.UTF-8
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In order to the locale ‘en_US.UTF-8’ to be propery set in these ENV variables,
+it must already be set into the system. Use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;locale -a&lt;/code&gt; to verify. If the
+locale is not on the list, it must be set:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;uncomment the line &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;en_US.UTF-8 UTF-8&lt;/code&gt; in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/locale.gen&lt;/code&gt; file&lt;/li&gt;
+  &lt;li&gt;run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;locale-gen&lt;/code&gt; to add it&lt;/li&gt;
+  &lt;li&gt;set the system locale in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/locale.conf&lt;/code&gt; to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LANG=en_US.UTF-8&lt;/code&gt; as well&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;After that, when running:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;./bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;It worked properly.&lt;/p&gt;
+
+&lt;h2 id=&quot;references&quot;&gt;References&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://pages.github.com/versions/&quot;&gt;GitHub Pages’ Dependencies Version&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://hollybecker.net/blog/2017-10-22-til-sass-locale-gen/&quot;&gt;TIL: SASS &amp;amp; locale-gen&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/csswizardry/inuit.css/issues/270#issuecomment-56056606&quot;&gt;Invalid US-ASCII character “\xE2” thread&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="misc" /><category term="jekyll" /><summary type="html">There are some issues when running Jekyll in different version of supported by Github Pages.</summary></entry><entry><title type="html">Incremental Backup using TAR</title><link href="http://localhost:4000/blog/snippets/2019-02-24-Incremental-backup-using-tar/" rel="alternate" type="text/html" title="Incremental Backup using TAR" /><published>2019-02-24T00:00:00-03:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/snippets/Incremental-backup-using-tar</id><content type="html" xml:base="http://localhost:4000/blog/snippets/2019-02-24-Incremental-backup-using-tar/">&lt;p class=&quot;lead&quot;&gt;Snippet code for incremental backup can be found here.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#incremental-backup-using-tar&quot; id=&quot;markdown-toc-incremental-backup-using-tar&quot;&gt;Incremental Backup using TAR&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#snippet&quot; id=&quot;markdown-toc-snippet&quot;&gt;Snippet&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#final-notes&quot; id=&quot;markdown-toc-final-notes&quot;&gt;Final notes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;incremental-backup-using-tar&quot;&gt;Incremental Backup using TAR&lt;/h2&gt;
+
+&lt;p&gt;The following shell script perform incremental backup using TAR.&lt;/p&gt;
+
+&lt;p&gt;It mounts a pendrive and then backs up all subdirectories under &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/home/daniel&lt;/code&gt;, as a compressed &lt;strong&gt;.tar.gz&lt;/strong&gt; file, to the target pendrive (excluding some directories which do not require backup, such as cache, dropbox, etc). Finally, the pedrive is unmounted.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;backup-snapshot.file&lt;/code&gt; is the file used to control the increments, and it is managed by TAR itself.&lt;/p&gt;
+
+&lt;h2 id=&quot;snippet&quot;&gt;Snippet&lt;/h2&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&quot;nv&quot;&gt;SRC_PATHS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'/home/daniel'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;DIRS_TO_EXCLUDE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'--exclude=Dropbox --exclude=tmp --exclude=.cache --exclude=.mozilla --exclude=.IdeaIC2018.2 --exclude=.m2 --exclude=.npm --exclude=.Trash-1000 --exclude=.v8* --exclude=.vagrant.d'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;DEST_PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/home/daniel/tmp/pendrive
+
+mount /dev/sdb1 &lt;span class=&quot;nv&quot;&gt;$DEST_PATH&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-qs&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$DEST_PATH&lt;/span&gt; /proc/mounts&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then
+	&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--listed-incremental&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/home/daniel/data/backup-snapshot.file &lt;span class=&quot;nv&quot;&gt;$DIRS_TO_EXCLUDE&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-cvpzf&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$DEST_PATH&lt;/span&gt;/backup-&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;date&lt;/span&gt; +%y-%m-%d-%H-%M-%S&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;.tar.gz &lt;span class=&quot;nv&quot;&gt;$SRC_PATHS&lt;/span&gt;
+	umount &lt;span class=&quot;nv&quot;&gt;$DEST_PATH&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The script above can be added to &lt;strong&gt;crontab&lt;/strong&gt; to perform daily incremental backups, with the following entry (to backup everyday at 21pm, for instance): &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;00 21 * * * /home/daniel/code/script/backup.sh&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;final-notes&quot;&gt;Final notes&lt;/h2&gt;
+
+&lt;p&gt;To extract (and preserve the final state) of overall backup, for each backup file in order, use the param &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--listed-incremental=/dev/null&lt;/code&gt;. e.g.:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tar --listed-incremental=/dev/null -xvf backup-19-02-24.tar.gz&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tar --listed-incremental=/dev/null -xvf backup-19-02-25.tar.gz&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;and so forth.&lt;/p&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="snippets" /><category term="linux" /><summary type="html">Snippet code for incremental backup can be found here.</summary></entry><entry><title type="html">Scan Documents with Epson XP-241 and Archlinux</title><link href="http://localhost:4000/blog/snippets/2019-02-23-Scan-Documents-with-Epson-Xp-241-and-ArchLinux/" rel="alternate" type="text/html" title="Scan Documents with Epson XP-241 and Archlinux" /><published>2019-02-23T00:00:00-03:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/snippets/Scan-Documents-with-Epson-Xp-241-and-ArchLinux</id><content type="html" xml:base="http://localhost:4000/blog/snippets/2019-02-23-Scan-Documents-with-Epson-Xp-241-and-ArchLinux/">&lt;p&gt;Dealing with Epson printer and arch.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#scan-documents-with-epson-xp-241-and-archlinux&quot; id=&quot;markdown-toc-scan-documents-with-epson-xp-241-and-archlinux&quot;&gt;Scan Documents with Epson XP-241 and Archlinux&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#snippet&quot; id=&quot;markdown-toc-snippet&quot;&gt;Snippet&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;scan-documents-with-epson-xp-241-and-archlinux&quot;&gt;Scan Documents with Epson XP-241 and Archlinux&lt;/h2&gt;
+
+&lt;p&gt;The following shell script was applied to scan documents using Epson XP-241 multifunctional in Arch Linux operational system.&lt;/p&gt;
+
+&lt;p&gt;If no param is informed, the &lt;em&gt;usage&lt;/em&gt; screen appears. The user must inform the name of output file without extension (&lt;em&gt;mandatory&lt;/em&gt;) and the path to save the output file (&lt;em&gt;optional&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;The DEVICE variable was set based on the result of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;scanimage -L&lt;/code&gt; command, and varies for each environment. More information about scanimage and SANE can be found at &lt;a href=&quot;https://wiki.archlinux.org/index.php/SANE&quot; target=&quot;_blank&quot;&gt;Arch Linux Wiki about SANE&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The script requires &lt;strong&gt;scanimage&lt;/strong&gt; &lt;em&gt;(to convert the digital document to image)&lt;/em&gt; and &lt;strong&gt;convert&lt;/strong&gt; &lt;em&gt;(to convert the output image to a PDF file)&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;snippet&quot;&gt;Snippet&lt;/h2&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[[&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$# &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-eq&lt;/span&gt; 0 &lt;span class=&quot;o&quot;&gt;]]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then
+	&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo
+	echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Usage: scan-to-pdf &amp;lt;file name (omit extension)&amp;gt; &amp;lt;path (optional)&amp;gt;'&lt;/span&gt;
+	&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;' file name: the PDF file name to be generated.'&lt;/span&gt;
+	&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;' path: the path to save pdf. If not informed, it is set to current directory.'&lt;/span&gt;
+	&lt;span class=&quot;nb&quot;&gt;echo
+	exit &lt;/span&gt;0
+&lt;span class=&quot;k&quot;&gt;fi
+
+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;A4_X&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;210
+&lt;span class=&quot;nv&quot;&gt;A4_Y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;297
+&lt;span class=&quot;c&quot;&gt;#DEVICE=&quot;utsushi:esci:usb:/sys/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3.1/1-3.1:1.0&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;DEVICE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;scanimage &lt;span class=&quot;nt&quot;&gt;-L&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'xp-240_series'&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;cut&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;'&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f1&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;cut&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'`'&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f2&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;USER_PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$2&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;DEFAULT_PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'.'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;PDF_PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;USER_PATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:-&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$DEFAULT_PATH&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;/&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;.pdf
+
+scanimage &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$A4_X&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$A4_Y&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--device&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$DEVICE&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--format&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;png | convert png:- &lt;span class=&quot;nv&quot;&gt;$PDF_PATH&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="snippets" /><category term="linux" /><summary type="html">Dealing with Epson printer and arch.</summary></entry><entry><title type="html">Excel to Ordinal Converter</title><link href="http://localhost:4000/blog/snippets/2019-01-22-Excel-to-ordinal-converter/" rel="alternate" type="text/html" title="Excel to Ordinal Converter" /><published>2019-01-22T00:00:00-02:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/snippets/Excel-to-ordinal-converter</id><content type="html" xml:base="http://localhost:4000/blog/snippets/2019-01-22-Excel-to-ordinal-converter/">&lt;p&gt;Indexes and Excel handled with java and javascript snippets.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#ordinal-and-excel-indexes&quot; id=&quot;markdown-toc-ordinal-and-excel-indexes&quot;&gt;Ordinal and Excel indexes&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#java-8-snippet&quot; id=&quot;markdown-toc-java-8-snippet&quot;&gt;Java 8 snippet&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#javascript-snippet&quot; id=&quot;markdown-toc-javascript-snippet&quot;&gt;Javascript snippet&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;ordinal-and-excel-indexes&quot;&gt;Ordinal and Excel indexes&lt;/h2&gt;
+
+&lt;p&gt;Sometimes, it is necessary to convert from some excel indexes (represented as
+letters, such as A, B, C) to ordinal indexes (0, 1, 2). This is particularly
+useful in scenarios is which a CSV file with a lot of rows is opened/edited on
+Excel and should then be mapped in a positional to a CSV parser, such as
+&lt;a href=&quot;https://github.com/uniVocity/univocity-parsers&quot; target=&quot;_blank&quot;&gt;Univocity&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;java-8-snippet&quot;&gt;Java 8 snippet&lt;/h2&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Converts an Excel position(column) to an ordinal position(index)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// To be applied with ExcelCSV-&amp;gt;Univocity parsing mechanism&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;excelToOrdinalConverter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;excelColumn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;OptionalInt&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IntStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;excelColumn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;excelColumn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;charAt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;excelColumn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;charAt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;26&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;excelColumn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;charAt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;reduce&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;excelColumn&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;: @Parsed(index = &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getAsInt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;)&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;javascript-snippet&quot;&gt;Javascript snippet&lt;/h2&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// @marcos3m&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;base&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;ABCDEFGHIJKLMNOPQRSTUVWXYZ&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;pow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;IQ&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="snippets" /><category term="java" /><category term="javascript" /><summary type="html">Indexes and Excel handled with java and javascript snippets.</summary></entry><entry><title type="html">Get token from secure REST service without cert</title><link href="http://localhost:4000/blog/snippets/2019-01-22-Get-token-from-secure-REST-without-cert/" rel="alternate" type="text/html" title="Get token from secure REST service without cert" /><published>2019-01-22T00:00:00-02:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/snippets/Get-token-from-secure-REST-without-cert</id><content type="html" xml:base="http://localhost:4000/blog/snippets/2019-01-22-Get-token-from-secure-REST-without-cert/">&lt;p&gt;Using curl with a k.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#get-token-from-secure-rest-service-without-cert&quot; id=&quot;markdown-toc-get-token-from-secure-rest-service-without-cert&quot;&gt;Get token from secure REST service without cert&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#bash-snippet&quot; id=&quot;markdown-toc-bash-snippet&quot;&gt;Bash snippet&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;get-token-from-secure-rest-service-without-cert&quot;&gt;Get token from secure REST service without cert&lt;/h2&gt;
+
+&lt;p&gt;The following snippet performs a POST request sending JSON in a SSL connection
+(secure) but does no verify for security (the certificate is not required).&lt;/p&gt;
+
+&lt;h2 class=&quot;lead&quot; id=&quot;bash-snippet&quot;&gt;Bash snippet&lt;/h2&gt;
+
+&lt;ul class=&quot;large-only&quot;&gt;
+  &lt;li&gt;Table of Contents&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;curl –k –d ‘&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;clientId&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;x&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;secret&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;y&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;’ –X POST https://&amp;lt;some cool domain&amp;gt; &lt;span class=&quot;nt&quot;&gt;-H&lt;/span&gt; ”Content-Type: application/json”
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="snippets" /><category term="linux" /><summary type="html">Using curl with a k.</summary></entry><entry><title type="html">Oracle list sessions to kill</title><link href="http://localhost:4000/blog/snippets/2019-01-22-Oracle-list-session-to-kill/" rel="alternate" type="text/html" title="Oracle list sessions to kill" /><published>2019-01-22T00:00:00-02:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/snippets/Oracle-list-session-to-kill</id><content type="html" xml:base="http://localhost:4000/blog/snippets/2019-01-22-Oracle-list-session-to-kill/">&lt;p&gt;Killing sessions in Oracle - the nice way.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#oracle-list-sessions-to-kill&quot; id=&quot;markdown-toc-oracle-list-sessions-to-kill&quot;&gt;Oracle list sessions to kill&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#sql-snippet&quot; id=&quot;markdown-toc-sql-snippet&quot;&gt;SQL snippet&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;oracle-list-sessions-to-kill&quot;&gt;Oracle list sessions to kill&lt;/h2&gt;
+
+&lt;p&gt;Sometimes it is useful to kill all active Oracle sessions. The following
+snippet let us to list all open sessions and also create statements that
+could be run in order to kill them.&lt;/p&gt;
+
+&lt;h2 id=&quot;sql-snippet&quot;&gt;SQL snippet&lt;/h2&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;-- query sessions&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;osuser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;program&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;serial&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;session&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;order&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;-- query session and related process&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;osuser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;program&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;spid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;serial&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;session&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;process&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;paddr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;order&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;-- query sessions without any related process&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;osuser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;program&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;serial&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;session&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;paddr&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NOT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;IN&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;select&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;process&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;ORDER&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;-- kill oracle sessio&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;ALTER&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;SYSTEM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;KILL&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;SESSION&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'a,b'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;-- list all sessions to kill&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ALTER SYSTEM KILL SESSION &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;','&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;serial&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;#||&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;;'&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;-- identify sessions that are locking tables (A.OS_User_Name=v$session.username)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;Owner&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Object_Name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Oracle_Username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;OS_User_Name&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;V&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Locked_Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;All_Objects&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Object_ID&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Object_ID&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="snippets" /><category term="oracle" /><summary type="html">Killing sessions in Oracle - the nice way.</summary></entry><entry><title type="html">VM migration adjustments (Openstack)</title><link href="http://localhost:4000/blog/snippets/2019-01-22-VM-Migration-Adjustments-in-Openstack/" rel="alternate" type="text/html" title="VM migration adjustments (Openstack)" /><published>2019-01-22T00:00:00-02:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/snippets/VM-Migration-Adjustments-in-Openstack</id><content type="html" xml:base="http://localhost:4000/blog/snippets/2019-01-22-VM-Migration-Adjustments-in-Openstack/">&lt;p&gt;A little information about virtualization.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#vm-migration-adjustments-openstack&quot; id=&quot;markdown-toc-vm-migration-adjustments-openstack&quot;&gt;VM migration adjustments (Openstack)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#snippet&quot; id=&quot;markdown-toc-snippet&quot;&gt;Snippet&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;vm-migration-adjustments-openstack&quot;&gt;VM migration adjustments (Openstack)&lt;/h2&gt;
+
+&lt;p&gt;The following snippet was used to configure virtual machine in Openstack
+(Red Hat 6.8).&lt;/p&gt;
+
+&lt;h2 id=&quot;snippet&quot;&gt;Snippet&lt;/h2&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/resolv.conf
+	nameserver &amp;lt;ip&amp;gt;
+
+vim /etc/hosts
+  &amp;lt;configure&amp;gt;
+
+vim /etc/sysconfig/network-scripts/ifcfg-eth0
+	&lt;span class=&quot;nv&quot;&gt;DEVICE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;eth0
+	&lt;span class=&quot;nv&quot;&gt;IPADDR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;some ip&amp;gt;
+	&lt;span class=&quot;nv&quot;&gt;BOOTPROTO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;dhcp
+	&lt;span class=&quot;nv&quot;&gt;ONBOOT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;yes
+	&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;USERCTL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;no
+
+&lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;70-persistent-net.rules present
+	&lt;span class=&quot;nb&quot;&gt;rm&lt;/span&gt; /etc/udev/rules.d/70-persistent-net.rules
+	reboot
+
+ifconfig
+service network restart
+service iptables restart
+netstat &lt;span class=&quot;nt&quot;&gt;-tanp&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;LISTEN | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;22
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="snippets" /><category term="virtualization" /><category term="linux" /><summary type="html">A little information about virtualization.</summary></entry><entry><title type="html">How to set US keyboard for brazillian portuguese usage in Arch Linux</title><link href="http://localhost:4000/blog/linux/2018-11-20-How-to-set-us-keyboard-for-brazillian-portuguese-usage-in-arch-linux/" rel="alternate" type="text/html" title="How to set US keyboard for brazillian portuguese usage in Arch Linux" /><published>2018-11-20T00:00:00-02:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/linux/How-to-set-us-keyboard-for-brazillian-portuguese-usage-in-arch-linux</id><content type="html" xml:base="http://localhost:4000/blog/linux/2018-11-20-How-to-set-us-keyboard-for-brazillian-portuguese-usage-in-arch-linux/">&lt;p&gt;Configuring keyboard for pt-br.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#us-keyboards-and-other-languages&quot; id=&quot;markdown-toc-us-keyboards-and-other-languages&quot;&gt;US Keyboards and other languages&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#two-main-ways&quot; id=&quot;markdown-toc-two-main-ways&quot;&gt;Two main ways&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#console-configuration&quot; id=&quot;markdown-toc-console-configuration&quot;&gt;Console configuration&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#xorg-configuration&quot; id=&quot;markdown-toc-xorg-configuration&quot;&gt;XOrg configuration&lt;/a&gt;        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#problem-locale&quot; id=&quot;markdown-toc-problem-locale&quot;&gt;Problem: Locale&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#final-notes&quot; id=&quot;markdown-toc-final-notes&quot;&gt;Final notes&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#references&quot; id=&quot;markdown-toc-references&quot;&gt;References&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;us-keyboards-and-other-languages&quot;&gt;US Keyboards and other languages&lt;/h2&gt;
+
+&lt;p&gt;It is a very common practice to adopt US keyboards worldwide, but the layout of
+these keyboards are far from ideal for many languages, which have characters sets
+different from the english language.
+The goal of this article is to explain how to configure an US keyboard to support
+brazillian portuguese keymap in Arch Linux.&lt;/p&gt;
+
+&lt;h2 id=&quot;two-main-ways&quot;&gt;Two main ways&lt;/h2&gt;
+
+&lt;p&gt;There are two different sets of configurations: for console and for XOrg (X Window System).
+Let’s cover both.&lt;/p&gt;
+
+&lt;h3 id=&quot;console-configuration&quot;&gt;Console configuration&lt;/h3&gt;
+
+&lt;p&gt;The following command must be executed in order to change keyboard layout in console:
+&lt;input type=&quot;button&quot; value=&quot;Copy to Clipboard&quot; onclick=&quot;copyToClipboard(0)&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;localectl &lt;span class=&quot;nt&quot;&gt;--no-convert&lt;/span&gt; set-keymap br-latin1-us
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This will add the following entry in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/vconsole.conf&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;KEYMAP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;br-latin1-us
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This is enough to allow brazillian keymap, including cedilla, in console.
+But another different configuration is required for XOrg, since it does not inherit
+the console configuration.&lt;/p&gt;
+
+&lt;h3 id=&quot;xorg-configuration&quot;&gt;XOrg configuration&lt;/h3&gt;
+
+&lt;p&gt;The first step is to set the keyboard. The following command get the job done
+in a persistent way:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;localectl &lt;span class=&quot;nt&quot;&gt;--no-convert&lt;/span&gt; set-x11-keymap us_intl
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This will add the following entry in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/X11/xorg.conf.d/00-keyboard.conf&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Section &lt;span class=&quot;s2&quot;&gt;&quot;InputClass&quot;&lt;/span&gt;
+        Identifier &lt;span class=&quot;s2&quot;&gt;&quot;system-keyboard&quot;&lt;/span&gt;
+        MatchIsKeyboard &lt;span class=&quot;s2&quot;&gt;&quot;on&quot;&lt;/span&gt;
+        Option &lt;span class=&quot;s2&quot;&gt;&quot;XkbLayout&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;us_intl&quot;&lt;/span&gt;
+EndSection
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;It will work, with one (important) exception: for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dead_acute + C key&lt;/code&gt; combination,
+instead of cedilla, the character U0106 (ć) is presented.&lt;/p&gt;
+
+&lt;h4 id=&quot;problem-locale&quot;&gt;Problem: Locale&lt;/h4&gt;
+&lt;p&gt;The problem is related to different locale. In order to change this, it is
+necessary to change the default US locale (en_US.UTF-8) to brazillian portuguese
+locale.
+The following command does the trick:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;localectl set-locale &lt;span class=&quot;nv&quot;&gt;LANG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;pt_BR.UTF8
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This will add the following in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/locale.conf&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;LANG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;pt_BR.UTF-8
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In Arch, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pt_BR.UTF8&lt;/code&gt; layout details can be found in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/usr/share/X11/locale/pt_BR.UTF-8/Compose&lt;/code&gt; file.
+The cedilla behavior in each locale can be perceived comparing both locale files:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /usr/share/X11/locale/en_US.UTF-8/Compose | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;ccedil &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt;
+
+&amp;lt;dead_cedilla&amp;gt; &amp;lt;C&amp;gt;                    : &lt;span class=&quot;s2&quot;&gt;&quot;Ç&quot;&lt;/span&gt;   Ccedilla &lt;span class=&quot;c&quot;&gt;# LATIN CAPITAL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;comma&amp;gt; &amp;lt;C&amp;gt;               : &lt;span class=&quot;s2&quot;&gt;&quot;Ç&quot;&lt;/span&gt;   Ccedilla &lt;span class=&quot;c&quot;&gt;# LATIN CAPITAL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;C&amp;gt; &amp;lt;comma&amp;gt;               : &lt;span class=&quot;s2&quot;&gt;&quot;Ç&quot;&lt;/span&gt;   Ccedilla &lt;span class=&quot;c&quot;&gt;# LATIN CAPITAL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;cedilla&amp;gt; &amp;lt;C&amp;gt;             : &lt;span class=&quot;s2&quot;&gt;&quot;Ç&quot;&lt;/span&gt;   Ccedilla &lt;span class=&quot;c&quot;&gt;# LATIN CAPITAL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;dead_cedilla&amp;gt; &amp;lt;c&amp;gt;                    : &lt;span class=&quot;s2&quot;&gt;&quot;ç&quot;&lt;/span&gt;   ccedilla &lt;span class=&quot;c&quot;&gt;# LATIN SMALL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;comma&amp;gt; &amp;lt;c&amp;gt;               : &lt;span class=&quot;s2&quot;&gt;&quot;ç&quot;&lt;/span&gt;   ccedilla &lt;span class=&quot;c&quot;&gt;# LATIN SMALL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;c&amp;gt; &amp;lt;comma&amp;gt;               : &lt;span class=&quot;s2&quot;&gt;&quot;ç&quot;&lt;/span&gt;   ccedilla &lt;span class=&quot;c&quot;&gt;# LATIN SMALL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;cedilla&amp;gt; &amp;lt;c&amp;gt;             : &lt;span class=&quot;s2&quot;&gt;&quot;ç&quot;&lt;/span&gt;   ccedilla &lt;span class=&quot;c&quot;&gt;# LATIN SMALL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;dead_acute&amp;gt; &amp;lt;Ccedilla&amp;gt;               : &lt;span class=&quot;s2&quot;&gt;&quot;Ḉ&quot;&lt;/span&gt;   U1E08 &lt;span class=&quot;c&quot;&gt;# LATIN CAPITAL LETTER C WITH CEDILLA AND ACUTE&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;acute&amp;gt; &amp;lt;Ccedilla&amp;gt;        : &lt;span class=&quot;s2&quot;&gt;&quot;Ḉ&quot;&lt;/span&gt;   U1E08 &lt;span class=&quot;c&quot;&gt;# LATIN CAPITAL LETTER C WITH CEDILLA AND ACUTE&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;apostrophe&amp;gt; &amp;lt;Ccedilla&amp;gt;   : &lt;span class=&quot;s2&quot;&gt;&quot;Ḉ&quot;&lt;/span&gt;   U1E08 &lt;span class=&quot;c&quot;&gt;# LATIN CAPITAL LETTER C WITH CEDILLA AND ACUTE&lt;/span&gt;
+&amp;lt;dead_acute&amp;gt; &amp;lt;ccedilla&amp;gt;               : &lt;span class=&quot;s2&quot;&gt;&quot;ḉ&quot;&lt;/span&gt;   U1E09 &lt;span class=&quot;c&quot;&gt;# LATIN SMALL LETTER C WITH CEDILLA AND ACUTE&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;acute&amp;gt; &amp;lt;ccedilla&amp;gt;        : &lt;span class=&quot;s2&quot;&gt;&quot;ḉ&quot;&lt;/span&gt;   U1E09 &lt;span class=&quot;c&quot;&gt;# LATIN SMALL LETTER C WITH CEDILLA AND ACUTE&lt;/span&gt;
+&amp;lt;Multi_key&amp;gt; &amp;lt;apostrophe&amp;gt; &amp;lt;ccedilla&amp;gt;   : &lt;span class=&quot;s2&quot;&gt;&quot;ḉ&quot;&lt;/span&gt;   U1E09 &lt;span class=&quot;c&quot;&gt;# LATIN SMALL LETTER C WITH CEDILLA AND ACUTE&lt;/span&gt;
+&amp;lt;dead_currency&amp;gt; &amp;lt;Ccedilla&amp;gt;            : &lt;span class=&quot;s2&quot;&gt;&quot;₵&quot;&lt;/span&gt;   U20B5               &lt;span class=&quot;c&quot;&gt;# CEDI SIGN&lt;/span&gt;
+&amp;lt;dead_currency&amp;gt; &amp;lt;ccedilla&amp;gt;            : &lt;span class=&quot;s2&quot;&gt;&quot;₵&quot;&lt;/span&gt;   U20B5               &lt;span class=&quot;c&quot;&gt;# CEDI SIGN&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /usr/share/X11/locale/pt_BR.UTF-8/Compose | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;ccedil &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt;
+
+&amp;lt;dead_acute&amp;gt; &amp;lt;C&amp;gt; 			: &lt;span class=&quot;s2&quot;&gt;&quot;Ç&quot;&lt;/span&gt; Ccedilla	&lt;span class=&quot;c&quot;&gt;# LATIN CAPITAL LETTER C WITH CEDILLA&lt;/span&gt;
+&amp;lt;dead_acute&amp;gt; &amp;lt;c&amp;gt; 			: &lt;span class=&quot;s2&quot;&gt;&quot;ç&quot;&lt;/span&gt; ccedilla	&lt;span class=&quot;c&quot;&gt;# LATIN SMALL LETTER C WITH CEDILLA&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;final-notes&quot;&gt;Final notes&lt;/h2&gt;
+
+&lt;p&gt;It is also possible to configure keyboard layout on the fly, without persisting
+configuration, using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;setxkbmap -layout us -variant intl&lt;/code&gt;;
+however, the cedilla character will also only work with the brazillian-portuguese locale previously set.&lt;/p&gt;
+
+&lt;h2 id=&quot;references&quot;&gt;References&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration&quot;&gt;Xorg/Keyboard configuration&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://wiki.archlinux.org/index.php/Locale&quot;&gt;Locale&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://wiki.archlinux.org/index.php/Xorg&quot;&gt;Xorg&lt;/a&gt;&lt;/p&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="linux" /><category term="archlinux" /><summary type="html">Configuring keyboard for pt-br.</summary></entry><entry><title type="html">Binding Godaddy subdomains to Github pages</title><link href="http://localhost:4000/blog/infrastructure/2017-05-11-Binding-Godaddy-subdomains-Github-pages/" rel="alternate" type="text/html" title="Binding Godaddy subdomains to Github pages" /><published>2017-05-11T00:00:00-03:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/infrastructure/Binding-Godaddy-subdomains-Github-pages</id><content type="html" xml:base="http://localhost:4000/blog/infrastructure/2017-05-11-Binding-Godaddy-subdomains-Github-pages/">&lt;p&gt;How to configure Godaddy for Github pages.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#godaddy&quot; id=&quot;markdown-toc-godaddy&quot;&gt;Godaddy&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#github&quot; id=&quot;markdown-toc-github&quot;&gt;Github&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#why-not-to-forward&quot; id=&quot;markdown-toc-why-not-to-forward&quot;&gt;Why not to forward?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The procedure to bind your Godaddy subdomain to Github pages is very simple and brings a great cost/benefit. In this article, I’m going to show how to bind &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[user].github.io&lt;/code&gt; Github Pages URL to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;test.[domain-name].com&lt;/code&gt; subdomain.&lt;/p&gt;
+
+&lt;h2 id=&quot;godaddy&quot;&gt;Godaddy&lt;/h2&gt;
+
+&lt;p&gt;In Godaddy administration area, follow the steps:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Go to your domain configuration, and then to DNS Management.&lt;/li&gt;
+  &lt;li&gt;Add a new Record, as below:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;Type&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;Host&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;Points To&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;TTL&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CNAME&lt;/code&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;test&lt;/code&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[user].github.io&lt;/code&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;1 hour&lt;/code&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;github&quot;&gt;Github&lt;/h2&gt;
+
+&lt;p&gt;In Github, follow the single step:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In your Github Page repository (typically &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[user].github.io&lt;/code&gt; repo), add a text file called &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CNAME&lt;/code&gt; in the root folder. The file must contains just one line, with the content &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[user].github.io&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That’s it!&lt;/p&gt;
+
+&lt;h2 id=&quot;why-not-to-forward&quot;&gt;Why not to forward?&lt;/h2&gt;
+
+&lt;p&gt;Godaddy has a feature that allows you to forward your domain to another, and that results in HTTP 301 and 302 status codes. This solution, however, will not really bind your domain to Github pages, but just forward it. It will not allow the domain name from Gadaddy to wrap the Github pages URL. You can mask the domain in Godaddy, but the outcome is a fixed domain that will not change when navigating between pages, so permalinks will be not possible.&lt;/p&gt;
+
+&lt;p&gt;Use forward only if you really want to forward (i.e: site changes its location), and not for binding.&lt;/p&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="infrastructure" /><category term="github" /><summary type="html">How to configure Godaddy for Github pages.</summary></entry><entry><title type="html">Docker without sudo</title><link href="http://localhost:4000/blog/infrastructure/2017-05-07-Docker-without-sudo/" rel="alternate" type="text/html" title="Docker without sudo" /><published>2017-05-07T00:00:00-03:00</published><updated>2020-10-01T05:25:28-03:00</updated><id>http://localhost:4000/blog/infrastructure/Docker-without-sudo</id><content type="html" xml:base="http://localhost:4000/blog/infrastructure/2017-05-07-Docker-without-sudo/">&lt;p&gt;It is handy to use docker without the need of sudo.&lt;/p&gt;
+
+&lt;ul class=&quot;large-only&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#concept-and-solution&quot; id=&quot;markdown-toc-concept-and-solution&quot;&gt;Concept and solution&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#footnotes&quot; id=&quot;markdown-toc-footnotes&quot;&gt;Footnotes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;To run docker commands, it is necessary to prefix them with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sudo&lt;/code&gt;. This linux command allows the current user to perform actions as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;root&lt;/code&gt;. To run docker commands, you must have &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;root&lt;/code&gt; privileges (default).&lt;/p&gt;
+
+&lt;p&gt;However, this can be painful. Is not practical to keep informing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sudo&lt;/code&gt; every time. There should be a simpler way to run docker commands, without the hassle of keep using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sudo&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;concept-and-solution&quot;&gt;Concept and solution&lt;/h3&gt;
+
+&lt;p&gt;And there is a simpler way. The concept is this: if your user is in a specific linux group (called “docker”), automatically you will be granted to run docker commands. Simple like that.&lt;/p&gt;
+
+&lt;p&gt;So, it is necessary to create this group and then add your own user to it. To create the “docker” linux group, you can use the command (non-root): &lt;sup&gt;&lt;a href=&quot;#s1&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;groupadd docker
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;And then you have to associate your user to this group, using the command (non-root): &lt;sup&gt;&lt;a href=&quot;#s1&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;usermod &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-G&lt;/span&gt; docker &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;your user]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;You can now restart docker service. In Arch Linux, the command is (non-root): &lt;sup&gt;&lt;a href=&quot;#s1&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;systemctl start docker
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;And now we can test, using a very simple Docker command to print a message on the screen using an Debian container. The command will work without sudo:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run debian &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;hello world&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;footnotes&quot;&gt;Footnotes&lt;/h3&gt;
+
+&lt;p&gt;&lt;sup id=&quot;s1&quot;&gt;1&lt;/sup&gt; The commands here presented were tested in Arch Linux, and may not work correctly in other distros. But the general ideia is the same and Google is there for the rescue.&lt;/p&gt;</content><author><name>&lt;firstname&gt; &lt;lastname&gt;</name><email>&lt;mail@domain.tld&gt;</email></author><category term="infrastructure" /><category term="docker" /><category term="devops" /><summary type="html">It is handy to use docker without the need of sudo.</summary></entry></feed>
