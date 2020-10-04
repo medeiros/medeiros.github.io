@@ -8,7 +8,7 @@ tags: [core, kafka]
 comments: true
 ---
 > Kafka is a distributed, resilient, fault tolerant streaming platform that works with high data throughput.
-In this page, the main (and core) concepts of Kafka technology will be covered.
+In this page, the main concepts of Kafka technology will be covered.
 {:.lead}
 
 - Table of Contents
@@ -108,7 +108,7 @@ of some sort, webiste activity tracking, event sourcing, log aggregation, etc.
 There are a lot of [use cases](https://kafka.apache.org/uses) that can be
 represented in a topic.
 
-### Message Key and the Distributions of Messages in a Topic
+### Distributions of Messages in a Topic
 
 When data arrives to a topic, Kafka must decide in which partition to store it.
 The data can be write randomly in a partition of the topic (what is called
@@ -145,7 +145,15 @@ with the same key will go to the same partition.
   partition - including those that are also being used to store data of
   particular key.
   - **The best approach** is to decide, at **topic level**, if
-  message key **will be adopted or not**, and be consistent with it.
+  **message key will be adopted or not**, and be consistent with it. Just do,
+  or do not, as Yoda teached us.
+
+
+  ![](/assets/img/blog/kafka/kafkacore-yoda-do-or-donot.png)
+
+  Figure 7: Use message keys or do not use message keys.
+  {:.figcaption}
+
 
 Some notes regarding the logic of message distribution in partitions:
 - The `murmur3` algorithm is based on the number of partitions of a topic. So, if
