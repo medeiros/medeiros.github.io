@@ -1,0 +1,164 @@
+---
+layout: post
+title: "Kafka Core Concepts"
+description: >
+  Review of the core concepts in Apache Kafka.
+categories: distributedarchitecture
+tags: [core, kafka]
+comments: true
+---
+> Kafka is a distributed, resilient, fault tolerant streaming platform that works with high data throughput.
+In this page, the main (and core) concepts of Kafka technology will be covered.
+{:.lead}
+
+- Table of Contents
+{:toc}
+
+## How it starts
+
+This section is heavily based on the O'Reilly free book 'Kafka: The Definitive
+Guide', that can be downloaded at [https://www.confluent.io/resources/kafka-the-definitive-guide/](https://www.confluent.io/resources/kafka-the-definitive-guide/).
+{:.note}
+
+At first, let's consider a simple messaging system for metrics gathering.
+
+![](/assets/img/blog/kafka/kafkadefguide-messaging-system.png)
+
+Figure 1: Simple Publisher Messaging System (from 'Kafka: The Definitive Guide' Book)
+{:.figcaption}
+
+This is a simple solution for monitoring. However, over time, this solution
+increases, as new requirements related to metrics arrive. New kinds of metrics
+arise, along with new systems to consume those messages.
+
+![](/assets/img/blog/kafka/kafkadefguide-messaging-system-2.png)
+
+Figure 2: The Metrics Messaging System evolves (from 'Kafka: The Definitive Guide' Book)
+{:.figcaption}
+
+Some technical debt is created now, because of all of those integrations out
+of control. In order to organize all this, you can consider to centralize these
+metrics in one central application.
+
+![](/assets/img/blog/kafka/kafkadefguide-messaging-system-3.png)
+
+Figure 3: Central System for Metrics Management (from 'Kafka: The Definitive Guide' Book)
+{:.figcaption}
+
+Great. The architecture design is much better now. But imagine that, at the
+same time, different initiatives are arising in your company, for different
+kinds of messaging integration needs (instead of metrics, there is also demand
+  for logging, tracking, and so on).
+
+![](/assets/img/blog/kafka/kafkadefguide-messaging-system-4.png)
+
+Figure 4: Multiple Publish/Subscribe Systems (from 'Kafka: The Definitive Guide'
+Book)
+{:.figcaption}
+
+There is a lot a duplication in this architecture evolution, since this three
+pub/sub systems must have a lot of characteristics and features in common.
+
+## The ideia behind Kafka
+
+Apache Kafka is a system design to solve this problem. Instead of having
+different systems that handle messaging problems in isolation (with their own
+bugs, scopes, schedules and so on), it would be better to have a single centralized system that allows you to publish generic data, that can be used by any sorts of clients. In that way, your team do not have to worry about maintain a pub/sub
+messaging system for themselves - they can just use a generic system, and
+focus on the specific problems of the team.
+
+In Kafka model, different systems can produce data and consume data using
+different kinds of technologies:
+
+- Protocols: TCP, FTP, JDBC, REST, HTTP, etc
+- Data Format: JSON, XML, CSV, Binary
+- Data Schema
+
+![](/assets/img/blog/kafka/kafkadefguide-messaging-system-5.png)
+
+Figure 5: System can produce and consume data to and from Kafka.
+{:.figcaption}
+
+## Kafka main characteristics
+
+- **Distributed:** Kafka works with several servers (or "brokers"), that form a
+cluster
+- **Resilient and Fault Tolerant:** If one broker fails, others can detected and divide the extra load
+- **Scale:** Kafka can scale horizontally to 100+ brokers
+- **High Throughtput:** can reach mllions of messages per second
+- **Low Latency:** can handle data traffic in less than 10 ms (realtime)
+
+## Topics and Partitions in a Single Broker
+
+A `topic` is defined as a stream of data. Internally, each topic is divided in
+N `partitions`.
+
+A `partition` is a ordered log of `messages`. It is called 'ordered' because
+messages are saved in partitions in the order they arrive. Each `message` in a `partition` have an ID, which is called `offset`.
+
+This is how this concept looks like in a single broker:
+
+![](/assets/img/blog/kafka/kafkadefguide-messaging-system-6.png)
+
+Figure 6: Topics, Partitions and Offsets.
+{:.figcaption}
+
+Each `topic` represents a concept of data. It can be something like metrics
+of some sort, webiste activity tracking, event sourcing, log aggregation, etc.
+There are a lot of [use cases](https://kafka.apache.org/uses) that can be
+represented in a topic.
+
+### Message Key and the Distributions of Messages in a Topic
+
+When data arrives to a topic, Kafka must decide in which partition to store it.
+The data can be write randomly in a partition of the topic (what is called
+"*round robin*") or the same data can always go to the same partition.
+
+Each message in Kafka can have the basic structure:
+
+- `value`
+or
+- `key` and `value`
+
+If the `message` only have `value`, it will be written to any of the partitions
+of the topic, according to round robin algorithm. But, if a `key` is also
+informed, the algorithm `murmur3` will be applied on the key to decide to which partition the message must be stored.
+
+So, if 10 different messages arrive in Kafka:
+- **with the same key**: they will all be stored in the same topic, in the order that
+they arrived. This is important if the requirement of the topic is to store
+messages that must be later consumed in the same order that they arrived
+(because the consumer of data can just read all data from a particular partition,
+in order). The reading is performed the same way, by using message key and
+`murmur3` algorithm.
+- **without any key**: Kafka will use round robin to distribute these 10 messages
+through all of the partitions of the topic. In a topic with three partitions,
+maybe 3 messages go to Partition0, another 3 Message to Partition1 and 4
+messages go to Partition2.
+- **with a mix (3 messages with same key, 7 messages without key)**: the 7
+messages without key will be distributed randomly, and the remaining 3 messages
+with the same key will go to the same partition.
+  - **This approach is not a good idea:** if your topic receives messages with and
+  without key, you can have side effects - for instance, you may expect that only messages with key "truckID123" will be write to a particular topic (all geolocation messages from truck 123), but when you read the partition, some messages different
+  that of this particular truck (for any arbitrary truck) also shows up. That is
+  because Kafka will distribute messages without key to any of the topics of the
+  partition - including those that are also being used to store data of
+  particular key.
+  - **The best approach** is to decide, at **topic level**, if
+  message key **will be adopted or not**, and be consistent with it.
+
+Some notes regarding the logic of message distribution in partitions:
+- The `murmur3` algorithm is based on the number of partitions of a topic. So, if
+it's important to maintain order (and, hence, you're using Message Keys for that),
+make sure that the number of partitions of your topic do not change.
+- It is also possible to overwrite the algorithm behavior (change murmur3 for something else), by overwriting the Kafka `TopicPartition` class.
+- You can also to explicit define which data goes to which partition of a topic,
+when writing the producer client. You have to use the API for that.
+
+
+## Topics and Partitions in a Cluster
+
+## References
+
+- [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
+- [Stephane Maarek's Kafka Courses @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac)
