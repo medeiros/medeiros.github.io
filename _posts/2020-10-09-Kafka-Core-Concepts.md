@@ -28,8 +28,8 @@ Figure 1: Simple Publisher Messaging System (from 'Kafka: The Definitive
 Guide' Book)
 {:.figcaption}
 
-This is a simple solution for monitoring. However, over time, this solution
-increases, as new requirements related to metrics arrive. New kinds of metrics
+This is a simple solution for generic metrics. However, over time, this solution
+increases as new requirements related to metrics arrive. New kinds of metrics
 arise, along with new systems to consume those messages.
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-2.png)
@@ -60,11 +60,11 @@ Book)
 {:.figcaption}
 
 There is a lot a duplication in this architecture evolution, since this three
-pub/sub systems must have a lot of characteristics and features in common.
+pub/sub systems have a lot of characteristics and features in common.
 
 ## The ideia behind Kafka
 
-Apache Kafka is a system design to solve this problem. Instead of having
+Apache Kafka is a system designed to solve this problem. Instead of having
 different systems that handle messaging problems in isolation (with their own
 bugs, scopes, schedules and so on), it would be better to have a single
 centralized system that allows you to publish generic data, that can be used
@@ -100,7 +100,7 @@ A `topic` is defined as a stream of data. Internally, each topic is divided in
 N `partitions`.
 
 A `partition` is a ordered log of `messages`. It is called 'ordered' because
-messages are saved in partitions in the order they arrive. Each `message` in a
+messages are stored in partitions in the order they arrive. Each `message` in a
 `partition` have an ID, which is called `offset`.
 
 This is how this concept looks like in a single broker:
@@ -146,11 +146,12 @@ partitions, maybe 3 messages go to Partition0, another 3 Message to Partition1
 and 4 messages go to Partition2.
 - **with a mix (3 messages with same key, 7 messages without key)**: the 7
 messages without key will be distributed randomly, and the remaining 3 messages
-with the same key will go to the same partition.
+with the same key will go to the same partition. Each message is independent
+from the others.
   - **This approach is not a good idea:** if your topic receives messages with
   and without key, you can have side effects - for instance, you may expect
   that only messages with key "truckID123" will be write to a particular
-  topic (all geolocation messages from truck 123), but when you read the
+  partition ("all geolocation messages from truck 123"), but when you read that
   partition, some messages different that of this particular truck (for any
   arbitrary truck) also shows up. That is because Kafka will distribute
   messages without key to any of the topics of the partition - including those
@@ -158,7 +159,6 @@ with the same key will go to the same partition.
   - **The best approach** is to decide, at **topic level**, if
   **message key will be adopted or not**, and be consistent with it. Just do,
   or do not, as Yoda teached us.
-
 
   ![](/assets/img/blog/kafka/kafkacore-yoda-do-or-donot.png)
 
