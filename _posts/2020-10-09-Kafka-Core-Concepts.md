@@ -84,6 +84,16 @@ different kinds of technologies:
 Figure 5: System can produce and consume data to and from Kafka.
 {:.figcaption}
 
+### Basic Terminology: Brokers, Producers and Consumers
+
+As presented in the previous figure, Kafka have some particular names
+for its main architecture components:
+
+- **Broker:** is the same of a Kafka Server. A Kafka Cluster is a group
+of brokers;
+- **Producer:** is the client that produces data to Kafka Broker;
+- **Consumer:** is the client that consumes data from Kafka Broker;
+
 ## Kafka main characteristics
 
 - **Distributed:** Kafka works with several servers (or "brokers"), that form a
@@ -93,6 +103,18 @@ and divide the extra load
 - **Scale:** Kafka can scale horizontally to 100+ brokers
 - **High Throughtput:** can reach mllions of messages per second
 - **Low Latency:** can handle data traffic in less than 10 ms (realtime)
+
+### Throughtput and Latency
+
+It is important to define the concepts of throughtput and latency. These are
+complimentary concepts, and they are key in Kafka:
+
+- **Throughtput:** Define how many messages can be processed in a specific
+amount of time. For instance: the broker can deliver 10,000 messages per
+second
+- **Latency:** Define how much time does it take for a single message to be
+processed. For instance: a message can be produced and acknowledged in 5
+milisseconds.
 
 ## Topics and Partitions in a Single Broker
 
@@ -107,19 +129,38 @@ This is how this concept looks like in a single broker:
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-6.png)
 
-Figure 6: Topics, Partitions and Offsets.
+Figure 6: Topics, Partitions and Offsets in a Single Broker.
 {:.figcaption}
 
 Each `topic` represents a concept of data. It can be something like metrics
-of some sort, webiste activity tracking, event sourcing, log aggregation, etc.
+of some sort, website activity tracking, event sourcing, log aggregation, etc.
 There are a lot of [use cases](https://kafka.apache.org/uses) that can be
 represented in a topic.
 
+### Number of Partitions for Performance Improvement
+
+In the previous example, a topic have three partitions. But it can be one
+single partition, or dozens of partitions. So, it is important to understand
+how many partitions a topic must have - and why.
+
+The number of partitions in a topic is important for performance. With only
+one partition, you cannot use multiple threads to read the data - if you do,
+you'll read repetitions. But if you split your 10,000 messages in three
+partitions, for instance, then you could read data in paralellel (in three
+threads), and this will improve your throughput.
+
+This approach *(performance enhancement when reading data "splitted" in
+different partitions)* will not work if your data must be read in the same
+particular order that was written. Check the next section below
+in this page (*'Distributions of Messages in a Topic'*) for further info.
+{:.note}
+
 ### Distributions of Messages in a Topic
 
-When data arrives to a topic, Kafka must decide in which partition to store it.
-The data can be write randomly in a partition of the topic (what is called
-"*round robin*") or the same data can always go to the same partition.
+When data arrives to a topic that have more than one partition, Kafka must
+decide in which partition to store it. The data can be write randomly in a
+partition of the topic (what is called "*round robin*") or the same data can
+always go to the same partition.
 
 Each message in Kafka can have the basic structure:
 
@@ -162,7 +203,7 @@ from the others.
 
   ![](/assets/img/blog/kafka/kafkacore-yoda-do-or-donot.png)
 
-  Figure 7: Use message keys or do not use message keys.
+  Figure 7: In a topic, use message keys or do not use message keys.
   {:.figcaption}
 
 
@@ -170,13 +211,155 @@ Some notes regarding the logic of message distribution in partitions:
 - The `murmur3` algorithm is based on the number of partitions of a topic. So,
 if it's important to maintain order (and, hence, you're using Message Keys for
 that), make sure that the number of partitions of your topic do not change.
-- It is also possible to overwrite the algorithm behavior (change murmur3 for
-  something else), by overwriting the Kafka `TopicPartition` class.
+- It is also possible to overwrite the algorithm behavior (change `murmur3` for
+something else), by overwriting the Kafka `TopicPartition` class.
 - You can also to explicit define which data goes to which partition of a topic,
 when writing the producer client. You have to use the API for that.
 
 
 ## Topics and Partitions in a Cluster
+
+If you have a single broken, all your data and availability relies on this
+particular broker. This is not a good idea, because you have no scalability
+and no fault tolerance. If this server goes down, you application is gone.
+If the disk corrupts, it is also gone. A single broker could be nice for
+development purposes, but a Kafka architecture must always be deployed as a
+cluster.
+
+### Advantages of Kafka Cluster
+
+- **No data is lost**: The data is replicated through brokers per design
+- **Fault tolerance and availability**: All brokers serve data as one. If one
+goes down, the others will organize themselves to respond in its behalf. Kafka
+can rebalance and redistribute the load with no harm.
+
+
+
+### Replication of Partitions
+
+In a Kafka Cluster, data can be replicated between brokers. This is one
+of the most powerful concepts in Kafka.  
+
+Let's consider the previous mentioned Trucks Positioning Topic:
+
+![](/assets/img/blog/kafka/kafkadefguide-messaging-system-6.png)
+
+Figure 8: Topics, Partitions and Offsets In a Single Broker - revisited.
+{:.figcaption}
+
+In a single broker, if is goes down or the disk is corrupted, this topic will
+be gone. But let's consider this same topic using **replication factor of two**
+with **three brokers**:
+
+![](/assets/img/blog/kafka/kafka-cluster-broker-partitions.png)
+
+Figure 9: Replication of Data of Topic between three Brokers in a Cluster.
+{:.figcaption}
+
+There are a lot of information in this figure.
+
+#### The Same Topic goes to Multiple Brokers
+
+Because of the Replication Factor of `2`, each partition of the topic
+"Trucks Positioning" exists in `2` different Brokers of `3` available in
+the cluster (ids: 0, 1 and 2).
+
+So, it is correct to say that each topic can exist in different brokers, but
+the data of a topic is not entirely in a single broker. For instance,
+the partition `P2` is available only on Brokers `0` and `2` - but not in
+Broker `1`.
+
+If you want all the partitions of a topic to exist in all of the brokers of
+a cluster, this can be achieve by setting the replication factor number equal
+to the number of partitions - in this case, `3`. But this is not a good rule to
+follow, because, if you cluster have 100 brokers, you do not necessarity wanna
+have 100 partitions for a single topic. More on that in the next sections.
+{:.note}
+
+It is not possible to have a Replication Factor number higher than the number
+of brokers - and there will always be a single replication factor, as a minimum.
+For instance, consider **four brokers**: the replication factor must
+be `>= 1 and <= 4`. And consider a **single broker**: the same rule applies
+(replication factor `>= 1 and <= 1` => must be always `1`).
+{:.note}
+
+
+#### Leader Partition, Replicas and ISR
+
+Kafka defines each partition in a topic as a **Leader Partition**, **Replica
+Partition** or **ISR (In-Sync Replica) Partition**.
+
+A **Leader Partition** is the entry point for all the clients. When some client
+have to read data from partition `P1`, for instance, the following happens, in
+a nutshell:
+- Kafka Client asks for any kafka Broker for the metadata related to
+the partitions of a topic
+- Kafka Broker will get metadata from Zookeeper (the metadata from
+partitions in a topic is stored in Zookeeper)
+- Kafka Broker will deliver the updated metadata info to the client
+- Kafka Client will search in metadata for the Broker who is the Leader of
+Partition `P1` - in this case, it is Broker 1
+- Kafka Client will ask to Broker `1` for data in the partition `P1`
+
+When some client send data to be written to Kafka, a Partition Leader gets
+data and is responsible to deliver to one of the Replicas (itself or other
+replicas). When that particular data is in-sync, the partition is called a
+`In-Sync Replica`.
+
+A **Replica Partition** is just a replica of data. This is a copy of a Leader
+Partition data, and this partition will not be directly called by any clients -
+that is a characteristic only for the Leader. A Replica partition may or may
+not be syncronized (or in-sync) with the Leader Partition.
+- In Figure 9, the Partition `P1` in Broker `2` is a Replica which is not
+in sync. The message with `offsetId 4` are still not synchronized.
+
+A **In-Sync Replica** is a Replica Partition that is definitely in sync with
+the Leader Partition. In the Figure 9, the Partitions `P2` in Broker `0` and
+`P0` in Broker `1` are in sync.
+
+Some notes on this regard:
+- A Partition Leader is also a Replica, but with a more important function. So,
+in a topic of three partitions, for instance, there will be three Replicas,
+but one of those replicas will be also a Leader.
+- A particular partition can be Leader in a Broker and a Replica in another
+Broker. That is OK by design.
+- The sync mechanism takes some time, but is something that Kafka does
+internally - a Replica Partition will always became in-sync, but may take some
+time. More on that on Producers and Consumers section.
+
+#### What Happens if a Broker Fails? Rebalance and Replication of Data
+
+Kafka is able to detect that a Broker in a Cluster is no longer available,
+because kafka brokers exchange health check messages between each other.
+
+When this detection happens, Kafka balances the cluster automatically:
+- In order to guarantee the replication factor number, Kafka will copy data to
+other available brokers
+- If the dead broker is a leader of some partition, so another broker is elected
+to be leader of that partition
+
+For instance, considering the Figure 9, let's assume that Broker 1 is down.
+The result can be seen in Figure 10 (*with side effects in green*):
+
+![](/assets/img/blog/kafka/kafka-cluster-broker-partitions-goes-down.png)
+
+Figure 10: Replication of data when a broker goes down.
+{:.figcaption}
+
+In summary, what happens is the following:  
+- After some time, Kafka Brokers `0` and `2` understand that the Broker `1` is
+down
+- The Partition `P1` now only exists in Broker `2`, and Partition `P0` only
+exists in Broker `0`, but the replication factor of the topic is `2`. Hence,
+in order to maintain balance, `P1` is copied from Broker `2` to Broker `0`,
+and `P0` is copied from Broker `0` to Broker `2`.
+- The partition `P1` have no Leader, so new election happens, and Broker `2`
+is elected to be the Leader of `P1` until Broker `1` recovers. At this point,
+broker `2` is the leader of 2 out of 3 partitions - and that's OK.
+
+#### The Ideal Number of Replication Factor for a Topic
+
+### How many servers to adopt?
 
 ## References
 
