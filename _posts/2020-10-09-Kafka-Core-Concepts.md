@@ -146,7 +146,7 @@ how many partitions a topic must have - and why.
 The number of partitions in a topic is important for performance. With only
 one partition, you cannot use multiple threads to read the data - if you do,
 you'll read repetitions. But if you split your 10,000 messages in three
-partitions, for instance, then you could read data in paralellel (in three
+partitions, for instance, then you could read data in parallel (in three
 threads), and this will improve your throughput.
 
 This approach *(performance enhancement when reading data "splitted" in
@@ -208,10 +208,12 @@ from the others.
 
 
 Some notes regarding the logic of message distribution in partitions:
-- The `murmur3` algorithm is based on the number of partitions of a topic. So,
-if it's important to maintain order (and, hence, you're using Message Keys for
-that), make sure that the number of partitions of your topic do not change.
-- It is also possible to overwrite the algorithm behavior (change `murmur3` for
+- The [MurmurHash3](https://en.wikipedia.org/wiki/MurmurHash) algorithm is
+based on the number of partitions of a topic. So, if it's important to maintain
+order (and, hence, you're using Message Keys for that), make sure that the
+number of partitions of your topic do not change.
+- It is also possible to overwrite the algorithm behavior (change
+[MurmurHash3](https://en.wikipedia.org/wiki/MurmurHash) for
 something else), by overwriting the Kafka `TopicPartition` class.
 - You can also to explicit define which data goes to which partition of a topic,
 when writing the producer client. You have to use the API for that.
@@ -247,7 +249,7 @@ Let's consider the previous mentioned Trucks Positioning Topic:
 Figure 8: Topics, Partitions and Offsets In a Single Broker - revisited.
 {:.figcaption}
 
-In a single broker, if is goes down or the disk is corrupted, this topic will
+In a single broker, if it goes down or the disk is corrupted, this topic will
 be gone. But let's consider this same topic using **replication factor of two**
 with **three brokers**:
 
@@ -280,7 +282,10 @@ It is not possible to have a Replication Factor number higher than the number
 of brokers - and there will always be a single replication factor, as a minimum.
 For instance, consider **four brokers**: the replication factor must
 be `>= 1 and <= 4`. And consider a **single broker**: the same rule applies
-(replication factor `>= 1 and <= 1` => must be always `1`).
+(replication factor `>= 1 and <= 1` => must be always `1`). If you try to
+create a topic with the wrong number of replication factor, Kafka will throw
+a `org.apache.kafka.common.errors.InvalidReplicationFactorException:
+Replication factor: ? larger than available brokers: ?.`.
 {:.note}
 
 
@@ -317,6 +322,18 @@ A **In-Sync Replica** is a Replica Partition that is definitely in sync with
 the Leader Partition. In the Figure 9, the Partitions `P2` in Broker `0` and
 `P0` in Broker `1` are in sync.
 
+This information (partition, leaders, replicas and isr) can be seen when we
+describe a topic, as below:
+
+```bash
+ubuntu@ip-x:~$ ./kafka/bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka
+  --topic trucks-positioning --describe
+Topic: trucks-positioning    PartitionCount: 3       ReplicationFactor: 2    Configs:
+        Topic: teste    Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0,1
+        Topic: teste    Partition: 1    Leader: 1       Replicas: 1,2   Isr: 2,1
+        Topic: teste    Partition: 2    Leader: 2       Replicas: 0,2   Isr: 0,2
+```
+
 Some notes on this regard:
 - A Partition Leader is also a Replica, but with a more important function. So,
 in a topic of three partitions, for instance, there will be three Replicas,
@@ -330,15 +347,14 @@ time. More on that on Producers and Consumers section.
 #### What Happens if a Broker Fails? Rebalance and Replication of Data
 
 Kafka is able to detect that a Broker in a Cluster is no longer available,
-because kafka brokers exchange health check messages between each other.
+because Kafka brokers exchange health check messages between each other.
 
-When this detection happens, Kafka balances the cluster automatically:
-- In order to guarantee the replication factor number, Kafka will copy data to
-other available brokers
-- If the dead broker is a leader of some partition, so another broker is elected
-to be leader of that partition
+When this happens, Kafka will perform a Leader Election considering the remainer
+brokers. For each partition that was a Leader in the missing broker, Kafka
+will elect a new Leader of that partition in a different (live) broker.
+That way, partitions are still available to the clients.
 
-For instance, considering the Figure 9, let's assume that Broker 1 is down.
+For instance, considering the Figure 9, let's assume that Broker `1` is down.
 The result can be seen in Figure 10 (*with side effects in green*):
 
 ![](/assets/img/blog/kafka/kafka-cluster-broker-partitions-goes-down.png)
@@ -347,15 +363,63 @@ Figure 10: Replication of data when a broker goes down.
 {:.figcaption}
 
 In summary, what happens is the following:  
-- After some time, Kafka Brokers `0` and `2` understand that the Broker `1` is
-down
-- The Partition `P1` now only exists in Broker `2`, and Partition `P0` only
-exists in Broker `0`, but the replication factor of the topic is `2`. Hence,
-in order to maintain balance, `P1` is copied from Broker `2` to Broker `0`,
-and `P0` is copied from Broker `0` to Broker `2`.
-- The partition `P1` have no Leader, so new election happens, and Broker `2`
-is elected to be the Leader of `P1` until Broker `1` recovers. At this point,
-broker `2` is the leader of 2 out of 3 partitions - and that's OK.
+- After some time, Kafka Brokers `0` and `2` realize that Broker `1` is
+down and, therefore, Partition `P1` no longer a has a Leader
+- A new Leader Election occur for `P1`. Since `P1` only exists in Broker `2`
+(and not in Broker `0`), the elected Broker Leader for `P1` is now Broker `2`.
+- In this scenario, the Partition `P2` still maintain in-sync replica of two
+(because exists in Broker `0` and Broker `2`), but Partitions `P0` and `P1`
+only exists in a single Broker (since Broker `1` is dead), and for those, the
+in-sync replicas are now only one. Kafka will not rebalance data in order to
+"force" anything - it will wait for Broker `1` to recover and will remain
+with `2` replicas and `1` in sync replica for these.
+
+This can be seen when describing the same topic again:
+
+```bash
+ubuntu@ip-x:~$ ./kafka/bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka
+  --topic trucks-positioning --describe
+Topic: trucks-positioning    PartitionCount: 3       ReplicationFactor: 2    Configs:
+        Topic: teste    Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0
+        Topic: teste    Partition: 1    Leader: 2       Replicas: 1,2   Isr: 2
+        Topic: teste    Partition: 2    Leader: 2       Replicas: 0,2   Isr: 0,2
+```
+
+The Leaders have changed to reference only alive brokers (`0` and `2`), the
+replicas remain the same, and the ISRs references only alive brokers as well.
+
+But this still works - meaning that Kafka can respond to the clients properly,
+because we have a Leader for each partition of a topic.
+But what if both Brokers `1` and `2` both die?
+
+![](/assets/img/blog/kafka/kafka-cluster-broker-partitions-two-goes-down.png)
+
+Figure 11: Two goes down - only one broker left.
+{:.figcaption}
+
+In that case, the Partition `P1` is not available anymore, anywhere.
+Since there are no Leader for Partition `P1` anymore, producers and consumers
+will crash when trying to send and get data to the topic.
+
+When creating a topic, the number of active brokers must be equal or higher
+than the replication factor number (for instance, if replication factor is
+2, then you must have at least two brokers). But if one server goes down
+after a topic creation, it will still be working if there is a Leader for each
+partition (even if the number of brokers is less than replication factor).
+The replicas will remain the same - the ISRs are the ones that will be updated
+to the new situation.
+{:.note}
+
+```bash
+ubuntu@ip-x:~$ ./kafka/bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka
+  --topic trucks-positioning --describe
+Topic: trucks-positioning    PartitionCount: 3       ReplicationFactor: 2    Configs:
+        Topic: teste    Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0
+        Topic: teste    Partition: 1    Leader: none    Replicas: 1,2   Isr: 2
+        Topic: teste    Partition: 2    Leader: 0       Replicas: 0,2   Isr: 0,2
+```
+
+There is no Leader for one partition, so this topic is not available to clients.
 
 #### The Ideal Number of Replication Factor for a Topic
 
