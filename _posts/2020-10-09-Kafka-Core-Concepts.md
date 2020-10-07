@@ -24,7 +24,7 @@ At first, let's consider a simple messaging system for metrics gathering.
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system.png)
 
-Figure 1: Simple Publisher Messaging System (from 'Kafka: The Definitive
+Figure: Simple Publisher Messaging System (from 'Kafka: The Definitive
 Guide' Book)
 {:.figcaption}
 
@@ -34,7 +34,7 @@ arise, along with new systems to consume those messages.
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-2.png)
 
-Figure 2: The Metrics Messaging System evolves (from 'Kafka: The Definitive
+Figure: The Metrics Messaging System evolves (from 'Kafka: The Definitive
 Guide' Book)
 {:.figcaption}
 
@@ -44,7 +44,7 @@ metrics in one central application.
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-3.png)
 
-Figure 3: Central System for Metrics Management (from 'Kafka: The Definitive
+Figure: Central System for Metrics Management (from 'Kafka: The Definitive
 Guide' Book)
 {:.figcaption}
 
@@ -55,7 +55,7 @@ kinds of messaging integration needs (instead of metrics, there is also demand
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-4.png)
 
-Figure 4: Multiple Publish/Subscribe Systems (from 'Kafka: The Definitive Guide'
+Figure: Multiple Publish/Subscribe Systems (from 'Kafka: The Definitive Guide'
 Book)
 {:.figcaption}
 
@@ -81,18 +81,41 @@ different kinds of technologies:
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-5.png)
 
-Figure 5: System can produce and consume data to and from Kafka.
+Figure: System can produce and consume data to and from Kafka.
 {:.figcaption}
 
-### Basic Terminology: Brokers, Producers and Consumers
+### Basic Terminology: Zookeeper, Brokers, Producers and Consumers
 
 As presented in the previous figure, Kafka have some particular names
 for its main architecture components:
 
 - **Broker:** is the same of a Kafka Server. A Kafka Cluster is a group
 of brokers;
+  - When connected to a Broker in a Cluster, you're connected to all Brokers
+  in that cluster
 - **Producer:** is the client that produces data to Kafka Broker;
 - **Consumer:** is the client that consumes data from Kafka Broker;
+
+There is also **Zookeeper**, which is mandatory for Kafka, and responsible to
+manage metadata of the entire Kafka Cluster.
+
+The following figure explains how the iteration between those components occur,
+in a nutshell:
+
+![](/assets/img/blog/kafka/kafka-roundup.png)
+
+Figure: Kafka Roundup.
+{:.figcaption}
+
+- In (1), a Kafka Producer reads data from a generic source system (for
+  instance, an REST API)
+- In (2), a Kafka Producer send data previously read to Kafka Cluster
+- In (3), Kafka Brokers interact with Zookeeper Cluster for metadata
+- In (4), A Kafka Consumer reads data from Kafka (related to the API
+  previously sent by Kafka Producer)
+- In (5), a Kafka Consumer sends read data to a sink system (for instance,
+  Twitter)
+
 
 ## Kafka main characteristics
 
@@ -116,20 +139,92 @@ second
 processed. For instance: a message can be produced and acknowledged in 5
 milisseconds.
 
+## Zookeeper
+
+Zookeeper is a essencial key in Kafka. Some of its characteristics:
+
+- Stores data about Partition Leaders, Replicas and ISRs
+- Store general information about changes in the cluster: for instance: new
+topics, new dead brokers, new recovered brokers, deleted topics, etc.
+- Stores ACLs
+
+Since Kafka do not work without Zookeeper, it is important to understand
+it better.
+
+### Zookeeper Mechanism
+
+- Zookeeper always work with a even number of servers (3, 5, 7, etc).
+- Each Zookeeper Server in a cluster can be a Leader or a Follower:
+  - Leader: handle writings
+  - Followers: handle readings
+- In a Kafka Cluster, only brokers talk to Zookeeper. Kafka clients do not.
+
+![](/assets/img/blog/kafka/zookeeper-main-view.png)
+
+Figure: Zookeeper interaction with Kafka Brokers in a Kafka Cluster.
+{:.figcaption}
+
+## Brokers
+
+### Identity and naming
+Each broker in Kafka is called a "Bootstrap Server". A broker have an Id
+(integer and arbitrary number), that identifies it internally in the cluster.
+
+### Broker Discovery
+The mechanism of Broker Discovery is explained as follows:
+
+![](/assets/img/blog/kafka/kafka-client-server-iteraction.png)
+
+Figure: Interaction between client and server.
+{:.figcaption}
+
+- In (1), client connects to a bootstrap server 101 and asks for metadata.
+
+When connecting to a cluster, it is better to inform a list of
+brokers instead of a single broker, because one particular broker may be
+down and you can't connect in the cluster if you are trying to connect in
+that particular dead one.  
+{:.note}
+
+- In (2), server responds with metadata to the client. This data actually lives
+in Zookeeper, and kafka Broker is responsible to get it and deliver to the
+clients;
+
+A Kafka client never talks to Zookeeper directly; only brokers do
+(since Kafka 0.10).
+{:.note}
+
+- In (3), client knows where to go to get the required data. It finds
+its partition of interest in metadata. It discovers in which Broker
+the Partition Leader of that partition are, and then connects to that Broker
+(for instance, Broker 102 in the figure).
+
+It is not necessary to configure or code anything in Kafka Clients for this
+Broker Discovery to work as mentioned. This mechanism happens internally in
+Kafka Clients, by design.
+{:.note}
+
+### Number of Kafka Brokers per Cluster
+
+A single cluster can have three brokers, and scale to hundreds.
+
+
 ## Topics and Partitions in a Single Broker
 
 A `topic` is defined as a stream of data. Internally, each topic is divided in
 N `partitions`.
 
 A `partition` is a ordered log of `messages`. It is called 'ordered' because
-messages are stored in partitions in the order they arrive. Each `message` in a
-`partition` have an ID, which is called `offset`.
+messages are stored in partitions in the order they arrive. It is called a
+'log' becauses data is always appended to the end and never changed - like
+a log file. Each `message` in a `partition` have an positional ID, starting
+at zero, which is called `offset`.
 
 This is how this concept looks like in a single broker:
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-6.png)
 
-Figure 6: Topics, Partitions and Offsets in a Single Broker.
+Figure: Topics, Partitions and Offsets in a Single Broker.
 {:.figcaption}
 
 Each `topic` represents a concept of data. It can be something like metrics
@@ -203,7 +298,7 @@ from the others.
 
   ![](/assets/img/blog/kafka/kafkacore-yoda-do-or-donot.png)
 
-  Figure 7: In a topic, use message keys or do not use message keys.
+  Figure: In a topic, use message keys or do not use message keys.
   {:.figcaption}
 
 
@@ -235,8 +330,6 @@ cluster.
 goes down, the others will organize themselves to respond in its behalf. Kafka
 can rebalance and redistribute the load with no harm.
 
-
-
 ### Replication of Partitions
 
 In a Kafka Cluster, data can be replicated between brokers. This is one
@@ -246,7 +339,7 @@ Let's consider the previous mentioned Trucks Positioning Topic:
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-6.png)
 
-Figure 8: Topics, Partitions and Offsets In a Single Broker - revisited.
+Figure: Topics, Partitions and Offsets In a Single Broker - revisited.
 {:.figcaption}
 
 In a single broker, if it goes down or the disk is corrupted, this topic will
@@ -255,12 +348,12 @@ with **three brokers**:
 
 ![](/assets/img/blog/kafka/kafka-cluster-broker-partitions.png)
 
-Figure 9: Replication of Data of Topic between three Brokers in a Cluster.
+Figure: Replication of Data of Topic between three Brokers in a Cluster.
 {:.figcaption}
 
 There are a lot of information in this figure.
 
-#### The Same Topic goes to Multiple Brokers
+#### The Same Topic exists in Multiple Brokers
 
 Because of the Replication Factor of `2`, each partition of the topic
 "Trucks Positioning" exists in `2` different Brokers of `3` available in
@@ -306,6 +399,9 @@ partitions in a topic is stored in Zookeeper)
 Partition `P1` - in this case, it is Broker 1
 - Kafka Client will ask to Broker `1` for data in the partition `P1`
 
+For a particular partition, only one Broker can be its Leader at a time.
+There is no scenario where a partition have more than one Leader.
+
 When some client send data to be written to Kafka, a Partition Leader gets
 data and is responsible to deliver to one of the Replicas (itself or other
 replicas). When that particular data is in-sync, the partition is called a
@@ -315,11 +411,11 @@ A **Replica Partition** is just a replica of data. This is a copy of a Leader
 Partition data, and this partition will not be directly called by any clients -
 that is a characteristic only for the Leader. A Replica partition may or may
 not be syncronized (or in-sync) with the Leader Partition.
-- In Figure 9, the Partition `P1` in Broker `2` is a Replica which is not
+- In Figure above, the Partition `P1` in Broker `2` is a Replica which is not
 in sync. The message with `offsetId 4` are still not synchronized.
 
 A **In-Sync Replica** is a Replica Partition that is definitely in sync with
-the Leader Partition. In the Figure 9, the Partitions `P2` in Broker `0` and
+the Leader Partition. In the Figure above, the Partitions `P2` in Broker `0` and
 `P0` in Broker `1` are in sync.
 
 This information (partition, leaders, replicas and isr) can be seen when we
@@ -327,17 +423,19 @@ describe a topic, as below:
 
 ```bash
 ubuntu@ip-x:~$ ./kafka/bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka
-  --topic trucks-positioning --describe
-Topic: trucks-positioning    PartitionCount: 3       ReplicationFactor: 2    Configs:
+  --topic teste --describe
+Topic: teste    PartitionCount: 3       ReplicationFactor: 2    Configs:
         Topic: teste    Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0,1
         Topic: teste    Partition: 1    Leader: 1       Replicas: 1,2   Isr: 2,1
         Topic: teste    Partition: 2    Leader: 2       Replicas: 0,2   Isr: 0,2
 ```
 
 Some notes on this regard:
-- A Partition Leader is also a Replica, but with a more important function. So,
-in a topic of three partitions, for instance, there will be three Replicas,
-but one of those replicas will be also a Leader.
+- A Partition Leader is also a Replica, but with a more important function, and
+every topic has one Partition Leader. So, in a topic of three partitions and
+replication factor of three (which means three brokers), for instance, there
+will be nine replicas, and three of those replicas (one in each broker)
+will also be Leaders.
 - A particular partition can be Leader in a Broker and a Replica in another
 Broker. That is OK by design.
 - The sync mechanism takes some time, but is something that Kafka does
@@ -349,17 +447,18 @@ time. More on that on Producers and Consumers section.
 Kafka is able to detect that a Broker in a Cluster is no longer available,
 because Kafka brokers exchange health check messages between each other.
 
-When this happens, Kafka will perform a Leader Election considering the remainer
-brokers. For each partition that was a Leader in the missing broker, Kafka
-will elect a new Leader of that partition in a different (live) broker.
-That way, partitions are still available to the clients.
+When this happens, Kafka will perform a Leader Election considering the
+remainder brokers. For each partition that was a Leader in the missing broker,
+Kafka will elect a new Leader of that partition in a different (live) broker.
+That way, partitions are still available to the clients (since only leaders
+interact with client, as previous mentioned).
 
-For instance, considering the Figure 9, let's assume that Broker `1` is down.
-The result can be seen in Figure 10 (*with side effects in green*):
+For instance, considering the Figure above, let's assume that Broker `1` is
+down. The result can be seen in Figure below (*with side effects in green*):
 
 ![](/assets/img/blog/kafka/kafka-cluster-broker-partitions-goes-down.png)
 
-Figure 10: Replication of data when a broker goes down.
+Figure: Replication of data when a broker goes down.
 {:.figcaption}
 
 In summary, what happens is the following:  
@@ -378,8 +477,8 @@ This can be seen when describing the same topic again:
 
 ```bash
 ubuntu@ip-x:~$ ./kafka/bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka
-  --topic trucks-positioning --describe
-Topic: trucks-positioning    PartitionCount: 3       ReplicationFactor: 2    Configs:
+  --topic teste --describe
+Topic: teste    PartitionCount: 3       ReplicationFactor: 2    Configs:
         Topic: teste    Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0
         Topic: teste    Partition: 1    Leader: 2       Replicas: 1,2   Isr: 2
         Topic: teste    Partition: 2    Leader: 2       Replicas: 0,2   Isr: 0,2
@@ -394,7 +493,7 @@ But what if both Brokers `1` and `2` both die?
 
 ![](/assets/img/blog/kafka/kafka-cluster-broker-partitions-two-goes-down.png)
 
-Figure 11: Two goes down - only one broker left.
+Figure: Two goes down - only one broker left.
 {:.figcaption}
 
 In that case, the Partition `P1` is not available anymore, anywhere.
@@ -412,8 +511,8 @@ to the new situation.
 
 ```bash
 ubuntu@ip-x:~$ ./kafka/bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka
-  --topic trucks-positioning --describe
-Topic: trucks-positioning    PartitionCount: 3       ReplicationFactor: 2    Configs:
+  --topic teste --describe
+Topic: teste    PartitionCount: 3       ReplicationFactor: 2    Configs:
         Topic: teste    Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0
         Topic: teste    Partition: 1    Leader: none    Replicas: 1,2   Isr: 2
         Topic: teste    Partition: 2    Leader: 0       Replicas: 0,2   Isr: 0,2
@@ -421,7 +520,28 @@ Topic: trucks-positioning    PartitionCount: 3       ReplicationFactor: 2    Con
 
 There is no Leader for one partition, so this topic is not available to clients.
 
-#### The Ideal Number of Replication Factor for a Topic
+##### Rules to elect a Leader
+
+There are two behavious that Kafka can assume:
+- A Leader will be a in-sync replica (which means that it has the most updated
+data). That is the default in Kafka, and ensures consistency over availability.
+- A Leader will be a replica (which means that it does not have the most
+updated data). This behavior will ensure availability over consistency.
+
+
+#### Availability: The Ideal Replication Factor Number for a Topic
+
+Usually, the replication factor should be a number between 2 and 3.
+Three is the normal; two is a little risky.
+
+Considering a replication factor of `N`, Kafka Clients can tolerate `N-1` dead
+brokers. A replication factor of 3 seems good.
+
+With `replicationFactor=3 => N-1=2` brokers can goes down
+- 1 server may goes down for maintenance
+- 1 server may goes down for unexpected reasons (general errors)
+
+And the topic still responds property to the clients.
 
 ### How many servers to adopt?
 
