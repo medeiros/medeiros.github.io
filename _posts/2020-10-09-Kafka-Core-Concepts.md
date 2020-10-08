@@ -545,6 +545,106 @@ And the topic still responds property to the clients.
 
 ### How many servers to adopt?
 
+## CLI: important commands to know
+
+### Topic Creation
+```bash
+# create locally in a single broker
+$ ./kafka-topics.sh --zookeeper localhost:2181 --create --topic sometopic
+--partitions 2 --replication-factor 1
+
+# in a cluster of zookeeper with a single kafka broker
+$ ./kafka-topics.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
+--create --topic sometopic --partitions 2 --replication-factor 1
+
+# in a cluster of zookeeper with a kafka cluster of 3 (repl. factor)
+$ ./kafka-topics.sh --zookeeper zookeeper1:2181,zookeeper2:2181,
+zookeeper3:2181/kafka --create --topic sometopic --partitions 2
+--replication-factor 3
+
+# same as above, but port definition can be simplified to the end of servers
+$ ./kafka-topics.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
+--create --topic sometopic --partitions 2 --replication-factor 3
+
+# --zookeeper is deprecated since 2.0 - using bootstrap-server instead
+# /kafka suffix must not exist (it is only for zookeeper directory path)
+#  and port definition cannot be simplified (every broker declare its port)
+$ ./kafka-topics.sh --bootstrap-server kafka1:9092,kafka2:9092,kafka3:9092
+--create --topic sometopic --partitions 2 --replication-factor 3
+```
+
+### Topic List
+```bash
+$ ./kafka-topics.sh --bootstrap-server kafka1:9092,kafka2:9092 --list
+```
+
+### Topic Describing
+```bash
+$ ./kafka-topics.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
+--topic sometopic --describe
+```
+
+### Producing Messages
+
+```bash
+# in a single broker
+$ ./kafka-console-producer.sh --broker-list localhost:9092 --topic sometopic
+
+# in a cluster
+$ ./kafka-console-producer.sh --broker-list kafka1:9092,kafka2:9092,kafka3:9092
+--topic sometopic
+
+# with key
+$ ./kafka-console-producer.sh --broker-list kafka1:9092,kafka2:9092,kafka3:9092
+--topic sometopic --property parse.key=true --property key.separator=,
+```
+
+### Consuming Messages
+
+```bash
+# in a single broker (from the end of a topic - default)
+$ ./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sometopic
+
+# in a cluster (from the end of a topic - default)
+$ ./kafka-console-consumer.sh --bootstrap-server kafka1:9092,kafka2:9092,
+kafka3:9092 --topic sometopic
+
+# in a cluster (from the beginning of a topic)
+$ ./kafka-console-consumer.sh --bootstrap-server kafka1:9092,kafka2:9092,
+kafka3:9092 --topic sometopic --from-beginning
+
+# with consumer group
+$ ./kafka-console-consumer.sh --bootstrap-server kafka1:9092,kafka2:9092,
+kafka3:9092 --topic sometopic --group sometopic-g1 --from-beginning
+
+# with key
+$ ./kafka-console-consumer.sh --bootstrap-server kafka1:9092,kafka2:9092,
+kafka3:9092 --topic sometopic --from-beginning --property print.key=true
+--property key.separator=,
+```
+
+### Managing Consumer Groups
+
+```bash
+# listing
+$ ./kafka-consumer-groups.sh --bootstrap-server kafka1:9092,kafka2:9092,
+kafka3:9092 --list
+
+# describing topic info (get offset data)
+$ ./kafka-consumer-groups.sh --bootstrap-server kafka1:9092,kafka2:9092,
+kafka3:9092 --group sometopic-g1 --describe
+
+# reset offset to earliest (must be inative - no consumers using it)
+$ ./kafka-consumer-groups.sh --bootstrap-server kafka1:9092,kafka2:9092,
+kafka3:9092 --group sometopic-g1 --reset-offsets --to-earliest --execute
+--topic sometopic
+
+# reset offset to -2 position (must be inative - no consumers using it)
+$ ./kafka-consumer-groups.sh --bootstrap-server kafka1:9092,kafka2:9092,
+kafka3:9092 --group sometopic-g1 --reset-offsets --shift-by -2 --execute
+--topic sometopic
+```
+
 ## References
 
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
