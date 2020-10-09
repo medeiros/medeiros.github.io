@@ -220,6 +220,10 @@ messages are stored in partitions in the order they arrive. It is called a
 a log file. Each `message` in a `partition` have an positional ID, starting
 at zero, which is called `offset`.
 
+Each partition can handle a throughput of MBytes/sec (depending on cluster
+setup, latency, etc)
+{:.note}
+
 This is how this concept looks like in a single broker:
 
 ![](/assets/img/blog/kafka/kafkadefguide-messaging-system-6.png)
@@ -232,23 +236,53 @@ of some sort, website activity tracking, event sourcing, log aggregation, etc.
 There are a lot of [use cases](https://kafka.apache.org/uses) that can be
 represented in a topic.
 
-### Number of Partitions for Performance Improvement
+### Number of Partitions: Pros and Cons
 
-In the previous example, a topic have three partitions. But it can be one
+In the previous example, a topic have three partitions. But it can have one
 single partition, or dozens of partitions. So, it is important to understand
 how many partitions a topic must have - and why.
 
-The number of partitions in a topic is important for performance. With only
+The number of partitions in a topic is important for throughput. With only
 one partition, you cannot use multiple threads to read the data - if you do,
 you'll read repetitions. But if you split your 10,000 messages in three
-partitions, for instance, then you could read data in parallel (in three
-threads), and this will improve your throughput.
+partitions, for instance, then you could read/write data in parallel (in three
+clients in a consumer group), and this will improve your throughput.
 
 This approach *(performance enhancement when reading data "splitted" in
 different partitions)* will not work if your data must be read in the same
 particular order that was written. Check the next section below
 in this page (*'Distributions of Messages in a Topic'*) for further info.
 {:.note}
+
+More partitions also ensures the ability to leverage to more brokers in a
+cluster.
+
+However, it also brings the following issues to deal with:
+
+- More elections to be done by Zookeeper
+- More open files in Kafka
+
+#### Guidelines for the Magic Number of Partitions
+
+The following are some guidelines that help when choosing the number of
+partitions in a topic:
+
+- **Small Cluster** (< 6 brokers): `# of partitions = 2x # of brokers`
+- **Big Cluster** (> 12 brokers): `# of partitions = 1x # of brokers`
+
+The throughtput can also be considered:
+
+- **Throughtput for Consumers:** consider the number of consumers that will
+run in parallel in peak time (one consumer reading one partition is the ideal
+scenario)
+- **Throughtput for Producers:** it must also be considered. Increase the
+number of topics if the thoughtput is too high or expected to increase in the
+next couple of years
+
+These are only guidelines, and not rules of thumb. It is still also required
+to perform **tests**, because each cluster behaves differently (due to network
+issues, configuration issues, firewalls, etc)  
+
 
 ### Distributions of Messages in a Topic
 
@@ -306,7 +340,8 @@ Some notes regarding the logic of message distribution in partitions:
 - The [MurmurHash3](https://en.wikipedia.org/wiki/MurmurHash) algorithm is
 based on the number of partitions of a topic. So, if it's important to maintain
 order (and, hence, you're using Message Keys for that), make sure that the
-number of partitions of your topic do not change.
+number of partitions of your topic do not change. If they change, you may have
+unexpected behaviors.
 - It is also possible to overwrite the algorithm behavior (change
 [MurmurHash3](https://en.wikipedia.org/wiki/MurmurHash) for
 something else), by overwriting the Kafka `TopicPartition` class.
@@ -529,10 +564,10 @@ data). That is the default in Kafka, and ensures consistency over availability.
 updated data). This behavior will ensure availability over consistency.
 
 
-#### Availability: The Ideal Replication Factor Number for a Topic
+#### The Ideal Replication Factor Number for a Topic
 
-Usually, the replication factor should be a number between 2 and 3.
-Three is the normal; two is a little risky.
+Usually, the replication factor should be a number between 2 and 4. It is
+better to set it as `3` for start.
 
 Considering a replication factor of `N`, Kafka Clients can tolerate `N-1` dead
 brokers. A replication factor of 3 seems good.
@@ -543,7 +578,59 @@ With `replicationFactor=3 => N-1=2` brokers can goes down
 
 And the topic still responds property to the clients.
 
-### How many servers to adopt?
+It is not a good idea to change a replication factor after being defined. This
+may overload the broker, affecting performance.
+{:.note}
+
+When using a high replication factor number, some issues may be considered:
+
+- The replication between brokers will increase, and so the latency (if
+  `acks=all`)
+- The disk usage will increase dramatically
+
+If the number of replication factor=3 is still an issue (because of disk
+usage and latency), consider improve the broker resources/network instead of
+reduce the replication factor.
+{:.note}
+
+
+#### Try Not to Change Replication Factor and Number of Partitions
+
+It is important to define those attributes right in the first time. To change
+replication factor may affect performance, and to change the number of
+partitions when using key will create unexpected behaviors.
+
+## Topics: Partitions and Segments
+
+- Kafka stores its partitions as separate directories in data dir
+  - The name of directory is: `<topic-name>-<partition number>`
+  - For instance: `sometopic-1`, `sometopic-2`, etc
+- Each partition is make of segments (and each segment is a file)
+- Only the last segment is the active (where data is written)
+- Previous segments are just for reading of data
+
+Properties:
+
+- `log.segment.bytes:` the maximum size of a segment (file) in bytes
+(default: 1GB)
+
+Each segment is represented as files in a partition directory:
+- `.log files`: these are the files where messages are stored
+- `.index files`: control the index of segments (as offsets); maps messages
+positions related to the the log file. This file have a fixed size of 10MB.
+- `.timeindex files`: control the index of segments in timestamp; Kafka uses
+it to find messages by timestamp. This file have a fixed size of 10MB.
+
+And the files adopt the following convention:
+
+`000000000000N.log`
+`000000000000N.timeindex`
+`000000000000N.index`
+
+Where `N` is the number of the first offset of that segment.
+
+Nice ref.: [https://medium.com/@durgaswaroop/a-practical-introduction-to-kafka-storage-internals-d5b544f6925f](https://medium.com/@durgaswaroop/a-practical-introduction-to-kafka-storage-internals-d5b544f6925f)
+{:.note}
 
 ## CLI: important commands to know
 
@@ -582,6 +669,25 @@ $ ./kafka-topics.sh --bootstrap-server kafka1:9092,kafka2:9092 --list
 ```bash
 $ ./kafka-topics.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
 --topic sometopic --describe
+```
+
+### Topic Configuration
+```bash
+# list topic configuration properties (deprecated)
+$ ./kafka-configs.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
+--entity-type topics --entity-name sometopic --describe
+
+# list topic configuration properties (new)
+$ ./kafka-configs.sh --bootstrap-server kafka1:9092,kafka2:9092 --topic
+sometopic --describe
+
+# adding a property configuration
+$ ./kafka-configs.sh --bootstrap-server kafka1:2181 --topic sometopic
+--add-config min.insync.replicas=2 --alter
+
+# removing a property configuration
+$ ./kafka-configs.sh --zookeeper zookeeper1:2181/kafka --topic sometopic
+--delete-config min.insync.replicas --alter
 ```
 
 ### Producing Messages
