@@ -246,7 +246,9 @@ The number of partitions in a topic is important for throughput. With only
 one partition, you cannot use multiple threads to read the data - if you do,
 you'll read repetitions. But if you split your 10,000 messages in three
 partitions, for instance, then you could read/write data in parallel (in three
-clients in a consumer group), and this will improve your throughput.
+clients in a consumer group), and this will improve your throughput. In addition
+to that, Kafka ensures that only one consumer (from a consumer group) can
+read a partition at a time (avoiding duplication reads).
 
 This approach *(performance enhancement when reading data "splitted" in
 different partitions)* will not work if your data must be read in the same
@@ -602,35 +604,184 @@ partitions when using key will create unexpected behaviors.
 
 ## Topics: Partitions and Segments
 
-- Kafka stores its partitions as separate directories in data dir
+### Main concepts
+
+- Each **topic** has one or more **partitions**
+- Each **partition** is represented as a **directory** in a file system
   - The name of directory is: `<topic-name>-<partition number>`
   - For instance: `sometopic-1`, `sometopic-2`, etc
-- Each partition is make of segments (and each segment is a file)
-- Only the last segment is the active (where data is written)
+- Each **partition** is make of **segments**
+- Each **segment** is composed of few **files** in this particular directory
+- Only the **last segment** is the **active** (where data is written)
 - Previous segments are just for reading of data
 
-Properties:
+### Properties
 
 - `log.segment.bytes:` the maximum size of a segment (file) in bytes
 (default: 1GB)
 
+### Segments: Files in a Topic-Partition Directory
+
 Each segment is represented as files in a partition directory:
-- `.log files`: these are the files where messages are stored
-- `.index files`: control the index of segments (as offsets); maps messages
+
+```bash
+ubuntu@ip:/data/kafka/teste-2$ ls -l
+total 20
+-rw-r--r-- 1 root root 10485760 Oct  9 08:16 00000000000000000000.index
+-rw-r--r-- 1 root root      153 Oct  8 10:21 00000000000000000000.log
+-rw-r--r-- 1 root root 10485756 Oct  9 08:16 00000000000000000000.timeindex
+-rw-r--r-- 1 root root       10 Oct  6 10:29 00000000000000000001.snapshot
+-rw-r--r-- 1 root root       10 Oct  8 10:36 00000000000000000003.snapshot
+-rw-r--r-- 1 root root       14 Oct  9 08:16 leader-epoch-checkpoint
+```
+The directory `teste-2` means that the files are related to topic `teste`,
+partition `2`. These files represent **segments**, with specific
+characteristics according to its extensions:
+
+- `.log`: these are the files where messages are stored
+- `.index`: control the index of segments (as offsets); maps messages
 positions related to the the log file. This file have a fixed size of 10MB.
-- `.timeindex files`: control the index of segments in timestamp; Kafka uses
+This file is important because the log files are huge (default 1GB), and
+and index file (that stores the offset and physical position of data from a
+log file) gives efficiency when getting messages.
+- `.timeindex`: control the index of segments in timestamp; Kafka uses
 it to find messages by timestamp. This file have a fixed size of 10MB.
+- `.snapshot`: ?
 
 And the files adopt the following convention:
 
-`000000000000N.log`
-`000000000000N.timeindex`
-`000000000000N.index`
+`0000000000000000000N.[extension]`
 
-Where `N` is the number of the first offset of that segment.
+The file name (prefix) have twenty numbers. The `N` is the number of the
+first offset of that segment.
 
-Nice ref.: [https://medium.com/@durgaswaroop/a-practical-introduction-to-kafka-storage-internals-d5b544f6925f](https://medium.com/@durgaswaroop/a-practical-introduction-to-kafka-storage-internals-d5b544f6925f)
-{:.note}
+![](/assets/img/blog/kafka/kafka-internals-files.png)
+
+Figure: Kafka Internals: files
+{:.figcaption}
+
+### Leader-epoch-checkpoint file
+
+And there is also a leader-epoch-checkpoint file. Describe it better.
+
+### Checking for log contents
+
+The log file is a binary one. In order to check its content, it is necessary
+to run a Kafka class:
+
+```bash
+$ ~/kafka/bin/kafka-run-class.sh kafka.tools.DumpLogSegments --deep-iteration
+--print-data-log --files 00000000000000000000.log
+```
+
+The output is below presented. Important data displayed are: creation time,
+key and value sizes, and message payload.
+
+```bash
+Dumping 00000000000000000000.log
+Starting offset: 0
+baseOffset: 0 lastOffset: 0 count: 1 baseSequence: -1 lastSequence: -1
+  producerId: -1 producerEpoch: -1 partitionLeaderEpoch: 10
+  isTransactional: false isControl: false position: 0
+  CreateTime: 1601977627886 size: 69 magic: 2 compresscodec:
+  NONE crc: 2885673363 isvalid: true
+| offset: 0 CreateTime: 1601977627886 keysize: -1 valuesize: 1 sequence: -1
+  headerKeys: [] payload: a
+baseOffset: 1 lastOffset: 2 count: 2 baseSequence: -1 lastSequence: -1
+  producerId: -1 producerEpoch: -1 partitionLeaderEpoch: 18
+  isTransactional: false isControl: false position: 69
+  CreateTime: 1602152511818 size: 84 magic: 2 compresscodec: NONE
+  crc: 3265130193 isvalid: true
+| offset: 1 CreateTime: 1602152511139 keysize: -1 valuesize: 4 sequence: -1
+  headerKeys: [] payload: java
+| offset: 2 CreateTime: 1602152511818 keysize: -1 valuesize: 4 sequence: -1
+  headerKeys: [] payload: mano
+```
+
+### Log Cleanup Policies
+
+Log cleanup is the cleaning of data, that can happen according to policies.
+
+`log.cleanup.policy=delete`: Kafka default for user topics
+- Exclusion happens based on data time. Property: `log.retention.hours`
+(default: 168 hours = 1 week). Lower number means less data is saved (if the
+consumers stay down for longer, the will lose data); higher number means more
+disk space, but more ability to execute replay and less change for dead
+consumers to lose data when they get back to live
+- Exclusion happens based on max log size. Property: `log.retention.bytes`
+(default: -1 = infinite)
+
+`log.cleanup.policy=compact`: Kafka default for "--consumer-offsets" topic
+- Exclusion based on message keys. It will erase message with same key from
+closed segments
+- Retention time and space: infinite
+
+Two very common use cases are:
+
+- One week of retention: the default. `log.retention.hours=168` and
+  `log.retention.bytes=-1`
+- 500MB per partition, and time doesn't matter: `log.retention.hours=1000000`
+and `log.retention.bytes=524288000`
+
+#### How Often Log Cleanup Occur?
+
+The checking occur according to the property `log.cleaner.backoff.ms`
+(default: 15s).
+
+It happens in the closed partition segments. So, more segments means more
+compaction to be executed. Since this procedure consumes CPU and memory, it is
+important to consider the proper size for segments.
+
+#### Segments' Size Considerations
+
+Small segments means:
+
+- more segments per partition
+- log compaction happens more frequently
+- Kafka must keep more open files (error: too many open files)
+
+So, in order to define the segment size, one must consider **throughput**:
+
+- 1GB/day: let default size
+- 1GB/week: should consider size reduction
+
+#### Log Cleanup: Compaction
+
+The idea in log compaction is to keep only the last update of a key in a log,
+and discard the others. It is very useful when the only required data is the
+latest version of a data, and the history is not important. This will save a
+lot of disk space.
+
+- The tail of the log (active segment) is not affected. Only the closed
+segments will be compacted
+- The offsets are immutable. A message will be deleted but the remainder
+messages will keey the same offset id. Hence, it is natural to have skipped
+offsets after compaction.
+- The order of the messages is never changed, even after compaction
+- Deleted messages can still be viewed by the consumers for a period of time,
+according to property `delete.retention.ms` (default: 24 hours).   
+
+![](/assets/img/blog/kafka/kafka-log-cleanup-compaction.png)
+
+Figure: Segment 0 is compacted, since there are updated message with the
+same key
+{:.figcaption}
+
+In order to configure a new topic to check log cleanup compaction in practice,
+it must be created with specific properties (and values for testing):
+
+```bash
+$ ./kafka-topics.sh --bootstrap-server kafka1:9092 --create --topic
+truck-position --partitions 1 --replication-factor 1  
+--config cleanup.policy=compact --config min.cleanable.dirty.ratio=0.001
+--config segment.ms=5000
+```
+
+Analyzing these properties:
+- `min.cleanable.dirty.ration` have a very small number, which ensures that
+log compaction will happen all the time
+- `segment.ms` ensures that a new segment will be created every 5 seconds
+- only one partition make tests easier to verify
 
 ## CLI: important commands to know
 
