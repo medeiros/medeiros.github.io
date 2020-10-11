@@ -40,14 +40,22 @@ that the data was properly received. This is called _acknowledgment_.
 The acknowledgement can be of the the following types:
 
 - `acks=0`: no acknowledgment. Client do not expect any confirmation from
-the Broker. It just don't care. There is a risk of losing messages.
+the Broker. It just don't care. There is a risk of losing messages. It is
+ideal in cases in which data loss is not critical (metrics and logs).
 - `acks=1`: leader acknowledgment. This is the default. Client expects that
 only the partition leader to send confirmation, and not cares about the
 ISRs. It is more secure than `acks=0` in terms of data consistency, but
 still can lose messages (if leader was down before message can be replicated)
 - `acks=all`: all brokers' replicas of a topic (leader and ISRs) must confirm
 that the message was received. This is the slowest method, but much more
-secure in terms of data consistency.
+secure in terms of data consistency, since no data is lost. This property
+must be used together with `min.insync.replicas`.
+  - `min.insync.replicas`: this is the minimal number of ISR (Leader and
+  replicas) that must acknowledge the message in order to consider `all`.
+  In fact, "all" is not the case (but this value instead). This property may
+  be set in broker or topic level (topic overrides broker definition).
+  A `NotEnoughReplicas` exception will be thrown if the number of replicas
+  that acks the message is less than this parameter value.
 
 ## Message Keys
 
@@ -116,6 +124,82 @@ follows:
 - `max.in.flight.requests.per.connection=5`
 - `acks=all`
 
+## Retrying mechanism (to prevent messages to be lost)
+
+In case of failures (no acks returned), a message need to be resend or will
+be lost. Kafka Producers do this automatically - and the `retries` property is
+important to define the behavior (the number of re-attempts to perform).
+
+- Kafka <= 2.0: retries = 0 per default
+- Kafka >= 2.1: retries = Integer.MAX_VALUE per default
+
+Other properties in this regard are also important to consider:
+
+- `retry.backoff.ms=100` (default): The time (in milisseconds) in which Kafka
+Producer will wait til resend the message to Kafka Broker again. Since the
+retry property if very big, it is also important to define a timeout.
+- `delivery.timeout.ms=120000` (default): Time time (in milisseconds) until
+timeout occurs and message is discarded. Default is two minutes. So, according
+to the defaults, a message will be resend at each 100ms for two minutes
+until Kafka Producer give it up. An exception will be thrown for the Producer
+to catch, that will indicate that a message acknowledge could not be get
+during the timeout period.
+- `max.in.fligh.requests.per.connection`: This is the number of messages that
+a `producer.send()` method sends in parallel. A default value is 5, but in the
+case of retries, this may generate messages out of order. To ensure order,
+one must set this property as 1, but throughput will then be compromised.
+The best approach is to use `enable.idempotence=true`, that allows the default
+value of 5 for this property and ensure ordering at the same time, by using
+metadata information in the message header.
+
+All this retrying mechanism is better handled if using the concept of
+`Idempotent Producers`, previously described. If using `Idempotent Producer`,
+your producer can be considered `safe`.
+
+## Compression of messages
+
+Is this concept, a bunch of messages is grouped together (as a batch)
+in a producer before be send to the broker.
+- Since each message has a body and a header, the approach to compress
+messages in a batch of messages offers benefits in size, because now several
+messages share the same header (instead of duplicate a header for each message).
+The compression also helps when the body of a message is a big text (such as
+JSON payloads, for instance).
+- In terms of throughput, it also offers improvement, since reduces the number
+of requests that have to be made to a bunch of messages reach the broker.
+- The compressed message (a message with a bunch of messages) is saved
+as-it-is in the broker, and only de-compressed in the consumer. The broker do
+not know if a message is compressed or not.
+
+Compression is more effective according to the number of messages being sent.
+
+The property that defines compression is `compression.type` and can assume
+the following values:
+
+- `none`: default
+- `gzip`: strong compression, but at a cost of more time and cpu cycles
+- `lz4`:  less compression than gzip, but very fast
+- `snappy`: offers a balance between gzip and lz4
+
+### Compression Advantages
+
+- `latency`: faster to transfer data in network
+- `throughtput`: increased number of messages sent together per request
+- `disk`: better utilization of storage
+
+### Compression Disadvantages
+
+- `CPU at clients`: producers and consumers will have to use cpu cycles in
+order to compress and decompress data.
+
+### Compression Overall
+
+- Since distributed applications' number 1 issue is network, it is important
+to compress messages, even if CPU usage will increase at client-side.
+- Brokers do not suffer anything, with ou without compression, so that is
+nothing to worry about in terms of any effect in the cluster.
+- Adopt `lz4` or `snappy` compression types to the best balance between
+compression ratio and speed
 
 ## References
 
