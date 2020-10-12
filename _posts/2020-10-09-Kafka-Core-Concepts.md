@@ -285,6 +285,8 @@ These are only guidelines, and not rules of thumb. It is still also required
 to perform **tests**, because each cluster behaves differently (due to network
 issues, configuration issues, firewalls, etc)  
 
+In a topic, partitions can be added, but cannot be reduced.
+{:.note}
 
 ### Distributions of Messages in a Topic
 
@@ -301,7 +303,7 @@ or
 
 If the `message` only have `value`, it will be written to any of the partitions
 of the topic, according to round robin algorithm. But, if a `key` is also
-informed, the algorithm [MurmurHash3](https://en.wikipedia.org/wiki/MurmurHash)
+informed, the algorithm [MurmurHash2](https://en.wikipedia.org/wiki/MurmurHash)
 will be applied on the key to decide to which partition the message must be
 stored.
 
@@ -311,7 +313,7 @@ order that they arrived. This is important if the requirement of the topic is
 to store messages that must be later consumed in the same order that they
 arrived (because the consumer of data can just read all data from a particular
 partition, in order). The reading is performed the same way, by using message
-key and [MurmurHash3](https://en.wikipedia.org/wiki/MurmurHash) algorithm.
+key and [MurmurHash2](https://en.wikipedia.org/wiki/MurmurHash) algorithm.
 - **without any key**: Kafka will use round robin to distribute these 10
 messages through all of the partitions of the topic. In a topic with three
 partitions, maybe 3 messages go to Partition0, another 3 Message to Partition1
@@ -339,13 +341,13 @@ from the others.
 
 
 Some notes regarding the logic of message distribution in partitions:
-- The [MurmurHash3](https://en.wikipedia.org/wiki/MurmurHash) algorithm is
+- The [MurmurHash2](https://en.wikipedia.org/wiki/MurmurHash) algorithm is
 based on the number of partitions of a topic. So, if it's important to maintain
 order (and, hence, you're using Message Keys for that), make sure that the
 number of partitions of your topic do not change. If they change, you may have
 unexpected behaviors.
 - It is also possible to overwrite the algorithm behavior (change
-[MurmurHash3](https://en.wikipedia.org/wiki/MurmurHash) for
+[MurmurHash2](https://en.wikipedia.org/wiki/MurmurHash) for
 something else), by overwriting the Kafka `TopicPartition` class.
 - You can also to explicit define which data goes to which partition of a topic,
 when writing the producer client. You have to use the API for that.
@@ -565,6 +567,20 @@ data). That is the default in Kafka, and ensures consistency over availability.
 - A Leader will be a replica (which means that it does not have the most
 updated data). This behavior will ensure availability over consistency.
 
+#### Unclear Leader Election
+
+If the ISRs are all dead but there are some non-ISRs up, you can wait for the
+ISRs to get back to life or to start using non-ISRs partitions.
+
+Using non-ISRs is a highly dangerous approach. The availability will be
+increased, but messages from unavailable ISRs (at the moment) will be discarded.
+The use cases is related to it are about metrics, logs, and any sort of data
+that may be lost without further issues.
+
+If it is truly required, one must set the following broker-level property:
+```bash
+unclean.leader.election.enable=true
+```
 
 #### The Ideal Replication Factor Number for a Topic
 
@@ -822,6 +838,12 @@ $ ./kafka-topics.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
 --topic sometopic --describe
 ```
 
+### Topic Exclusion
+```bash
+$ ./kafka-topics.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
+--topic sometopic --delete
+```
+
 ### Topic Configuration
 ```bash
 # list topic configuration properties (deprecated)
@@ -831,6 +853,10 @@ $ ./kafka-configs.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
 # list topic configuration properties (new)
 $ ./kafka-configs.sh --bootstrap-server kafka1:9092,kafka2:9092 --topic
 sometopic --describe
+
+# adding a partition (the number must be higher than actual # of partitions)
+$ ./kafka-topics.sh --bootstrap-server kafka1:9092 --alter --topic sometopic
+--partitions 3
 
 # adding a property configuration
 $ ./kafka-configs.sh --bootstrap-server kafka1:2181 --topic sometopic
@@ -906,4 +932,4 @@ kafka3:9092 --group sometopic-g1 --reset-offsets --shift-by -2 --execute
 
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
 - [Stephane Maarek's Kafka Courses @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac)
-- [MurmurHash3 Algorithm](https://en.wikipedia.org/wiki/MurmurHash)
+- [MurmurHash Algorithm](https://en.wikipedia.org/wiki/MurmurHash)
