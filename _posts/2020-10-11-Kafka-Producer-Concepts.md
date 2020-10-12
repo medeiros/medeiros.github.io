@@ -54,32 +54,53 @@ must be used together with `min.insync.replicas`.
   replicas) that must acknowledge the message in order to consider `all`.
   In fact, "all" is not the case (but this value instead). This property may
   be set in broker or topic level (topic overrides broker definition).
-  A `NotEnoughReplicas` exception will be thrown if the number of replicas
+  - A `NotEnoughReplicas` exception will be thrown if the number of replicas
   that acks the message is less than this parameter value.
+  - For instance, consider a `replicationFactor=3`, `min.insync.replicas=2` and
+  `acks=all`: the cluster for that particular topic can tolerate a maximum of
+  1 broker down. Otherwise, the `NotEnoughReplicas` exception will be thrown
+
+To set `min.insync.replicas`:
+- In broker: add property in the `config/server.properties` file
+- In a existing topic: execute the following command:
+```bash
+$ kafka-config.sh --bootstrap-server localhost:9092 --topic mytest
+--add-config min.insync.replicas=2 --alter
+```
 
 ## Message Keys
 
 - A message key can be string, number, object, etc - anything.
-- If a message key is a `null` value, Producer's Round Robin will decide to
-which partition to send data. If it was decided that message must go to
-`Partition1`, Kafka Producer now check in metadata for who is the broker that
-is the Leader of `Partition1`. Then, the data is directly sent to that broker'
-partition.
-- If a message key is a `non-null` value, then a Producer's `MurmurHash3`
+- If a message key is a `null` value, [Producer's Round Robin Partitioner](https://github.com/apache/kafka/blob/2.6.0/clients/src/main/java/org/apache/kafka/clients/producer/RoundRobinPartitioner.java)
+will decide to which partition to send data. If it was decided that message
+must go to `Partition1`, Kafka Producer now check in metadata for who is the
+broker that is the Leader of `Partition1`. Then, the data is directly sent to
+that broker' partition.
+- If a message key is a `non-null` value, then a Producer's `MurmurHash2`
 algorithm will define to which partition to send that message, based on the
 number of partitions of a topic and the key. After that, every message
 that have the same key will go to the same partition (since the hash is
 always the same for these constant attributes).
 
+The formula of key partitioning is defined in `DefaultPartitioner.java` class
+as the following:
+```java
+return Utils.toPositive(Utils.murmur2(keyBytes)) % numPartitions;
+```
+[Kafka's DefaultPartitioner class in Github](https://github.com/apache/kafka/blob/2.6.0/clients/src/main/java/org/apache/kafka/clients/producer/internals/DefaultPartitioner.java#L71) |
+[Kafka's Utils class in Github](https://github.com/apache/kafka/blob/2.6.0/clients/src/main/java/org/apache/kafka/common/utils/Utils.java#L432)
+
 Kafka message keys is how Kafka ensures the order of messages in a topic, and
 this is why is important to keep the same number of partitions for a topic
-once defined.  
+once defined (otherwise, the formula below will return different values, and
+data with same key will be sent to different partitions).  
 
-Since Kafka relates a particular key to a particular partition using hashing
-algorithm (based on the number of partitions and message value), it is not
-possible to link a key directly to a partition. If this is truly necessary,
-it will be necessary to overwrite a `TopicPartition` class (to change the
-internal behavior of Kafka in this matter).
+So, there is two partitioners being used: [Round Robin Partitioner](https://github.com/apache/kafka/blob/2.6.0/clients/src/main/java/org/apache/kafka/clients/producer/RoundRobinPartitioner.java)
+(if keys are not informed) and [Default Partitioner](https://github.com/apache/kafka/blob/2.6.0/clients/src/main/java/org/apache/kafka/clients/producer/internals/DefaultPartitioner.java)
+(if keys are informed - in which case uses murmur2 for decision). Both classes
+implement [Partitioner interface](https://github.com/apache/kafka/blob/2.6.0/clients/src/main/java/org/apache/kafka/clients/producer/Partitioner.java).
+If you want to change the behavior of partitioning, you can write your own
+implementation of Partitioner.
 {:.note}
 
 ## Idempotent Producer
@@ -214,19 +235,241 @@ The batch mechanism do not need any action in the broker side, and only need
 to be configured on the producer side.
 
 - `linger.ms` (default: 0): this is the number of milisseconds that Kafka will
-wait until send data. During this time, messages are being grouped as a batch.
+wait until send data. During this period of time, messages will be grouped as
+a batch.
   - by adding a little delay (for instance, `linger.ms=5`), we can improve
   throughtput (more messages being sent per request), compression (since data
     is better compressed with more messages) and efficiency of producers
 
-If `batch.size` is reached before `linger.ms` time has passed, the batch is
-sent immediately.
+- `batch.size` (default: 16KB): this is the maximum number of bytes that will
+be included in a batch. To increase the batch size to 32KB or even 64KB can
+improve compression, throughput and efficiency of requests.
+  - any message bigger than the batch size will be send individually (and not
+    as part of any batch)
+  - batch is allocated per partition
+  - if `batch.size` is reached before `linger.ms` time has passed, batch is
+  sent immediately.
 
 ![](/assets/img/blog/kafka/kafka-producer-batch.png)
 
 Figure: Kafka Batch and Compression of messages
 {:.figcaption}
 
+## Message Buffering and Blocking of .send()
+
+Message batches are stored in a producers' internal buffer. This buffer has
+a limited size, that must be considered.
+
+- `buffer.memory` (default: 33554432 bytes=> 32MB): this is the buffer size
+for all partitions batches in the producer. It will be filled and flushed
+according to the throughput. If it gets full, the `send()` method will block,
+waiting for data to be flushed, so the buffer can be cleared.
+  - `max.block.ms` (default: 60000ms => 1 min): this is the time that the
+  `send()` method will block until throws an exception. An exception can
+  happen if the producers' buffer is full or if broker is not accepting
+  any new messages.
+
+## Delivery Semantics for Producers to Consumers
+
+- **at most once**: offsets are commited as soon as messages are received by
+the broker. If the consumers are down, messages may be lost. That is because
+a consumer recovery process will start reading data from the latest commited
+offset, hence the previous commited but unread data in this delta of time
+will be ignored.
+  - This method is better applied in cases where it is acceptable to lose
+  messages (for instance, metrics and log data - related to `acks=0` in that
+  regard).
+
+![](/assets/img/blog/kafka/kafka-producer-at-most-once.png)
+
+Figure: Kafka Delivery Semantics: At Most Once
+{:.figcaption}
+
+- **at least once** (default): offsets are commited after message is processed.
+If consumer goes down after processing but before commit offsets, messages
+will be consumed from the last commit point, and this can result in duplicate
+messages being processed.
+  - To avoid this behavior, the consumer must be idempotent. More on that on
+  the [Kafka Consumer Concepts](../2020-10-13-Kafka-Consumer-Concepts)' page.
+
+![](/assets/img/blog/kafka/kafka-producer-at-least-once.png)
+
+Figure: Kafka Delivery Semantics: At Least Once
+{:.figcaption}
+
+
+- **exactly once**: this behavior ensures that only one message will be
+processed. It can only be achieved from Kafka to Kafka.
+
+
+## Demo Code: Java Producers
+
+### Simple Producer
+
+```java
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
+import java.util.Properties;
+
+public class SomeProducer {
+
+    public static void main(String[] args) {
+
+        // define basic properties: bootstrapServer, key serializer
+        // and value serializer
+        Properties props = new Properties();
+        props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        // create a record (message)
+        ProducerRecord<String, String> record = new ProducerRecord<String, String>("helloworld_topic", "hello world message");
+
+        // create a producer (using defined properties) and send message
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
+        producer.send(record);
+        producer.close();
+    }
+
+}
+```
+
+### Simple Producer (with Keys and Callback)
+
+Some observations about the following code:
+- message callback allow us to check for metadata sent by the broker
+- the `.get()` method is called to force synchronous requests, meaning that
+  only one message will be sent at a time (and the next will be sent only after
+  ack will be returned by the broker and received). It's being used here to
+  better check results in the log, and should not be used this way in
+  production. Without a `.get()` method call, the behavior is to run the
+  number of threads defined in `max.in.flight.requests.per.connection` property.
+
+
+```java
+import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+
+public class SomeProducerWithKey {
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        final Logger logger = LoggerFactory.getLogger(SomeProducerWithKey.class);
+
+        // define basic properties
+        Properties props = new Properties();
+        props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        // producer is defined once to be called 100 times
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
+        for (int i = 0; i < 100; i++) {
+            // preparing recordo to be send
+            String topic = "helloworld_topic";
+            String key = "id_" + i;
+            String value = "hello world: " + i;
+            ProducerRecord<String, String> record = new ProducerRecord<String, String>(topic, key, value);
+            logger.info("topic: {}, key: {}, value: {}", topic, key, value);
+
+            // sendind record; now, we can see metadata as a result
+            producer.send(record, (recordMetadata, e) -> {
+                if (e == null) {
+                    logger.info("Received new metadata: \n" +
+                            "Topic: " + recordMetadata.topic() + "\n" +
+                            "Partition: " + recordMetadata.partition() + "\n" +
+                            "Offset: " + recordMetadata.offset() + "\n" +
+                            "Timestamp: " + recordMetadata.timestamp());
+                } else {
+                    logger.error("Error while producing message.", e);
+                }
+
+            }).get(); // with this method, execution is synchronous (one a at time)
+
+        }
+
+        producer.flush();
+        producer.close();
+    }
+
+}
+```
+
+### Simple Producer (with safe and throughput properties)
+
+```java
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.record.CompressionType;
+import org.apache.kafka.common.serialization.StringSerializer;
+
+import java.util.Properties;
+
+public class ProducerDemo {
+
+    private static Properties properties() {
+        Properties props = new Properties();
+
+        // basic properties
+        props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092"); // bootstrap.servers
+        props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()); // key.serializer
+        props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()); // value.serializer
+
+        // safe/idempotent producer properties
+        props.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); // enable.idempotence
+        props.setProperty(ProducerConfig.ACKS_CONFIG, "all"); //acks
+        props.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5"); // max.in.flight.requests.per.connection
+        props.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE)); // retries
+
+        // high throughput producer properties
+        props.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20"); // linger.ms
+        props.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.SNAPPY.name()); // compression.type
+        props.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(32 * 1024)); // batch.size; 32KB batch size
+
+        return props;
+    }
+
+    public static void main(String[] args) {
+
+        String topic = "helloworld_topic";
+        String messageValue = "hello world";
+        ProducerRecord<String, String> record = new ProducerRecord<>(topic, messageValue);
+
+        KafkaProducer<String, String> producer = new KafkaProducer<>(properties());
+        producer.send(record);
+
+        producer.close();
+    }
+
+}
+```
+
+## CLI: important commands to know
+
+### Produce messages from a file
+```bash
+file: input-messages.txt
+1,message1
+2,message2
+3,other message
+
+$ ./kafka/bin/kafka-console-producer.sh --broker-list localhost:9092
+--topic sometopic --property parse.key=true --property key.separator=,
+< input-messages.txt
+```
+
+### Change min.insync.replicas from an existing topic
+```bash
+$ kafka-config.sh --bootstrap-server localhost:9092 --topic sometopic
+--add-config min.insync.replicas=2 --alter
+```
 
 ## References
 
