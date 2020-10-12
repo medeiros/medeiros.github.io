@@ -201,7 +201,35 @@ nothing to worry about in terms of any effect in the cluster.
 - Adopt `lz4` or `snappy` compression types to the best balance between
 compression ratio and speed
 
+## Batch of messages
+
+When using `max.in.flight.requests.per.connection=5`, Kafka producer will use
+5 threads to send 5 different messages at a time. While the acks for those
+message do not return, Kafka Producer will start batching the next messages.
+
+This kind of "background batching" improves latency (messages reduced in size)
+and throughtput (more messages per request are being sent).
+
+The batch mechanism do not need any action in the broker side, and only need
+to be configured on the producer side.
+
+- `linger.ms` (default: 0): this is the number of milisseconds that Kafka will
+wait until send data. During this time, messages are being grouped as a batch.
+  - by adding a little delay (for instance, `linger.ms=5`), we can improve
+  throughtput (more messages being sent per request), compression (since data
+    is better compressed with more messages) and efficiency of producers
+
+If `batch.size` is reached before `linger.ms` time has passed, the batch is
+sent immediately.
+
+![](/assets/img/blog/kafka/kafka-producer-batch.png)
+
+Figure: Kafka Batch and Compression of messages
+{:.figcaption}
+
+
 ## References
 
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
 - [Stephane Maarek's Kafka Courses @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac)
+- [Exploit Apache Kafka’s Message Format to Save Storage and Bandwidth](https://medium.com/swlh/exploit-apache-kafkas-message-format-to-save-storage-and-bandwidth-7e0c533edf26)
