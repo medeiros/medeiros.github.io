@@ -43,7 +43,7 @@ Figure: Kafka Consumer Group mechanism.
 read data from a particular topic (or more than one topic as well)
 - If there are more consumers than partitions, some consumers will remain
 inactive
-- This is a internal Kafka Consumer mechanism, and nothing should be done by
+- This is a internal Kafka Consumer mechanism, and nothing need to be done by
 programmers in this regard
 
 Kafka defines the relationship between Consumers and Consumer Groups x
@@ -133,6 +133,123 @@ system).
   Streams, for instance).
 
 ## Consumer Poll Behavior
+
+Kafka consumer adopts a "poll" model (instead of a push model, which is adopted
+by many messaging systems). In a poll model, one have better control over
+consumption, speed and even replay of events.
+
+![](/assets/img/blog/kafka/kafka-consumer-poll-broker.png)
+
+Figure: Kafka Consumer Poll and Broker.
+{:.figcaption}
+
+### Importart throughput properties
+
+Some importart properties that can improve you throughput is below listed. If
+there is no need to improve throughput, those can remain as defaults:
+
+- `fetch.min.bytes` (default: 1): control how many data can be send in a
+request. Help improve throughput and reduce number of requests, but decrease
+latency
+- `max.poll.records` (default: 500): control how many messages can be received
+by poll request. You can increase this number if your messages are small and
+there is a lot of available RAM. It is also good to monitor how many records
+are actually being polled by request (if the number is always 500), this
+property value must be increase to improve throughput
+- `max.partitions.fetch.bytes` (default 1MB): maximum data returned per
+partition. If there is a lot of partition to be read, you'll have a lot of RAM
+- `fetch.max.bytes` (default: 50MB): maximum data returned per each fetch
+request (between multiple partitions). Consumer can perform multiple fetches
+in parallel for different partitions
+
+## Consumer Offset: Commit Strategies
+
+There are two main ways to commit offsets in a consumer:
+
+- `enable.auto.commit=true` (default) and processing batches synchronously
+  - by using this property, offsets will be automatically commited in a
+  period of time defined by `auto.commit.interval.ms` (default: 5000, or 5s)),
+  every time `poll()` method is called
+  - note that if rebalance happens between commit intervals, data will be
+  processed again and may generate duplicates
+
+```java
+while (true) {
+  List<Records> batch = consumer.poll(Duration.ofMillis(100));
+  doSomethingSynchronouslyWith(batch);
+}
+```
+
+- `enable.auto.commit=false` and manual, synchronous commit of offsets
+  - by using this property, you control how and when commits are made
+  - for instance: accumulate messages in a buffer and then save those messages
+  in a database and commit offset.
+
+```java
+while (true) {
+  batch += consumer.poll(Duration.ofMillis(100));
+  if (isReady(batch)) {
+    doSomethingSynchronouslyWith(batch);
+    consumer.commitSync();
+  }
+}
+```
+
+## Consumer Offset: Reset Behaviors and Data Retention Period
+
+The property `auto.offset.reset` defines the behavior of consumer when
+start reading data from the topic:
+- `earliest`: start to read data from the beginning of topic
+- `latest`: start to read data from the end of topic
+
+Offset data may also be lost even if `earliest` is set, because of the
+`log.rentention.hours` property. If this property is set for 1 week (default)
+and the consumer did not run in that period (for instance, it only runs after
+10 days), data are no longer there to be consumed.   
+
+## Replaying Data for Consumers
+
+If is required to replay data, the approach is to reset the offsets for
+thar particular consumer group.
+
+All consumers must be inactive and the following command must be executed:
+
+```bash
+$ ./kafka-consumer-group.sh --bootstrap-server kafka1:9092 --group sometopic-g1
+--reset-offsets --to-earliest --topic sometopic[:topicNumber] --execute
+```
+
+## Consumer Internal Threads
+
+![](/assets/img/blog/kafka/kafka-consumer-poll-heartbeat.png)
+
+Figure: Kafka Consumer Poll and Heartbeat.
+{:.figcaption}
+
+- All consumers in a group talk to a consumer coordinator
+- The heartbeat mechanism will detect inactive consumers
+  - If Kafka do not get a heartbeat signal during a specified period of time,
+  it will consider that consumer inactive and will perform rebalance of
+  partitions to the remainder consumers
+- Consumers are encouraged to execute frequent polls and process data rapidly,
+in order to avoid issues
+
+The main properties in that regard are the following:
+
+- `session.timeout.ms` (default: 10000, or 10s): this is the maximum period of
+time that the broker will wait for heartbeats from consumer before consider
+it inactive
+- `heartbeat.interval.ms` (default: 30000, or 3s): this is the period of time
+in which Kafka consumers will send heartbeats to the broker. The general rule
+of thumb is to set this value as 1/3 of `session.timeout.ms`
+- `max.poll.interval.ms` (defalt: 30000, or 5 minutes): This is the maximum
+interval of time between two `poll()` calls, before to declare the consumer
+as inactive.
+  - This is particularly important to big data applications iteractions, like
+  Spark, where processing could take time
+  - This property is useful to detect some locked processing in the consumer
+  side. In the case of Big Data, it may be necessary to increase this value
+  or to improve big data processing time.
 
 ## CLI: important commands to know
 
