@@ -269,6 +269,45 @@ However, it also brings the following issues to deal with:
 The following are some guidelines that help when choosing the number of
 partitions in a topic:
 
+- What is the expected throughput for a topic?
+  - 1GB/sec is very different that 10KB/sec
+- What is the maximum throughput expected to be consumed by a single partition?
+  - It is important to know your consumer throughput. Considering that your
+  consumer is bounded to a single partition, and if you know that your consumer
+  will write Kafka data into database and the database throughput have a
+  maximum of 50MB/s for a single thread to write into it, it should be OK to
+  consider that you are limited a 50MB/s for that partition.
+- What is the maximum throughput expected to be produced to a single partition?
+  - Same rationale as above. However, producers are typically faster than
+  consumers, so it is less critical to analyze this
+- Message keys are being used?
+  - If so, it will be a problem if it should be required to add partitions
+  later (because of the way messages keys are distributed in partitions). The
+  ideal is to plan considering increase for the future (next two years, for
+  instance), instead of to plan for the current scenario
+- Avoid overestimate, because partitions cost memory and I/O, perform
+replication and will increase time for leader elections in case of relabancing
+
+In a topic, partitions can be added, but cannot be reduced.
+{:.note}
+
+##### One metric: Calculation Based on Expected Topic's Throughtput
+
+With that in mind, consider the formula:
+
+```
+nP = Tt / Ct
+```
+where:
+nP = number of partitions; Tt = Target throughtput of topic; Ct = consumer
+throughput
+
+For instance, if `Tt = 1GB/s` and `Ct = 50MB/s`, the formula recommends to
+adopt `20` partitions (`1000M/50M`). That way, I need to have 20 consumers
+reading for that topic (one consumer per partition) in order to achieve 1Gb/s.
+
+##### Other metric: Experience (from Maarek's course)
+
 - **Small Cluster** (< 6 brokers): `# of partitions = 2x # of brokers`
 - **Big Cluster** (> 12 brokers): `# of partitions = 1x # of brokers`
 
@@ -285,8 +324,6 @@ These are only guidelines, and not rules of thumb. It is still also required
 to perform **tests**, because each cluster behaves differently (due to network
 issues, configuration issues, firewalls, etc)  
 
-In a topic, partitions can be added, but cannot be reduced.
-{:.note}
 
 ### Distributions of Messages in a Topic
 
