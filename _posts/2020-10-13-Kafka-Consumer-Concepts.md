@@ -164,7 +164,7 @@ in parallel for different partitions
 
 ## Consumer Offset: Commit Strategies
 
-There are two main ways to commit offsets in a consumer:
+There are some ways to commit offsets in a consumer:
 
 - `enable.auto.commit=true` (default) and processing batches synchronously
   - by using this property, offsets will be automatically commited in a
@@ -184,6 +184,8 @@ while (true) {
   - by using this property, you control how and when commits are made
   - for instance: accumulate messages in a buffer and then save those messages
   in a database and commit offset.
+  - commitSync() will retry until finds a non-retriable error
+  - the problem is that the throughput is affected (since is sync)
 
 ```java
 while (true) {
@@ -194,6 +196,70 @@ while (true) {
   }
 }
 ```
+
+- `enable.auto.commit=false` and manual, asynchronous commit of offsets
+  - Now the throughput are improved
+  - However, there is no retry for async (since the order of commits in
+    different threads are unpredictable). A callback may be used for retries,
+    but the commit order is still an issue.
+
+```java
+while (true) {
+  ConsumerRecords<String, String> records = consumer.poll(100);
+  for (ConsumerRecord<String, String> record : records) {
+    System.out.printf("topic = %s, partition = %s,
+      offset = %d, customer = %s, country = %s\n",
+      record.topic(), record.partition(), record.offset(),
+      record.key(), record.value());
+  }
+  consumer.commitAsync(new OffsetCommitCallback() {
+    public void onComplete(Map<TopicPartition,
+      OffsetAndMetadata> offsets, Exception exception) {
+        if (e != null)
+          log.error("Commit failed for offsets {}", offsets, e);
+      }
+    });
+}
+```
+
+A best approach is to combine sync and async commits:
+
+- a failure with commits without retrying is not a big issue because the next
+commit will be sucessfull. But if this is the last commit before close the
+consumer or before rebalance, it is necessary to make sure that will finish
+correctly
+- So, we can use async() for processing during, and use sync() as the last
+resource just to make sure that will commit at the end, properly, treating
+failures and retries in that last moment.
+
+```java
+try {
+  while (true) {
+      ConsumerRecords<String, String> records = consumer.poll(100);
+      for (ConsumerRecord<String, String> record : records) {
+        // perform some action with messages; in this case, let just print those
+        System.out.printf("topic = %s, partition = %s, offset = %d,
+          customer = %s, country = %s\n",
+          record.topic(), record.partition(),
+          record.offset(), record.key(), record.value());
+      }
+      // commit and forget; there is no retry
+      // further commits will save properly
+      consumer.commitAsync();
+  }
+} catch (Exception e) {
+  log.error("Unexpected error", e);
+} finally {
+  try {
+    // at the end (closing of consumer or rebalance), this will make sure
+    // commit (with retry in case of failure) will happen
+    consumer.commitSync();
+  } finally {
+    consumer.close();
+  }
+}
+```
+
 
 ## Consumer Offset: Reset Behaviors and Data Retention Period
 
@@ -250,6 +316,263 @@ as inactive.
   - This property is useful to detect some locked processing in the consumer
   side. In the case of Big Data, it may be necessary to increase this value
   or to improve big data processing time.
+
+## Demo Code: Java Consumers
+
+The next examples were taken from the excellent [Stephane Maarek's Kafka Course @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac):
+
+### Simple Consumer
+
+```java
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Properties;
+
+public class ConsumerDemo {
+
+    public static void main(String[] args) {
+
+        Logger logger = LoggerFactory.getLogger(ConsumerDemo.class.getName());
+
+        String bootstrapServers = "localhost:9092";
+        String groupId = "sometopic-g1";
+        String autoOffsetResetConfig = "latest";
+
+        Properties properties = new Properties();
+
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetResetConfig);
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
+        consumer.subscribe(Collections.singleton("sometopic"));
+
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+            for (ConsumerRecord<String, String> record : records) {
+                logger.info("Key: {}, Value: {}", record.key(), record.value());
+                logger.info("Partition: {}, Offset: {}", record.partition(), record.offset());
+            }
+        }
+
+    }
+}
+```
+
+### Consumer: Assign and Seek
+
+This method allow us to read specific message. It is mostly used to replay
+data or fetch specific messages.
+
+A Consumer can either subscribe to topics (and be part of a consumer group)
+or assign itself partitions - but not both at the same time
+{:.note}
+
+```java
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Properties;
+
+public class ConsumerDemoAssignAndSeek {
+
+    public static void main(String[] args) {
+
+        Logger logger = LoggerFactory.getLogger(ConsumerDemoAssignAndSeek.class.getName());
+
+        String bootstrapServers = "localhost:9092";
+        String autoOffsetResetConfig = "latest";
+
+        Properties properties = new Properties();
+
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        //properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId); //not applicable with assign()
+        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetResetConfig);
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
+        //consumer.subscribe(Collections.singleton("sometopic")); //not applicable with assign()
+
+        // assign to a specific partition
+        // a Consumer can either subscribe to topics (and be part of a consumer
+        //  group) or assign itself partitions - but not both at the same time
+        TopicPartition partitionToReadFrom = new TopicPartition("sometopic", 0);
+        consumer.assign(Collections.singleton(partitionToReadFrom));
+
+        // seek to specific offset
+        long offsetToReadFrom = 15L;
+        consumer.seek(partitionToReadFrom, offsetToReadFrom);
+
+        int numberOfMessagesToRead = 5;
+        int numberOfMessagesReadSoFar = 0;
+        boolean keepOnReading = true;
+
+        while (keepOnReading) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+            for (ConsumerRecord<String, String> record : records) {
+                numberOfMessagesReadSoFar++;
+                logger.info("Key: {}, Value: {}", record.key(), record.value());
+                logger.info("Partition: {}, Offset: {}", record.partition(), record.offset());
+
+                if (numberOfMessagesReadSoFar >= numberOfMessagesToRead) {
+                    keepOnReading = false;
+                    break;
+                }
+            }
+        }
+
+        logger.info("Exiting the application");
+    }
+}
+```
+
+### Consumer: With Threads for Better Performance and Handling
+
+This method provides a way to work with multiple threads and an elegant way of
+shut down consumers.
+
+```java
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.errors.WakeupException;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+
+public class ConsumerDemoWithThreads {
+
+    public static void main(String[] args) {
+        new ConsumerDemoWithThreads().run();
+    }
+
+    private void run() {
+        Logger logger = LoggerFactory.getLogger(
+          ConsumerDemoWithThreads.class.getName());
+
+        String bootstrapServers = "localhost:9092";
+        String groupId = "sometopic-g1";
+        String autoOffsetResetConfig = "earliest";
+
+        // latch for dealing with multiple threads
+        CountDownLatch latch = new CountDownLatch(1);
+
+        logger.info("Creating the consumer thread");
+        ConsumerRunnable runnable = new ConsumerRunnable(
+          bootstrapServers, groupId, "sometopic", autoOffsetResetConfig, latch);
+        new Thread(runnable).start();
+
+        // add a shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Caught shutdown hook");
+            runnable.shutdown();
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            logger.info("Application has exited");
+        }));
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            logger.error("Application got interrupted", e);
+        } finally {
+            logger.info("Application is closing");
+        }
+    }
+
+    public class ConsumerRunnable implements Runnable {
+        private CountDownLatch latch;
+        private Logger logger = LoggerFactory.getLogger(ConsumerRunnable
+          .class.getName());
+        private final String bootstrapServers;
+        private final String groupId;
+        private final String topic;
+        private String autoOffsetResetConfig;
+        private KafkaConsumer<String, String> consumer;
+
+        public ConsumerRunnable(String bootstrapServers, String groupId,
+          String topic, String autoOffsetResetConfig, CountDownLatch latch) {
+            this.bootstrapServers = bootstrapServers;
+            this.groupId = groupId;
+            this.topic = topic;
+            this.autoOffsetResetConfig = autoOffsetResetConfig;
+            this.latch = latch;
+
+            Properties props = new Properties();
+            props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+              bootstrapServers);
+            props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+              StringDeserializer.class.getName());
+            props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+              StringDeserializer.class.getName());
+            props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+            props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+              autoOffsetResetConfig);
+
+            this.consumer = new KafkaConsumer<>(props);
+            consumer.subscribe(Collections.singleton(topic));
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    ConsumerRecords<String, String> records = consumer.poll(
+                      Duration.ofMillis(100));
+                    for (ConsumerRecord<String, String> record : records) {
+                        logger.info("Key: {}, Value: {}", record.key(),
+                          record.value());
+                        logger.info("Partition: {}, Offset: {}",
+                          record.partition(), record.offset());
+                    }
+                }
+            } catch (WakeupException e) {
+                logger.info("Received shutdown signal");
+            } finally {
+                consumer.close();
+                // tell the main code we're done with the consumer
+                latch.countDown();
+            }
+        }
+
+        public void shutdown() {
+            // to interrupt consumer.poll()
+            // it will throw WakeUpException
+            consumer.wakeup();
+        }
+
+    }
+
+}
+```
 
 ## CLI: important commands to know
 
