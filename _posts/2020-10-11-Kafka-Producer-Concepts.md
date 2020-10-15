@@ -20,6 +20,23 @@ Producer technology will be covered.
 Producer is a specific type of Kafka client, responsible to send data to Kafka
 Broker for writing.  
 
+The following diagram was taken from [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/) book:
+
+![](/assets/img/blog/kafka/kafka-producer-overview.png)
+
+Figure: Kafka Producer High Level Overview
+{:.figcaption}
+
+In order to create a message, one must create a `ProducerRecord` with topic
+and value information (partition and key are also important, but not required).
+Message is then serialized (key and value) and then the Partitioner algorithm
+define to which partition data will be sent (more on that later). Data is then
+saved in batches of data that goes to the same partition. Only after that, data
+is actually send to the broker.
+
+If broken write fails, Kafka Producer can retry. If still fail after retry, an
+exception is thrown.
+
 - Producers know to which partition and broker to send messages, because of the
 metadata provided by the brokers.
 - Producer is able to recovery automatically if broker fails, because of
@@ -31,6 +48,34 @@ In order to understand much of the basic concepts here described, it is
 mandatory to understand Kafka Core concepts. Those concepts can be found
 in details in the [Kafka Core Concepts'](../2020-10-09-Kafka-Core-Concepts)
 page.
+
+## Primary Methods to Send Messages
+
+- `fire-and-forget`: data is sent without any confirmation
+- `synchonous send`: the send() method returns a Future object with
+RecordMetadata, and then the get() method is used to block until return
+- `asynchronous send`: the send() method is used with a callback function, to
+perform something over RecordMetadata when the request returns (and nothing
+is blocked)
+
+The usage can be improved this way: you can start with a single producer and
+an synchronous method. If throughput increase is required, you can make the
+method async, increasing threads. If throughput limit is reached, then you can
+increase the number of different producers.
+
+## Possible Errors When Sending Messages to Kafka
+
+Kafka Producer has two types of erros:
+- `Retriable errors`: are those that will happen but Kafka Producer will
+stil retry (for instance, a partition is being rebalanced in the broker)
+- `Non-retriable errors`: errors that could not be resolved by retrying (for
+instance, "message size too large"). In that case, errors will be thrown
+immediately.
+  - `SerializationException`: when it fails to serialize a message
+  - `BufferExhaustedException`: when the buffer is full
+  - `TimeoutException`: when the buffer is full
+  - `InterruptException`: when the sending thread is interrupted
+
 
 ## Acknowledgments
 
@@ -317,11 +362,19 @@ public class SomeProducer {
 
     public static void main(String[] args) {
 
-        // define basic properties: bootstrapServer, key serializer
-        // and value serializer
+        // define basic (and mandatory) properties: bootstrapServer,
+        // key serializer and value serializer
         Properties props = new Properties();
         props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        // serializers must implement org.apache.kafka.common.serialization.Serializer interface
+        // Kafka provide ByteArraySerializer, IntegerSerializer and StringSerializer
+        // If common case is not the case, you have to provide your own, or use from others,
+        // like AvroSerializer.
+
+        // key serializer is required even if key is not being used!
+        // key.serializer
         props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        // value.serializer
         props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         // create a record (message)
@@ -379,6 +432,8 @@ public class SomeProducerWithKey {
             logger.info("topic: {}, key: {}, value: {}", topic, key, value);
 
             // sendind record; now, we can see metadata as a result
+            // class implements org.apache.kafka.clients.producer.Callback
+            // interface with a single method onCompletion()
             producer.send(record, (recordMetadata, e) -> {
                 if (e == null) {
                     logger.info("Received new metadata: \n" +
