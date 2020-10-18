@@ -168,8 +168,9 @@ characteristics. In that case, we're using Kafka Default file for Kafka
 Connect in standalone mode
 - The second parameter is the property file to our specific configuration of
 Kafka Connect File Stream Source Connector. You can pass as many files after
-the first one (the worker definition), and each file will be related to a
-different Sink/Source Connector.
+the first one (the worker definition), and the second one (must have at least
+one connector config file), and each file will be related to a additional
+Sink/Source Connector.
 
 After that, we can consume this topic and see the results:
 
@@ -227,7 +228,8 @@ only required action is to change the value of both `key.converter` and
 - This properties can be changed in worker properties file, or defined in
 the file-standalone properties (in this case, it will override worker
 definition)
-- After that, it is necessary to restart the broker or task. New data in the
+- After that, it is necessary to restart the worker (restart the task is not
+enough when it comes to change configuration). New data in the
 file will start to be written as Strings (instead of JSON) in a topic
 
 ```bash
@@ -328,6 +330,190 @@ $ curl -X PUT -H "Content-type: application/json" --data "<config as json>" \
 $ curl -X POST localhost:8083/connectors/<connector-name>/tasks/<task-id>/pause
 $ curl -X POST localhost:8083/connectors/<connector-name>/tasks/<task-id>/restart
 ```
+
+### PUT and POST Methods
+
+The `GET` and `DELETE` methods are self explanatory, but it's confusing to
+understand the usage of `PUT` and `POST` methods.
+
+It seems like Kafka adopts `PUT` method when there is idempotency on the server
+side (which means, no collateral effects will raise in terms of data change).
+For instance, if you change a configuration of a connector, this will not
+trigger any action that will change data in the context of a resource.
+
+Of course, config data will be saved internally - but, in this context,
+being idempotent means to change the behavior of resource itself (and not to
+change in terms of file writing). You will change the property of a connector,
+but this will not start any real action, so it is idempotent. But if you tell
+a task to restart, that will execute code that can actually do something
+(read again the source file and process changes, for instance).
+{:.note}
+
+And Kafka adopts `POST` Method when the resource actually performs noticeable
+change. For instance, when restarting a task, it will trigger a worker to
+restart and run code.
+
+Considering this definition, the following REST API actions must be called by
+`PUT` Method:
+- change a configuration of a connector - triggers no action
+- pause and resume a connector - triggers no action in the tasks
+
+And the following REST API actions must be called by using `POST` Method:
+- create a new connector - trigger execution actions by tasks
+- restart and pause a task - trigger execution actions
+
+
+## Running the Same File Reading in Distributed Mode
+
+Let's consider two different workers. To Kafka, it doesn't matter if they are
+running in the same machine or in two different machines (which is required
+for Kafka brokers). So, a single broker can have more than one worker - and
+that makes the testing job a lot easier, because no cluster is required to
+validate distributed worker mode.
+
+Of course, in production environment you want to make sure that workers are
+running in different brokers, to get all the benefits of a cluster
+(scalability, availability, etc).
+{:.note}
+
+### Start a Distributed Worker
+
+A distributed worker can be run by executing the following command:
+
+```bash
+$ ./bin/connect-distributed.sh -daemon config/connect-distributed.properties
+```
+
+Unlike `connect-standalone.sh`, there is no param to inform the
+connector property file. That is because, in distributed mode, the connector
+properties manipulation must be entirely done via REST API.
+
+### How to Run More Than One Worker?
+
+Each worker starts its own JVM process, so you can run multiple executions
+of the above command. However, you have to use different properties files.
+Example:
+
+```bash
+# start first worker - nothing different
+$ ./bin/connect-distributed.sh -daemon config/connect-distributed.properties
+
+# start second worker (using different properties file)
+$ ./bin/connect-distributed.sh -daemon config/connect-distributed-2.properties
+```
+
+More on that on the next section.
+
+### connect-distributed.properties file in depth
+
+You must have different `connect-distributed.properties` files for each
+worker when running in the same broker. Some of the most important properties
+in that regard are the following:
+
+- `bootstrap.servers=localhost:9092`
+  - All your workers must share this configuration, since they are running in
+  the same cluster (and have to find same Kafka Brokers)
+- `group.id=connect-cluster`
+  - All your workers must share this configuration, because this is required
+  for all the workers that belong to the same cluster
+- **Storage properties:** Since we're working on a cluster, Kafka create topics
+  to store connectors data. The replication factor must be changed
+  according to the number of brokers. All of these properties must be the same
+  between the workers (or things may go wrong)
+
+```properties
+offset.storage.topic=connect-offsets
+offset.storage.replication.factor=1 # use value -1 for kafka defaults
+offset.storage.partitions=-1 # use value -1 for kafka defaults or do not inform
+
+config.storage.topic=connect-configs
+config.storage.replication.factor=1 # use value -1 for kafka defaults
+# config.storage topic must have exactly 1 partition and this cannot be changed!
+
+status.storage.topic=connect-status
+status.storage.replication.factor=1 # use value -1 for kafka defaults
+offset.storage.partitions=-1 # use value -1 for kafka defaults  or do not inform
+```
+
+- `rest.port=8084`
+  - This is the port to be used to perform REST API executions. It must be
+  different for each worker if running in the same machine, and may be the
+  same in workers running in different machines.
+- `plugin.path=<some path to plugins dir>`
+  - When working with different connectors, the jar files must be put
+  in a directory and then referenced here
+
+So, to run different workers in the same broker, use different
+`connect-distributed.properties` files, and only change the property called
+`rest.port`, so each JVM can be operate in isolation, by using different ports.
+
+To run different workers in different brokers, adjust the replication factor
+property.
+
+
+### Running in Distributed Mode with Two Workers
+
+Consider the `config.json` file with the following content:
+
+```json
+{ "name": "file-standalone",
+  "config": {
+     "connector.class":"FileStreamSourceConnector",
+     "tasks.max":"1",
+     "file":"/home/daniel/data/kafka/connectors/file-to-read.txt",
+     "topic":"connect-source-file-topic"
+  }
+}
+```
+
+Let's start two workers using different property files:
+
+```bash
+# start first worker - rest.port set as 8084
+$ ./bin/connect-distributed.sh -daemon config/connect-distributed.properties
+
+# start second worker - rest.port set as 8085
+$ ./bin/connect-distributed.sh -daemon config/connect-distributed-2.properties
+```
+
+And now that workers are running, let's use workers' REST API to
+configure our connector. The following code create a connector using one
+worker and verify that creation using another worker.
+
+```bash
+# create a connector in the worker which REST is at 8084
+$ curl -X POST -H "Content-type: application/json" --data @config.json \
+  localhost:8084/connectors |jq
+
+# checking that config was replicated in the worker which REST is 8085
+$ curl localhost:8085/connectors | jq
+```
+
+All of these commands happened on the same Kafka Broker, but they should be
+run in different brokers, exactly the same way.
+{:.note}
+
+### Distributed Mode: Use Case Overview
+
+![](/assets/img/blog/kafka/kafka-connect-workers-cluster-2.png)
+
+Figure: Kafka Connnect: Distributed Mode in a Cluster.
+{:.figcaption}
+
+In the figure above, the ImportTopic is used to import data to HBase from
+mainframe (DB2 database).  
+
+So, Kafka Connector is being used to move data from DB2 database to HBase.
+Two workers have Source Connectors (to read data from BD2 and send those data
+to a topic called ImportTopic), and a single worker have a Sink Connector
+(to write data from ImportTopic into HBase). The ImportTopic has only one
+partition, and replication factor of three.
+
+Each worker interacts with a partition Leader of ImportTopic, as if they were
+a Kafka Client (producer or consumer) - in fact, they are. They also interact
+with the Partition Leader of internal topics (connect-config, connect-status
+and connect-offset), so the metadata is properly shared between workers.
+
 
 ## Kafka Connect: Landoop
 
