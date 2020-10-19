@@ -14,13 +14,14 @@ VirtualBox and then to configure HBase.
 - Table of Contents
 {:toc}
 
-Linux is _de facto_ server environment. However, developers usually have
-to perform their work in Windows workstations, because of companies policies.
-Hence, often we need to simulate Linux environments in our Windows box.
+Linux is a _de facto_ server environment. However, developers usually have
+to perform their work in Windows workstations, due to companies' policies.
+Hence, we often need a way to simulate Linux environments in our Windows
+boxes.
 
 Is this post, I'll explain how to configure a Virtual Machine to do exactly
 this. In addition, an HBase server will be installed, to validate Linux port
-opening - and because it's fun.
+opening - and also because it's fun.
 
 ## Virtual Machine on Windows
 
@@ -30,9 +31,9 @@ First of all, [download and install Oracle VirtualBox](https://www.oracle.com/vi
 
 ## Download CentOS
 
-Also, you will need to download an ISO from Linux distro. I'll adopt CentOS,
+You will need to download an ISO of a Linux distro. I'll adopt CentOS,
 because is very easy to get it done and compatible to Red Hat (a common
-distro amongst companies).
+distro amongst enterprises).
 
 A CentOS 7 ISO can be found [here](http://ftp.unicamp.br/pub/centos/7.8.2003/isos/x86_64/CentOS-7-x86_64-DVD-2003.iso).
 
@@ -48,7 +49,7 @@ Open VirtualBox and create a new Virtual Machine with the following properties:
   - Size: 8GB
 
 After that, start a new machine
-- A ISO will be asked. Select your ISO file downloaded in previous section
+- An ISO will be asked. Select the ISO file downloaded in previous section
 - Select "Install CentOS"
 - Select Language (English)
 - Confirm the Warnings and click in "Begin Installation"
@@ -64,13 +65,16 @@ Now, power off the machine for further configurations in Oracle VirtualBox.
 
 In Virtual Box, make sure that the brand new machine is powered off.
 Go to its settings, and make sure, in Network Section, that both NAT and
-Host-Only Adapter are defined. NAT interface will give you internet access,
+Host-Only Adapter are defined.
+
+NAT interface will give you internet access,
 and Host-Only Interface will give you the possibility to connect to other
 machines in the same network.
+{:.note}
 
-It is also required to access VirtualBox Host Network Manager dialog (ctrl+H)
+It is also necessary to access VirtualBox Host Network Manager dialog (ctrl+H)
 and make sure that DHCP is enable and properly configured. For instance, one
-can configure the following way:
+can configure it like below:
 
 - Adapter
   - Configure Adapter Manually
@@ -104,13 +108,14 @@ You must have two interfaces:
 - NAT interface: with no IP
 
 Once you know the DHCP IP, you may prefer to switch to a better terminal than
-VirtualBox terminal, to perform Linux actions. It is highly suggested to use
+VirtualBox term, to perform Linux actions. It is highly recommended to use
 [MobaXTerm](https://mobaxterm.mobatek.net/download.html) terminal.
 {:.note}
 
 You may also want to restart your virtual machine in headless mode. That way,
 virtual machine will start normally but with no additional terminal window.
-You can connect using MobaXterm without any additional screen.
+Then, you can connect using MobaXterm without any additional, unnecessary,
+annoying terminal.
 {:.note}
 
 The NAT interface must get a class-A private network address IP (range
@@ -122,13 +127,13 @@ vi /etc/sysconfig/network-scripts/ifcfg-<interface name>
 
 And change the property `ONBOOT=no` to `ONBOOT=yes`.
 
-After that, restart the machine. After new login, execute `ip addr` to check
-that the NAT interface now has a private IP
+After that, restart the machine. After new login, execute `ip addr` again to
+check that the NAT interface now has a private IP, as expected.
 
 ### Testing Internet Access
 
-Since the NAT interface have a private IP, the internet access is available.
-You can validate it with:
+Since the NAT interface have a private IP, the internet access should be
+available. You can validate it with:
 
 ```bash
 ping google.com -c2
@@ -143,7 +148,8 @@ applications:
 yum install -y vim java-1.8.0-openjdk nc net-tools lsof wget vim
 ```
 
-`nc` package brings us `netcat`; `net-tools` brings us `lsof`.
+`nc` package brings us `netcat`; `net-tools` brings us `lsof`. Both commands
+will be important when testing Linux ports (more on next sections).
 
 ## Downloading and Starting HBase
 
@@ -153,14 +159,16 @@ HBase can be downloaded as following:
 wget --no-check-certificate https://downloads.apache.org/hbase/2.3.2/hbase-2.3.2-bin.tar.gz
 ```
 
-After that, just extract and start, configure and start the process:
+After that, just extract, configure and start the process:
 ```bash
 tar xvf hbase-2.3.2-bin.tar.gz
-
+```
+```bash
 vim hbase-2.3.2/conf/hbase-env.sh
-# uncomment the JAVA_HOME line and update with the following
+# uncomment the JAVA_HOME line and update with the following:
 export JAVA_HOME=/etc/alternatives/jre_1.8.0
-
+```
+```bash
 ./hbase-2.3.2/bin/start-hbase.sh
 ```
 You can now use a shell to create a test table with some values:
@@ -227,8 +235,8 @@ vim /etc/hosts
 
 ## Last configuration: client machine
 
-Now, in the client machine (that will connect to HBase), add the following
-line to the end of a hosts file:
+Now, in the client machine (that one who will connect to HBase), add the
+following line to the end of hosts file:
 
 ```property
 <hbase host machine ip> big-data
