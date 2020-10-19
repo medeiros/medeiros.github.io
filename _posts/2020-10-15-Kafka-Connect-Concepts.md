@@ -515,6 +515,113 @@ with the Partition Leader of internal topics (connect-config, connect-status
 and connect-offset), so the metadata is properly shared between workers.
 
 
+## Sink: Saving Topic Contents to a File
+
+If we check our available connector plugins
+(```$ curl localhost:8084/connector-plugins | jq```), we will realize that
+there are also a `FileStreamSinkConnector`. It means that we can write file
+from Kafka to a file out-of-the-box, without any connector installation.
+
+So let's do it. The required actions to do so are the following:
+- Configure a new Sink connector in Kafka Connect Worker
+- Check if the file was created with the expected content  
+
+That easy.
+
+### Configuring a new Sink Connector
+
+Given a `filesink.json` file with the content:
+
+```json
+{
+  "name": "file-standalone-sink",
+  "config": {
+     "connector.class":"FileStreamSinkConnector",
+     "tasks.max":"1",
+     "file":"/home/daniel/data/kafka/connectors/file-sink.txt",
+     "topics":"connect-source-file-topic"
+  }
+}
+```
+
+Unlike the `FileStreamSourceConnector` config, the property to set the topic
+is "topics" (and not "topic").
+{:.note}
+
+Run the following command:
+
+```bash
+$ curl -X POST -H "Content-type: application/json" --data @filesink.json \
+    localhost:8084/connectors | jq
+```
+
+But will give us an error. Because out topic is a mix of JSON and plain text
+content, the SinkConnect cannot parse data properly.
+
+What we have to do is to delete a topic, change the content of source file,
+and then restart the sink and source connectors.
+
+```bash
+$ kafka-topics.sh --bootstrap-server localhost:9092 --topic \
+    connect-source-file-topic --delete
+
+$ vim file-to-read.txt
+<add some new lines>
+
+$ curl -X POST localhost:8085/connectors/file-standalone/tasks/0/restart
+
+$ curl -X POST localhost:8085/connectors/file-standalone-sink/tasks/0/restart
+
+$ cat file-to-read.txt file-standalone-sink.txt
+```
+
+The sink connector stores lines in the sink file as expected. The content
+format is plain text (and not JSON). This must be weird, because the
+kafka-console-consumer presents data as JSON.
+
+Since we do not define any converter in our connectors, the default was used
+(JSON Converters, defined in the worker). This converter was applied to both
+source and sink connectors.
+
+So, considering the default converter (JSON), data is read as text and
+transformed to JSON (source), and then is read as JSON and parsed as
+text - the original value (sink).
+
+If we want to write our data in sink file as it is in the topic (as JSON), it
+is necessary to define the `value.converter` sink property to a String. That
+way, data will be not converted from json, and be returned as it is.   
+
+Given a file `filesink-config.json` with the content:
+
+```json
+{
+   "connector.class":"FileStreamSinkConnector",
+   "tasks.max":"1",
+   "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+   "file":"/home/daniel/data/kafka/connectors/file-sink.txt",
+   "topics":"connect-source-file-topic"
+}
+```
+
+Run the following commands to update config and restart the task:
+
+```bash
+$ vim file-to-read.txt
+<add some new lines>
+
+$ curl -X PUT -H "Content-type: application/json" --data @filesink-config.json \
+    localhost:8084/connectors/file-standalone-sink/config | jq
+
+$ curl -X POST localhost:8084/connectors/file-standalone-sink/tasks/0/restart
+
+$ curl -X POST localhost:8084/connectors/file-standalone/tasks/0/restart
+
+$ cat file-standalone-sink.txt
+```
+
+After that, the new content of `file-standalone-sink` should be written as JSON.
+
+
 ## List of Available Connectors
 
 - [Confluent Hub](http://confluent.io/hub)
