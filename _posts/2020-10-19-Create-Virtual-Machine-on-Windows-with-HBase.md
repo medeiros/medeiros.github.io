@@ -23,9 +23,7 @@ Is this post, I'll explain how to configure a Virtual Machine to do exactly
 this. In addition, an HBase server will be installed, to validate Linux port
 opening - and also because it's fun.
 
-## Virtual Machine on Windows
-
-### Download Oracle VirtualBox
+## Download Oracle VirtualBox
 
 First of all, [download and install Oracle VirtualBox](https://www.oracle.com/virtualization/technologies/vm/downloads/virtualbox-downloads.html).
 
