@@ -44,7 +44,7 @@ Open VirtualBox and create a new Virtual Machine with the following properties:
 - Version: Red Hat (64-bit)
 - Memory size: 4GB
 - Hard disk: create a virtual hard disk
-  - VDI: Virtual Box DIsk Image
+  - VDI: Virtual Box Disk Image
   - Dinamically Allocated
   - Size: 8GB
 
