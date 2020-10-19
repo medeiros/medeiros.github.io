@@ -145,7 +145,7 @@ With proper internet access, let's download and install some required
 applications:
 
 ```bash
-yum install -y vim java-1.8.0-openjdk nc net-tools lsof wget vim
+yum install -y vim java-1.8.0-openjdk nc net-tools lsof wget
 ```
 
 `nc` package brings us `netcat`; `net-tools` brings us `lsof`. Both commands
