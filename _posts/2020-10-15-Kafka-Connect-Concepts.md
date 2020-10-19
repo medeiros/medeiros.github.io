@@ -515,6 +515,12 @@ with the Partition Leader of internal topics (connect-config, connect-status
 and connect-offset), so the metadata is properly shared between workers.
 
 
+## List of Available Connectors
+
+- [Confluent Hub](http://confluent.io/hub)
+- [Google](http://www.google.com)
+
+
 ## Kafka Connect: Landoop
 
 Landoop is a tool to make it easy to manage Kafka Connect workers.
