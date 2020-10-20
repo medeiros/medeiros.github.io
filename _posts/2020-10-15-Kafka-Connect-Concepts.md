@@ -622,13 +622,311 @@ $ cat file-standalone-sink.txt
 After that, the new content of `file-standalone-sink` should be written as JSON.
 
 
-## List of Available Connectors
+## Where Can I Get More Connectors?
 
 - [Confluent Hub](http://confluent.io/hub)
 - [Google](http://www.google.com)
 
+## Write your Own Connector
 
-## Kafka Connect: Landoop
+> That's the fun part.
+
+### Using a Maven Archetype
+
+Consider using the [Jeremy Custenborder Maven Archetype for Kafka Connectors](https://github.com/jcustenborder/kafka-connect-archtype).
+
+### Dependencies (pom.xml)
+
+The project created by using jcustenborder Maven archetype has, in its
+`pom.xml`, an inheritance from `com.github.jcustenborder.kafka.connect:kafka-connect-parent`.
+That POM uses `org.apache.kafka:connect-api` dependency. This dependency
+provides us three classes (that we need to extend):
+
+- `org.apache.kafka.common.config.AbstractConfig`
+- `org.apache.kafka.connect.source.SourceConnector`
+- `org.apache.kafka.connect.source.SourceTask`
+
+We'll cover those in depth in the next sections.
+
+`org.apache.kafka:connect-api` has the `org.apache.kafka:kafka-clients`
+dependency (and that allows connector to behave like a consumer/producer
+client).
+{:.note}
+
+### Anatomy of a Connector
+
+This section will analyze the three classes that should be extended in order
+to create a new Kafka Connector. The examples here presented were extracted
+from my [kafka-connect-covid19api project](/projects/kafka-connect-covid19api/).
+
+#### AbstractConfig
+
+This class can be extended to provide specific configuration for our Connector.
+The constructor must be override in order to inform a specific
+`org.apache.kafka.common.config.ConfigDef` which provide the configuration:
+
+```java
+package com.arneam;
+
+import com.github.jcustenborder.kafka.connect.utils.config.ConfigKeyBuilder;
+import java.util.Map;
+import org.apache.kafka.common.config.AbstractConfig;
+import org.apache.kafka.common.config.ConfigDef;
+import org.apache.kafka.common.config.ConfigDef.Type;
+
+public class Covid19SourceConnectorConfig extends AbstractConfig {
+
+  public static final String TOPIC_CONFIG = "topic";
+  private static final String TOPIC_DOC = "Topic to store Covid19 API data";
+  public static final String POLL_INTERVAL_MS_CONFIG = "poll.interval.ms";
+  private static final String POLL_INTERVAL_MS_DOC = "Time between two calls to Covid19API";
+
+  public final String topic;
+  public final Long pollIntervalMs;
+
+  public Covid19SourceConnectorConfig(Map<?, ?> originals) {
+    super(config(), originals);
+    this.topic = this.getString(TOPIC_CONFIG);
+    this.pollIntervalMs = this.getLong(POLL_INTERVAL_MS_CONFIG);
+  }
+
+  public static ConfigDef config() {
+    return new ConfigDef()
+        .define(ConfigKeyBuilder.of(TOPIC_CONFIG, ConfigDef.Type.STRING)
+          .documentation(TOPIC_DOC)
+          .importance(ConfigDef.Importance.HIGH)
+          .build())
+        .define(ConfigKeyBuilder.of(POLL_INTERVAL_MS_CONFIG, Type.LONG)
+          .defaultValue((long) (24 * 60 * 60 * 1000))
+          .documentation(POLL_INTERVAL_MS_DOC)
+          .importance(ConfigDef.Importance.HIGH)
+          .build());
+  }
+
+}
+```
+
+#### SourceConnector
+
+Once we have an `AbstractConfig` specialization, we must use it in our
+SourceConnector. This connector file basically allow us to define:
+
+- config class to be used (in our case, the previously defined
+  `Covid19SourceConnectorConfig`class)
+- task class to be used (more on that in the next section)
+
+```java
+package com.arneam;
+
+import com.github.jcustenborder.kafka.connect.utils.VersionUtil;
+import com.github.jcustenborder.kafka.connect.utils.config.Description;
+import com.github.jcustenborder.kafka.connect.utils.config.DocumentationImportant;
+import com.github.jcustenborder.kafka.connect.utils.config.DocumentationNote;
+import com.github.jcustenborder.kafka.connect.utils.config.DocumentationTip;
+import com.github.jcustenborder.kafka.connect.utils.config.Title;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.apache.kafka.common.config.ConfigDef;
+import org.apache.kafka.connect.connector.Task;
+import org.apache.kafka.connect.source.SourceConnector;
+
+@Description("Connect to Covid19API to get Covid19 data of all countries in the world")
+@DocumentationImportant("")
+@DocumentationTip("")
+@Title("Kafka-Connect-Covid19API")
+@DocumentationNote("Note: use it in conjunction with 'kafka-streams-covid19api' application")
+public class Covid19SourceConnector extends SourceConnector {
+
+  private Covid19SourceConnectorConfig config;
+
+  @Override
+  public String version() {
+    return VersionUtil.version(this.getClass());
+  }
+
+  @Override
+  public void start(Map<String, String> map) {
+    this.config = new Covid19SourceConnectorConfig(map);
+  }
+
+  @Override
+  public Class<? extends Task> taskClass() {
+    return Covid19SourceTask.class;
+  }
+
+  @Override
+  public List<Map<String, String>> taskConfigs(int i) {
+    List<Map<String, String>> configs = new ArrayList<>(1);
+    configs.add(config.originalsStrings());
+    return configs;
+  }
+
+  @Override
+  public void stop() {
+
+  }
+
+  @Override
+  public ConfigDef config() {
+    return Covid19SourceConnectorConfig.config();
+  }
+
+}
+```
+
+#### SourceTask
+
+This is the class that performs all the work. It must be override to perform
+the required action in its `poll()` method.
+Basically, four methods need to be overriden:
+
+- `version()`: component version
+- `start()`: starts a component; usually loads the config object
+- `stop()`: action to perform when the component is stopped
+- `poll()`: the most important one. It it responsible por generate a list of
+`org.apache.kafka.connect.source.SourceRecord` that will be used to poll the
+messages to the Kafka Broker (this is a Source Connector). The object
+construction takes a lot of elements, as can be seen below:
+
+```java
+package com.arneam;
+
+// import ...;
+
+public class Covid19SourceTask extends SourceTask {
+
+  private static Logger log = LoggerFactory.getLogger(Covid19SourceTask.class);
+  // some attributes
+
+  @Override
+  public String version() {
+    return VersionUtil.version(this.getClass());
+  }
+
+  // when start, load a config
+  @Override
+  public void start(Map<String, String> map) {
+    config = new Covid19SourceConnectorConfig(map);
+  }
+
+  @Override
+  public void stop() {
+
+  }
+
+  @Override
+  public List<SourceRecord> poll() throws InterruptedException {
+
+    // <deleted code, for the sake of simplicity>
+
+    List<SourceRecord> records = new ArrayList<>();
+
+    JSONArray countries = getCovid19APICountries(1);
+    log.info("-----> Total of countries: {}", countries.length());
+
+    this.sendDummy = true;
+    return recordsFromCountries(records, countries);
+  }
+
+  // <deleted code, for the sake of simplicity>
+
+  private SourceRecord generateSourceRecordFrom(Country country) {
+    return new SourceRecord(sourcePartition(), sourceOffset(), config.topic, null,
+        Covid19Schema.KEY_SCHEMA, buildRecordKey(country), Covid19Schema.VALUE_SCHEMA,
+        buildRecordValue(country), Instant.parse(country.getDate()).toEpochMilli());
+  }
+
+  private Map<String, String> sourcePartition() {
+    Map<String, String> map = new HashMap<>();
+    map.put("partition", "single");
+    return map;
+  }
+
+  private Map<String, String> sourceOffset() {
+    Map<String, String> map = new HashMap<>();
+    map.put("timestamp", String.valueOf(Instant.now().toEpochMilli()));
+    return map;
+  }
+
+  private Struct buildRecordKey(Country country) {
+    return new Struct(Covid19Schema.KEY_SCHEMA)
+        .put(Covid19Schema.DATE_FIELD, country.getDate());
+  }
+
+  private Struct buildRecordValue(Country country) {
+    return new Struct(Covid19Schema.VALUE_SCHEMA)
+        .put(Covid19Schema.COUNTRY_FIELD, country.getCountry())
+        .put(Covid19Schema.COUNTRY_CODE_FIELD, country.getCountryCode())
+        .put(Covid19Schema.SLUG_FIELD, country.getSlug())
+        .put(Covid19Schema.NEW_CONFIRMED_FIELD, country.getNewConfirmed())
+        .put(Covid19Schema.TOTAL_CONFIRMED_FIELD, country.getTotalConfirmed())
+        .put(Covid19Schema.NEW_DEATHS_FIELD, country.getNewDeaths())
+        .put(Covid19Schema.TOTAL_DEATHS_FIELD, country.getTotalDeaths())
+        .put(Covid19Schema.NEW_RECOVERED_FIELD, country.getNewRecovered())
+        .put(Covid19Schema.TOTAL_RECOVERED_FIELD, country.getTotalRecovered())
+        .put(Covid19Schema.DATE_FIELD, country.getDate());
+  }
+}
+```
+
+There are a lot to cover. It is recomended to check the
+[kafka-connect-covid19api project](/projects/kafka-connect-covid19api/) code
+for better understanding.
+
+## How to Build a Connector and Run it in Kafka
+
+These are simple steps to register a previous connector in Kafka Connect:
+
+- Package the Java Maven project: `$ mvn clean package`
+- Copy the directory `target/kafka-connect-target/usr/share/kafka-connect/kafka-connect-covid19api`
+to the same directory specified by the property `plugins.path` in the Kafka
+`connect-distributed.properties` file (or `connect-standalone.properties` file)
+- Start a Kafka Connect Worker
+- Register the Connector using REST API and start the connector
+  - the JSON to be used for connector configuration can be found in README.md
+  file
+
+```bash
+# save connector properties in a file (let's call it: config.json)
+
+# run the following command to create a Kafka Connector configuration into
+# the Cluster
+$ curl -X POST -H "Content-type:application/json" --data @config.json \
+    localhost:8084/connectors | jq
+```
+
+- Consume a Kafka topic to make sure that Covid19-API data was actually
+read form the API and then produced into the topic:
+
+```bash
+$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic x \
+    --from-beginning
+```
+
+You may see a lot of JSON messages, one for each country. And that's it for
+this connector.
+> A Kafka Streams app would be responsible to read this raw data and generates
+> consolidated information. Actually, this performed in my project
+> '[kafka-streams-covid19api](https://github.com/medeiros/kafka-streams-covid19api)',
+> that consolidate this countries' data to rank Brazil position related to
+> the world.
+
+## How to Run Connectors in Production
+
+- There is no difference that what was said in the previous sections
+- Consider distributed mode
+  - Each Kafka Broker machine in the cluster can run one or more workers
+    - If running in the same box, change `rest.port` property for obvious
+    reasons
+  - Distribute its workers between different machines for failure tolerance
+- Consider tools to improve Workers' administration
+  - Landoop for a interface to manage connectors
+    - It uses Kafka Connector REST API internally
+    - Its web interface make the work easier
+  - Docker to run Landoop (if applicable)
+
+## Landoop: Easier Kafka Connect Administration Tool
 
 Landoop is a tool to make it easy to manage Kafka Connect workers.
 - There is a docker image to make the usage simple (landoop/fast-data-dev)
