@@ -867,6 +867,10 @@ $ ./kafka-topics.sh --bootstrap-server kafka1:9092,kafka2:9092,kafka3:9092
 ### Topic List
 ```bash
 $ ./kafka-topics.sh --bootstrap-server kafka1:9092,kafka2:9092 --list
+
+# show the amount of messages per partition
+$ ./kafka-run-class.sh kafka.tools.GetOffsetShell \
+    --broker-list kafka1:9092 --topic sometopic
 ```
 
 ### Topic Describing
