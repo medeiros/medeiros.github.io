@@ -327,7 +327,6 @@ $ curl -X PUT -H "Content-type: application/json" --data "<config as json>" \
     localhost:8083/connectors/<connector-name>/config
 
 # To control the execution of specific task:
-$ curl -X POST localhost:8083/connectors/<connector-name>/tasks/<task-id>/pause
 $ curl -X POST localhost:8083/connectors/<connector-name>/tasks/<task-id>/restart
 ```
 
