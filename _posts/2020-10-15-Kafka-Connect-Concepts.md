@@ -30,26 +30,6 @@ Those are bridges between Kafka Cluster and the external world.
   once, etc), and it is usually better to use a common connector
   that already solve these problems, instead of solve those from scratch
 
-## Sources and Sinks
-
-A connector can be a `Sink`, a `Source`, or both.
-
-- `Source`: acting as a producer, bringing data to Kafka from an external
-source
-  - for instance: to read data from REST API (source), parse its JSON response  
-and send the parsed data to Kafka Cluster
-- `Sink`: acting as a consumer, reading data from Kafka and saving them in an
-external sink
-  - for instance: get data from Kafka Cluster and send it to Tweeter (sink)
-as a tweet
-
-## Common Use Cases
-
-|--|--|--|
-Source -> Kafka|Producer API|Kafka Connect Source
-Kafka <-> Kafka|Consumer API, Producer API|Kafka Streams
-Kafka <- Sink|Consumer API|Kafka Connect Sink
-
 ## Kafka Connect High-Level Overview
 
 In a high overview, Kafka Connect interacts with Kafka in the following way:
@@ -73,6 +53,38 @@ data to Kafka Cluster
 Cluster (acting like a consumer in that regard)
 - step 5. Kafka Connector Sink send read data into a sink (external)
 
+## Connectors and Tasks
+
+Connectors are responsible to manage the tasks that will run. They must
+decide how data will be splitted to tasks, and provide tasks with
+specific configuration to perform their job well.
+
+Tasks are responsible to get things in and out of Kafka. They get their context
+from the worker. Once initialized, they are started with a `Properties` object,
+containing connectors configuration. Once started, the tasks poll an external
+source and return a list of records (and the worker will send those data to
+a Kafka broker).
+
+## Sources and Sinks
+
+A connector can be a `Sink`, a `Source`, or both.
+
+- `Source`: acting as a producer, bringing data to Kafka from an external
+source
+  - for instance: to read data from REST API (source), parse its JSON response  
+and send the parsed data to Kafka Cluster
+- `Sink`: acting as a consumer, reading data from Kafka and saving them in an
+external sink
+  - for instance: get data from Kafka Cluster and send it to Tweeter (sink)
+as a tweet
+
+## Common Use Cases
+
+|--|--|--|
+Source -> Kafka|Producer API|Kafka Connect Source
+Kafka <-> Kafka|Consumer API, Producer API|Kafka Streams
+Kafka <- Sink|Consumer API|Kafka Connect Sink
+
 ## Workers
 
 Connectors run inside processes called `Workers`. In those workers,
@@ -81,9 +93,21 @@ scalability is also supported.
 - Each worker is an isolated, simple Java Process (JVM)
 - Workers run Connectors (_each connector is class inside a `jar` file_)
 - Worker runs Connectors' `Tasks` to perform its actions
-  - A Task is linked with a connector configuration
   - A job configuration can be composed of several tasks
 - A Worker can run in standalone mode or distributed mode
+- If a worker crashes, a rebalance will occur (the heartbeat mechanism in the
+Kafka consumer's Protocol is applied here)
+- If a worker joins a Connect cluster, other workers will notice that and
+assign connectors or tasks to this new worker, in order to balance the cluster.
+  - To join a cluster, a worker must have the same `group.id` property.
+- Workers perform `Offset Management` to the connectors, which means that
+connectors need to know which data has already been processed. This information
+is different from connector to connector (in a file connector, it may be
+the position of a line, and in a JDBC Connector, it may be the primary key).
+This decision (about how to define offset management) is very important for
+paralelism and in a context of semantics for a connector.
+Workers manage this information by using Kafka API to save data in the Kafka
+broker.
 
 |--|--|
 Standalone Worker|Distributed Worker
@@ -97,6 +121,7 @@ Distributed workers do not necessary need to run in a cluster environment.
 For testing purposes, one may run several Workers in the same machine,
 just starting different JVMs using different properties files.
 {:.note}
+
 
 ## Cluster and Distributed Architecture
 
