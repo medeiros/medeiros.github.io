@@ -921,7 +921,7 @@ $ curl -X POST -H "Content-type:application/json" --data @config.json \
 ```
 
 - Consume a Kafka topic to make sure that Covid19-API data was actually
-read form the API and then produced into the topic:
+read from the API and then produced into the topic:
 
 ```bash
 $ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic x \
