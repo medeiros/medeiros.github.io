@@ -896,7 +896,7 @@ public class Covid19SourceTask extends SourceTask {
 
 There are a lot to cover. It is recomended to check the
 [kafka-connect-covid19api project](/projects/kafka-connect-covid19api/) code
-for better understanding.
+for a complete functional example.
 
 ## How to Build a Connector and Run it in Kafka
 
