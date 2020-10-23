@@ -898,6 +898,15 @@ There are a lot to cover. It is recomended to check the
 [kafka-connect-covid19api project](/projects/kafka-connect-covid19api/) code
 for a complete functional example.
 
+## Kafka Connect Transformations
+
+Kafka Connectors can be configured to use transformations. These are handy
+to perform small modifications on messages.
+
+More information about Connector transformations can be found
+in [Kafka Documentation Page](https://kafka.apache.org/documentation/#connect_transforms).
+{:.note}
+
 ## How to Build a Connector and Run it in Kafka
 
 These are simple steps to register a previous connector in Kafka Connect:
