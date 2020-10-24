@@ -6,6 +6,7 @@ description: >
 categories: smarthome
 tags: smarthome
 comments: true
+image: /assets/img/blog/smarthome/modem-vivo-fibra.jpeg
 ---
 > A maior parte dos dispositivos WiFi para casa inteligente operam na
 frequência de 2.4GHz. Contudo, vários Modems não entregam essa frequência
