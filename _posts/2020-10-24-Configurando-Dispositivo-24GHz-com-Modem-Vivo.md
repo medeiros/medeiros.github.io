@@ -104,8 +104,9 @@ o seguinte:
 de 2.4GHz, pois é uma rede de maior alcance que a 5GHz
 - Faça o pareamento e só então volte pra casa
 
-Impressionou-me saber que a solução mais sugerida (e a única até o momento)
-para este problema fosse algo tão ridículo. Até cheguei a tentar fazer, mas o
+Impressionou-me saber que a solução mais sugerida (e a única até o momento,
+inclusve nos EUA) para este problema fosse algo tão ridículo. Até cheguei a 
+tentar fazer, mas o
 problema é que, no tempo que levava para sair de casa e pegar a rede 2.4GHz,
 o dispositivo saía do modo de pareamento.
 
@@ -137,7 +138,8 @@ no video, segue abaixo o procedimento que adotei, em ordem:
   segundo celular (que é quem distribui a rede).
 - No modem da Vivo:
   - ligar novamente a opção 2.4GHz
-- No segundo celular: desligar o hotspot. Como a lâmpada já foi pareada com
+- No segundo celular:
+  - desligar o hotspot. Como a lâmpada já foi pareada com
   um SSID igual ao do modem da Vivo na opção 2.4GHz, a lâmpada vai trocar a rede
   (do segundo celular para o modem da Vivo) de forma transparente.
 
