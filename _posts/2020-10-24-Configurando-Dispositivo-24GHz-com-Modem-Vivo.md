@@ -105,7 +105,7 @@ de 2.4GHz, pois é uma rede de maior alcance que a 5GHz
 - Faça o pareamento e só então volte pra casa
 
 Impressionou-me saber que a solução mais sugerida (e a única até o momento,
-inclusve nos EUA) para este problema fosse algo tão ridículo. Até cheguei a 
+inclusve nos EUA) para este problema fosse algo tão ridículo. Até cheguei a
 tentar fazer, mas o
 problema é que, no tempo que levava para sair de casa e pegar a rede 2.4GHz,
 o dispositivo saía do modo de pareamento.
@@ -125,15 +125,15 @@ no video, segue abaixo o procedimento que adotei, em ordem:
   - acessar o gateway e desabilitar a opção 2.4GHz: a única opção disponível
   agora é de 5GHz (que entrega apenas frequência de 5GHz).
 - No segundo celular:
-  - Manter WiFi habilitado, mas desconectar do roteador da Vivo. Deixar
+  - manter WiFi habilitado, mas desconectar do roteador da Vivo. Deixar
   conectado na rede da operadora (4G).
-  - Alterar o nome da rede para ter o mesmo nome da rede (SSID)/senha do modem
+  - alterar o nome da rede para ter o mesmo nome da rede (SSID)/senha do modem
   Vivo na opção 2.4GHz
-  - Criar um hostspot para permitir conexão do celular principal
+  - criar um hostspot para permitir conexão do celular principal
 - No celular principal:
-  - Conectar no hotspot do segundo celular. Por ele estar no 4G da operadora,
+  - conectar no hotspot do segundo celular. Por ele estar no 4G da operadora,
   vai compartilhar a rede na frequência de 2.4GHz.
-  - Realizar o pareamento com a lâmpada. Por estar na frequência de 2.4GHz,
+  - realizar o pareamento com a lâmpada. Por estar na frequência de 2.4GHz,
   agora vai funcionar normalmente. A lâmpada está conectada agora via WiFi no
   segundo celular (que é quem distribui a rede).
 - No modem da Vivo:
