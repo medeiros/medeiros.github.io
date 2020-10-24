@@ -56,10 +56,14 @@ author:
 menu:
   - title:             Blog
     url:               /blog/
-  - title:             Projects
-    url:               /projects/
   - title:             Résumé
     url:               /resume/
+  - title:             Projects
+    url:               /projects/
+  - title:             Kafka
+    url:               /blog/kafka/
+  - title:             SmartHome (pt_BR)
+    url:               /blog/smarthome/
   #- title:             Documentation
   #  url:               /docs/
 
