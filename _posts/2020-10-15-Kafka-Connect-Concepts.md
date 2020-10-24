@@ -6,6 +6,7 @@ description: >
 categories: distributedarchitecture
 tags: [core, kafka]
 comments: true
+image: /assets/img/blog/kafka/kafka-connect-overview.png
 ---
 > Kafka is a distributed, resilient, fault tolerant streaming platform that works with high data throughput.
 In this page, the main concepts of Kafka Connect technology will be covered.
