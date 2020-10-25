@@ -2,7 +2,7 @@
 layout: post
 title: "Kafka Connect Concepts"
 description: >
-  Review of the core concepts in Apache Kafka.
+  Review of the connect concepts in Apache Kafka.
 categories: distributedarchitecture
 tags: [core, kafka]
 comments: true
