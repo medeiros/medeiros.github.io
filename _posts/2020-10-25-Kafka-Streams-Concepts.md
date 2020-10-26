@@ -156,7 +156,7 @@ $ ./bin/kafka-run-class.sh \
     org.apache.kafka.streams.examples.wordcount.WordCountDemo
 ```
 
-You may see the following:
+You should see the following:
 
 ```
 > java    1
@@ -168,7 +168,7 @@ You may see the following:
 > java    2
 ```
 
-Since it is a pure Stream, the word "java" will appear duplicated in the end,
+Since it is a Stream, the word "java" will appear duplicated in the end,
 with a count of 2.   
 
 ## References
