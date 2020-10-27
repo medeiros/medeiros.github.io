@@ -207,8 +207,8 @@ with a count of 2.
 
 ### What is the Topology for WordCount?
 
-The idea here is to perform an aggregation of records, grouping them so
-they can be count by the amount of duplicated words:
+The idea here is to perform an aggregation of records and grouping them, so
+they can be counted by the amount of duplicated words:
 
 - **Stream** to create a stream: `<null, "Java pretty Java">`
 - **MapValues** to lowercase: `<null, "java pretty java">`
