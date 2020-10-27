@@ -304,8 +304,8 @@ Topic (key, value)|KTable
             | (bob, 22)
 (bob, null) | (alice, 19)
 
-As we can see, data with a new key are inserted, data with the same key are
-updated, and data with null value are deleted.
+As we can see, data with a new key was inserted, data with the same key was
+updated, and data with null value was deleted.
 
 ### KStream x KTable Usage
 
