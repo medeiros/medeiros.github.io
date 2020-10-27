@@ -53,7 +53,7 @@ that brings and send data to all kinds of different external systems.
 ## Kafka Streams Architecture: Simple and Flexible
 
 Kafka Streams are very simple in terms of architecture. A Kafka Streams
-application is just a standard java application (jar) that runs in a JVM as a
+application is just a standard java application (jar) that runs in a JVM as an
 isolated process. The concept of "cluster" do not apply to it.
 
 Since Kafka Streams inherits Kafka characteristics, it also can be considered
