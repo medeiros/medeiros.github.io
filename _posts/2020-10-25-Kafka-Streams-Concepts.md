@@ -289,8 +289,8 @@ no relation between old and new data.
 ### KTable
 
 KTable behaves more like a table. It is similar to the concept of log
-compacted topics. UPDATE is performed in non-null data, and DELETE can happen
-in null data.
+compacted topics. UPDATE is performed in non-null values, and DELETE occurs
+in messages with null values.
 
 The following table describes the representation of a topic using KTable:
 
