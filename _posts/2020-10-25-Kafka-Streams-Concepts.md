@@ -86,12 +86,63 @@ at a time.
 
 ### Exactly Once Capabilities
 
-Kafka Streams supports exactly once capabilities. This means it can handle
-each message in a way that for each read message, there will be a write message,
-every single time, without the hassle of reattempts and concerns about acks.
-A simple Kafka Producer/Consumer (and other streams platform systems) can
-only handle `at least once` and `at most once` capabilities, but Kafka Streams
-can handle the ideal, `exactly once` capability.
+Kafka Streams supports exactly once capabilities. This means it can guarantee
+that each message will be processed only once and Kafka will process a message
+only one time.
+
+It can be guaranteed because both input and output systems are Kafka.
+
+#### Common Problems Without Exacly Once
+
+Lets consider the following flow of events:
+
+- 1) Kafka Streams app get message from Broker (input topic)
+- 2) Kafka Streams app send processed message back to Broker (output topic)
+- 3) Kafka Streams app get ack from the Broker (output topic)
+- 4) Kafka Streams app commit offsets related to the output topic
+
+If the step 3 do not occur (messages are being processed but not confirmed to
+the clients), the retry mechanism will make clients to send the messages
+again. Kafka Broker will get duplicated messages.
+
+If the step 4 do not occur (data is saved in the output topic and ack by
+the clients, but the offset was not commited), other clients will consume
+the same messages again (because they will read from the offset, which was
+not updated).
+- That could happen because offsets are commited from time to time - this is
+not an atomic operation - and, in the meanwhile, network issues (for instance)
+can prevent this commit to happen
+
+There are cases where is acceptable to have duplicates (like page stats, or
+logs). But in scenarios where precision is a requirements (financial
+business, for instance), the Exacly Once semantics is sometimes mandatory.
+
+#### Solving those problems with Exactly Once
+
+Kafka consumers and producers can use the concept of idempotency. So,
+duplicated messages are always identified and discarded.
+
+In an advanced Kafka Streams API, it is possible to write messages in
+different topics as a parte of a big transaction and only commit it if data
+is saved in all topics.
+{:.note}
+
+In order to adopt exactly semantics in Kafka Streams, one must add the
+following property:
+
+```java
+import org.apache.kafka.streams.StreamsConfig;
+
+// StreamsConfig.PROCESSING_GUARANTEE_CONFIG="processing.guarantee"
+// StreamsConfig.EXACTLY_ONCE="exactly_once"
+properties.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG,
+  StreamsConfig.EXACTLY_ONCE);
+```
+
+#### More Information
+
+More details related to Exactly Once capabilities can be found
+[on this Kafka article](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/).
 
 ### Kafka Streams Internal Topics
 
@@ -456,17 +507,128 @@ any of the three predicates. The other records were related to specific branches
 based on the branch predicates. The order of predicates change the result, so
 define the proper order of branch predicates is very important.
 
+#### Peek
+
+The `peek` method allow us to run an action that do not generates collateral
+side effects in the stream (such as print data or collect stats) and then
+to return the same stream for further processing.
+
+```java
+KStream<byte[], String> unmodifiedStream = stream.peek(
+  (k, v) -> System.out.println("Key=" + key + "; value=" + value));
+```
+
+
 ### Stateful Operations
 
 #### GroupBy (KTable)
 
-This is used to perform aggregations. It triggers repartition, because key
-changes as a result of an aggregation.
+This is required to work with aggregations. It triggers repartition, because
+key changes as a result of an aggregation.
 
 ```java
+// KTable groupBy method returns KGroupedTable
 KGroupedTable<String, Integer> groupedTable = table.groupBy(
   (k, v) -> KeyValue.pair(v, v.length()), Serdes.String(), Serdes.Integer());
+
+// KStream groupBy method returns KGroupedStream
+KGroupedStream<String, Integer> groupedStream = stream.groupBy(
+  (k, v) -> KeyValue.pair(v, v.length()), Serdes.String(), Serdes.Integer());
 ```
+
+#### KGroupedTable / KGroupedStream objects
+
+The aggregation methods (`count`, `reduce` and `aggregate`) can only be
+called in `KGroupedTable` or `KGroupedStream` objects. And these type of
+objects are obtained only by the return of `groupBy` and `groupByKey` methods
+(that can be called in both KStream and KTable, as above described).
+
+So, ideally:
+- `KGroupedStream gs = stream.groupBy(); gs.count() => X`
+- `KGroupedTable gt = table.groupByKey(); gt.count() => N`
+
+All of the aggregation methods (`count`, `reduce` and `aggregate`),
+called in both `KGroupedTable` or `KGroupedStream` objects, always return
+a `KTable`.
+{:.note}
+
+Considering group streams related to null data:
+
+- `KGroupStream`:
+  - Records with null data (for both keys and values) are ignored
+- `KGroupTable`:
+  - Records with null keys are ignored
+  - Records with null values are treated like "delete"
+
+##### Count
+
+It just count the amount of records in the group, according to the null rules
+previously explained.
+
+##### Aggregate
+
+In a `KGroupStream`:
+- It requires a `initializer`, an `adder` (which has a key, a new value and
+  an aggregated value), a `serde` and a `state-store name`.
+
+```java
+KTable<String, Long> aggregatedStream = groupedStream.aggregate(
+  () -> 0L,
+  (aggKey, newValue, aggValue) -> aggValue + newValue,
+  Serdes.Long(),
+  "aggregated-stream-store");
+```
+In the snippet above, `aggKey` type must match `aggregatedStream` key type
+(`String`), `newValue` must match `aggregatedStream` value (`Long`) and
+`aggValue` must match the `initializer` type (`Long`). The initializer and
+the new value can be different (translation will happen in the adder).
+
+In a `KGroupTable`:
+- It requires a `initializer`, an `adder` (which has a key, a new value and
+  an aggregated value), a `subtractor` (analogous behavior to the adder),
+  a `serde` and a `state-store name`.
+
+```java
+KTable<String, Long> aggregatedStream = groupedStream.aggregate(
+  () -> 0L,
+  (aggKey, newValue, aggValue) -> aggValue + newValue,
+  (aggKey, newValue, aggValue) -> aggValue - newValue,
+  Serdes.Long(),
+  "aggregated-stream-store");
+```
+The `subtractor` is used to treat the `delete` cases, previously explained.
+
+##### Reduce
+
+This is similar to aggregate, but the new and aggregated values must be of the
+same type (`aggregate` can deal with different types). It is much simpler:
+do not have both initializer and Serde.
+
+It can work with just an `adder`:
+
+```java
+KTable<String, Long> aggregatedStream = groupedStream.reduce(
+  (aggValue, newValue) -> aggValue + newValue,    // adder
+  "aggregated-stream-store");
+```
+
+Or can also be used with both `adder` and `subtractor` (to treat delete, as
+  previously explained):
+
+```java
+KTable<String, Long> aggregatedStream = groupedStream.reduce(
+  (aggValue, newValue) -> aggValue + newValue,    // adder
+  (aggValue, newValue) -> aggValue - newValue,    // subtractor
+  "aggregated-stream-store");
+```
+
+##### KStream Transform/TransformValues
+
+These applies a transformation in each record. It uses ProcessorAPI, which
+is less common.
+- Transform: triggers repartition, since transformation occurs with both
+keys and values
+- TrasnformValues: do not trigger repartition, since just transform values
 
 ## Use Cases and Examples
 
@@ -576,3 +738,4 @@ What is the proper topology for this problem?
 
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
 - [Stephane Maarek's Kafka Courses @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac)
+- [Exactly-Once Semantics Are Possible: Here’s How Kafka Does It](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/)
