@@ -628,7 +628,45 @@ These applies a transformation in each record. It uses ProcessorAPI, which
 is less common.
 - Transform: triggers repartition, since transformation occurs with both
 keys and values
-- TrasnformValues: do not trigger repartition, since just transform values
+- TransformValues: do not trigger repartition, since just transform values
+
+## Joins
+
+A Join mechanism relates a KTable/KStream with another, creating another
+stream as part of it.
+
+![](/assets/img/blog/kafka/kafka-streams-join.png)
+
+Figure: Kafka Streams Join.
+{:.figcaption}
+
+There are three types of Join:
+
+- **Inner Join**: like in database
+- **Left Join**: like in database
+- **Outer Join**: Left and Right combined
+
+These types of joins are related to types of Streams, as described in the
+following table:
+
+Join Operand|Type|Inner Join|Left Join|Outer Join
+--|--|--|--|--
+KStream to KStream|Windowed|Supported|Supported|Supported
+KTable to KTable|Non Windowed|Supported|Supported|Supported
+KStream to KTable|Non Windowed|Supported|Supported|Not Supported
+KStream to GlobalKTable|Non Windowed|Supported|Supported|Not Supported
+KTable to GlobalKTable|N/A|Not Supported|Not Supported|Not Supported
+
+### Joins constraints
+
+- Joins can only occcur if data is co-partitioned (data came from different
+  topics with the same number of partitions)
+- GlobalKTable do not demand co-partitioning
+  - That is because data stays in every instance of the application, in memory
+  and in the store
+  - However, the disk usage is a drawback for these application - but it is
+  acceptable for a small amount of data
+  - GlobalKTable exists only as a DSL option (not in Processor API)
 
 ## Use Cases and Examples
 
