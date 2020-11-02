@@ -477,7 +477,10 @@ box to perform the actual installation.
 
 If, during the execution of `generate-rpm-package.sh` file, the following
 errors start to show up:
-`Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError(SSLError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:877)'),)': /simple/certifi/`
+`Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None))
+after connection broken by 'SSLError(SSLError(1,
+'[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed
+(_ssl.c:877)'),)': /simple/certifi/`
 , the most common cause is your Internet security program running on Windows.
 {:.note}
 
