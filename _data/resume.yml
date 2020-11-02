@@ -64,12 +64,18 @@ work:
       - "Creation of data synchronization and XML optimization services (systemd)
       and generation of RPM packages for proper installation in Red Hat client's
       environment;"
+      - "Creation of a Python Flask application for report generation.
+      Consumption of REST/JSON endpoints, parsing of XML returned data (XPath)
+      and rendering of information with VueJS. Creation of a sofisticated
+      distribution mechanism for this app, generating a RPM for deployment
+      in a RHEL production box with no Internet access."
       - "Creation and management of Swagger documentation and Java clients
       for REST/JSON consumption of service application endpoints;"
       - "Architect for a multi-tier web-based application/batch processing solution (Java8,
       Spring Boot and Batch, Oracle database, Univocity parser, linux shell scripting and
       REST/SOAP integrations, alongside with FICO own tools for rule engine and RAD in the
       front-end) that processes million records/hour under performance constraints."
+
   - company: "Accenture"
     position: "Bus & Technology Delivery Manager"
     website: "http://www.accenture.com"
