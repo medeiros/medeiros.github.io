@@ -724,8 +724,13 @@ The log file is a binary one. In order to check its content, it is necessary
 to run a Kafka class:
 
 ```bash
-$ ~/kafka/bin/kafka-run-class.sh kafka.tools.DumpLogSegments --deep-iteration
---print-data-log --files 00000000000000000000.log
+$ ~/kafka/bin/kafka-run-class.sh kafka.tools.DumpLogSegments --deep-iteration \
+    --print-data-log --files 00000000000000000000.log
+
+or
+
+$ ~/kafka/bin/kafka-dump-log.sh --deep-iteration --print-data-log \
+    --files 00000000000000000000.log
 ```
 
 The output is below presented. Important data displayed are: creation time,
