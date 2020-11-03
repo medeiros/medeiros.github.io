@@ -86,9 +86,9 @@ at a time.
 
 ### Exactly Once Capabilities
 
-Kafka Streams supports exactly once capabilities. This means it can guarantee
-that each message will be processed only once and Kafka will process a message
-only one time.
+Kafka Streams supports exactly once capabilities. This means that each message
+will take the read-process-write operation only one time. It is guaranteed
+that no input message will be missed or no duplication will be produced.
 
 It can be guaranteed because both input and output systems are Kafka.
 
@@ -105,17 +105,19 @@ If the step 3 do not occur (messages are being processed but not confirmed to
 the clients), the retry mechanism will make clients to send the messages
 again. Kafka Broker will get duplicated messages.
 
-If the step 4 do not occur (data is saved in the output topic and ack by
+If the step 4 do not occur (data is saved in the output topic and ack'ed by
 the clients, but the offset was not commited), other clients will consume
 the same messages again (because they will read from the offset, which was
 not updated).
-- That could happen because offsets are commited from time to time - this is
+
+Offsets are commited from time to time - this is
 not an atomic operation - and, in the meanwhile, network issues (for instance)
 can prevent this commit to happen
+{:.note}
 
 There are cases where is acceptable to have duplicates (like page stats, or
 logs). But in scenarios where precision is a requirements (financial
-business, for instance), the Exacly Once semantics is sometimes mandatory.
+business, for instance), the Exacly Once semantics is usually mandatory.
 
 #### Solving those problems with Exactly Once
 
@@ -139,10 +141,34 @@ properties.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG,
   StreamsConfig.EXACTLY_ONCE);
 ```
 
+#### How Exactly Once is supported in Kafka Streams?
+
+Kafka Streams internally adopts Transaction API to make sure that data is
+saved in a way that can't be lost:
+
+- acked data: sent to sink topics  
+- state update: sent to a changelog
+- offset commit: sent to a offset topic
+
+Data is saved (or not) atomically in the three topics above mentioned. So,
+the scenarios of duplicate writer and duplicate processing do not occur.
+
+Theses three steps are very hard to get in a stream processing technology,
+but Kafka can handles them properly.
+
 #### More Information
 
-More details related to Exactly Once capabilities can be found
-[on this Kafka article](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/).
+More details related to Exactly Once capabilities can be found in the three
+articles below:
+
+- [Exactly-Once Semantics Are Possible: Here’s How Kafka Does It](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/)
+  (06/2017): Explain the basics of Exacly Once semantics, and how Kafka was
+  able to handle it in version 0.11.
+- [Transactions in Apache Kafka](https://www.confluent.io/blog/transactions-apache-kafka/)
+  (11/2017): Explain how Kafka Transaction API works
+- [Enabling Exactly-Once in Kafka Streams](https://www.confluent.io/blog/enabling-exactly-once-kafka-streams/)
+  (12/2017): Explain how Kafka Streams make use of Transaction API to support
+  Exacly Once capabilities
 
 ### Kafka Streams Internal Topics
 
