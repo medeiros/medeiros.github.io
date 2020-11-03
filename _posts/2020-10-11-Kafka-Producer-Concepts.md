@@ -182,6 +182,12 @@ are set accordingly:
 requests a client will send in a single connection before blocking. Kafka can
 ensures high performance and still keep the order even if in parallel.
 More information can be found in [KIP-5494](https://issues.apache.org/jira/browse/KAFKA-5494)
+
+The maximum supported requests per connection in idempotent mode is **5**,
+according to [this documentation](https://kafka-tutorials.confluent.io/message-ordering/kafka.html#initialize-the-project).
+This number can be bigger, but exacly-once semantics are not guaranteed.
+{:.note}
+
 - `acks=all`: both Leader and ISR must ensure that the message is received.
 
 If any of the previous properties are not explicitly set, the
