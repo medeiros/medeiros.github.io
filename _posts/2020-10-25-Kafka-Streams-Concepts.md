@@ -92,7 +92,7 @@ only one time.
 
 It can be guaranteed because both input and output systems are Kafka.
 
-#### Common Problems Without Exacly Once
+#### Common Problems Without Exactly Once
 
 Lets consider the following flow of events:
 
