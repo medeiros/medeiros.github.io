@@ -16,10 +16,171 @@ In this page, the main concepts of Kafka Streams technology will be covered.
 - Table of Contents
 {:toc}
 
-## Kafka Streams Concepts
+## Data Streaming Concepts
 
-A **Stream is a sequence of messages**. It is immutable, so it cannot be
-changed by any means, by definition.
+A **Stream is an infinite sequence of messages**. Pretty much everything can
+be seen as a stream ov events: credit card transactions, stock trades, network
+packages to switches, etc. In inifinite and ever growing sequence of messages
+is also called an _unbounded dataset_. "Unbounded" because is a never-ending
+sequence of data. "Dataset" just because is a set of data.
+
+In addition to this previous definition, there are other important
+characteristics in a stream model:
+
+- **Event Streams are Ordered**: this is an important concept, because the
+order of things affects the end behavior (think about bank transactions of
+debit and credit).
+- **Data records are Immutable**: this means that cannot be changed. When
+some transaction must be cancelled, actually a new transaction will be
+created to revert the action of the previous transaction. So, an ever-growing
+sequence of messages, indeed.
+- **Events are Replayable**: a very important concept. This means that a
+particular sequence of messages can be executed again, in the same order, in
+a way that allows to understand errors, gather metrics and perform analysis.
+
+### Stream Processing Programming Paradigm
+
+In that context, Stream Processing is the process of one or more event
+streams. It is a programming paradigm, such as batch processing and
+request-response.
+
+- **Request-Response**: This is the lowest latency paradigm, with response
+times of few milliseconds - or less. It is usually blocking, so the client
+need to wait for the server to respond. In database terms, it is the same as
+OLTP (online transaction processing). This paradigm is often used by credit
+card transactions and time-tracking systems.
+- **Batch Processing**: This is the highest latency/throughput option. The
+process is usually scheduled to run after midnight, and take a few hours to
+process a huge amount of data, generating stale information to be consumed
+by clients in the next day. The problem with that approach is that business
+evolved in a way that sometimes it is not acceptable to wait for the other
+day to get information.
+- **Streams Processing**: This is a non-blocking option, that fills the gap
+between the blocking scenario of request-response paradigm and the timeframe
+of hours of processing, imposed by the batch processing paradigm. It is a more
+practical approach, since most business do not need to process data in
+milliseconds, but also cannot wait for an entire day to work with brand new
+data. This continuous, non-blocking processing attend a very broad range of
+use cases.
+
+### Stream Processing Concepts
+
+Every data processing system has the ability to receive data, perform
+transformations, and save data elsewhere. Data streaming processing systems
+have some specific conceptions to consider in that scenario:
+
+#### Time
+
+It is a complex concept, that can be better covered when presented with some
+examples:
+- **Event Time**: the time in which the record was created. The producer
+automatically add this information to the record when it is created, but
+sometimes you want to apply your own definition of event time, and it can
+be done simply by adding it as a field to the record.  
+- **Log Append Time**: the time that event arrive in the Kafka Broker. It is
+automatically added by Kafka Brokers in the moment that the message arrives
+(if Kafka was configured to do so), and is not that important to stream
+processing, actually, because it will make more sense to work with event time.
+But can be used in cases where the event time is not being produced.
+- **Processing Time**: This is the time the message started to be processed.
+It is not reliable, because the processing can start days after the event
+was actually created. It can even differ from two threads in the same
+application. This is a notion of time that is better to avoid in practice.
+
+It is also important to consider the concept of **Time Zone**: when working
+with time, it it important that all data is standartized to the same timezone,
+otherwise the results will be very hard to interpret and understand. If your
+scenario covers several timezones, it is important to define one as the
+standard and to adopt it consistently; often this means to store it and send in
+each message.
+
+#### State
+
+When dealing with a single message, the stream processing is very easy.
+But Streams start to became interesting when you have to handle multiple
+events, like counting the number of events per type, joining two streams to
+create a  enriched stream of information, perform sum, averages, etc.
+
+This information that can be collected between events is called **State**.
+There are two main types of states in the streaming paradigm:
+
+-  **Internal State/Local State**: state that is accessible to a specific
+instance of a single application. It is usually saved in an in-memory database.
+It is fast, but restricted to the amount of local available memory.
+- **External State**: state that is saved in a external data store, usually a
+NoSQL database like Cassandra. It is good because the size is unlimited and
+data is available even to other systems. It is not so good because of the
+increased latency and complexity. Most stream processing apps try to avoid
+to handle with external systems, or at least to limit the usage, trying to
+cache information in internal states and to communicate to external states
+as rarely as possible.
+
+### Table/Stream Duality
+
+Tables and Streams are complementary elements. Tables present the current state
+of something, while Streams present the events that cause this something to
+reach the current state. Sometimes we want one, sometimes other.
+
+When a stream is converted to a table, it is said that the stream was
+_materialized_. And there are ways to get data changes from a database table
+(consider CDC) and import those to Kafka as a Stream of events that led to
+that end-state.
+
+### Windowed Operations
+
+Most Stream operations are operations that can be considered in a slice of
+time (for instance, to process all events that happened last week). In that
+regard, some elements are important to consider:
+
+- **Window size**: it is defined as unit of time. For instance, all events that
+happened in a 5-minute window.
+- **Advance Interval**: It defines how often the window moves. It can be
+defined by specific period of time, or it can advance when there is a new
+event (a **Sliding Window**). For instance, if your window is 00:00-00:05 and
+the window advances at each **two seconds**, you may have the following windows
+after 4 seconds:
+  - 00:00-00:05
+  - 00:02-00:07
+  - 00:04-00:09
+  - and, in this case, all events that arrive with the event time of 00:03, for
+  instance, will be parte of windows 1 and 2 - but not 3.
+- **How long windows are updatable**: For instance, if the window is defined as
+00:00 to 00:05, and a record arrives at 00:10 with a event time of 00:02, it
+should or should not to be part of the window? If the window is updatable only
+until 00:07, for instance, this latest record will not be considered
+as part of the window - even if the event time is valid to that window.
+
+If the advance interval is the same as the window size, it is called a
+**Tumbling Window**. If the windows overlap (the advance interval is less
+than the window size), it is called **Hopping Window**. If it is a
+**Sliding Window**, the window will move whenever there is a new record.
+
+Windows can be aligned to a clock time (for instance, a 5 minute interval
+that moves every minute will have the first slice at 00:00-00:05 and the
+second slice at 01:00-06:00) or can be unaligned (and will start when
+application starts; the first slice can be 12:12-12:17 and the second
+slice will be 12:13-12:18).
+
+### Stream Processing Design Patterns
+
+Some of the most common design pattern for stream processing are pointed below:
+
+- **Single Event Processing**: Treats events in isolation. For instance,
+a stream can read log records and, if a record has a ERROR message, send it
+to a particular error stream, and if not, send it to a regular stream. There is
+no need to save state, since there is no relation between messages.
+- **Processing with Local State**: todo: fill
+- **Multiphase Processing/Repartitioning**: todo: fill
+- **Processing with External Lookup: Stream-Table Join**: todo: fill
+- **Streaming Join**: todo: fill
+- **Out-of-Sequence Events**: todo: fill
+- **Reprocessing**: todo: fill
+
+### Use Cases and Scenarios for Streaming
+
+todo: fill
+
+## Kafka Streams Concepts
 
 Kafka Topic is an example of Stream: it is replayed, fault-tolerant and can be
 ordered.
@@ -803,3 +964,4 @@ What is the proper topology for this problem?
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
 - [Stephane Maarek's Kafka Courses @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac)
 - [Exactly-Once Semantics Are Possible: Here’s How Kafka Does It](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/)
+- [There is No Now: Problems with simultaneity in distributed systems](https://queue.acm.org/detail.cfm?id=2745385)
