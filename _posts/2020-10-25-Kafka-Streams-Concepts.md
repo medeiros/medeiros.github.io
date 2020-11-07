@@ -19,7 +19,7 @@ In this page, the main concepts of Kafka Streams technology will be covered.
 ## Data Streaming Concepts
 
 A **Stream is an infinite sequence of messages**. Pretty much everything can
-be seen as a stream ov events: credit card transactions, stock trades, network
+be seen as a stream of events: credit card transactions, stock trades, network
 packages to switches, etc. In inifinite and ever growing sequence of messages
 is also called an _unbounded dataset_. "Unbounded" because is a never-ending
 sequence of data. "Dataset" just because is a set of data.
