@@ -287,7 +287,8 @@ mkdir -p ./$APP_NAME/lib && pip3 download -r ../requirements.txt \
 cp -R ../src ../requirements.txt ../config.yaml ./$APP_NAME
 
 ## create a .tar.gz to package all app artifacts from the directory
-## this package will be saved in the RPM SOURCE structure
+## this package will be saved in the RPM SOURCE structure and it's
+##   required to rpmbuild to run  
 tar -zcvf rpmbuild/SOURCES/"$APP_NAME".tar.gz ./$APP_NAME
 
 ## extract a .tar.gz file in the RPM SOURCE directory
