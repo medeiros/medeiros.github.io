@@ -20,7 +20,7 @@ In this page, the main concepts of Kafka Streams technology will be covered.
 
 A **Stream is an infinite sequence of messages**. Pretty much everything can
 be seen as a stream of events: credit card transactions, stock trades, network
-packages to switches, etc. In inifinite and ever growing sequence of messages
+packages to switches, etc. An inifinite and ever growing sequence of messages
 is also called an _unbounded dataset_. "Unbounded" because is a never-ending
 sequence of data. "Dataset" just because is a set of data.
 
@@ -40,7 +40,7 @@ a way that allows to understand errors, gather metrics and perform analysis.
 
 ### Stream Processing Programming Paradigm
 
-In that context, Stream Processing is the process of one or more event
+In this context, Stream Processing is the process of one or more event
 streams. It is a programming paradigm, such as batch processing and
 request-response.
 
@@ -52,8 +52,8 @@ card transactions and time-tracking systems.
 - **Batch Processing**: This is the highest latency/throughput option. The
 process is usually scheduled to run after midnight, and take a few hours to
 process a huge amount of data, generating stale information to be consumed
-by clients in the next day. The problem with that approach is that business
-evolved in a way that sometimes it is not acceptable to wait for the other
+by clients in the next day. The problem with this approach is that business
+evolved in a way that sometimes it is not acceptable to wait for the next
 day to get information.
 - **Streams Processing**: This is a non-blocking option, that fills the gap
 between the blocking scenario of request-response paradigm and the timeframe
@@ -71,8 +71,8 @@ have some specific conceptions to consider in that scenario:
 
 #### Time
 
-It is a complex concept, that can be better covered when presented with some
-examples:
+It is a complex concept, that may be better covered when presented with some
+topics:
 - **Event Time**: the time in which the record was created. The producer
 automatically add this information to the record when it is created, but
 sometimes you want to apply your own definition of event time, and it can
@@ -101,7 +101,7 @@ But Streams start to became interesting when you have to handle multiple
 events, like counting the number of events per type, joining two streams to
 create a  enriched stream of information, perform sum, averages, etc.
 
-This information that can be collected between events is called **State**.
+The information that can be collected between events is called **State**.
 There are two main types of states in the streaming paradigm:
 
 -  **Internal State/Local State**: state that is accessible to a specific
@@ -128,9 +128,9 @@ that end-state.
 
 ### Windowed Operations
 
-Most Stream operations are operations that can be considered in a slice of
-time (for instance, to process all events that happened last week). In that
-regard, some elements are important to consider:
+Most Stream operations should be considered in a slice of time (for instance,
+to process all events that happened last week). In that regard, the following
+window characteristics must also be considered:
 
 - **Window size**: it is defined as unit of time. For instance, all events that
 happened in a 5-minute window.
@@ -142,8 +142,8 @@ after 4 seconds:
   - 00:00-00:05
   - 00:02-00:07
   - 00:04-00:09
-  - and, in this case, all events that arrive with the event time of 00:03, for
-  instance, will be parte of windows 1 and 2 - but not 3.
+  - and, in this case, all events that arrived with the event time of 00:03
+  will be part of windows 1 and 2 - but not 3.
 - **How long windows are updatable**: For instance, if the window is defined as
 00:00 to 00:05, and a record arrives at 00:10 with a event time of 00:02, it
 should or should not to be part of the window? If the window is updatable only
@@ -163,22 +163,206 @@ slice will be 12:13-12:18).
 
 ### Stream Processing Design Patterns
 
-Some of the most common design pattern for stream processing are pointed below:
+Some of the most common design patterns for stream processing are pointed below:
 
-- **Single Event Processing**: Treats events in isolation. For instance,
+#### Single Event Processing
+
+Treats events in isolation. For instance,
 a stream can read log records and, if a record has a ERROR message, send it
 to a particular error stream, and if not, send it to a regular stream. There is
 no need to save state, since there is no relation between messages.
-- **Processing with Local State**: todo: fill
-- **Multiphase Processing/Repartitioning**: todo: fill
-- **Processing with External Lookup: Stream-Table Join**: todo: fill
-- **Streaming Join**: todo: fill
-- **Out-of-Sequence Events**: todo: fill
-- **Reprocessing**: todo: fill
+
+#### Processing with Local State
+
+This approach uses a local store to save state. For instance, if your
+requirement asks you to calculate the min and max value of a specific time
+window, you need to save state somehow, and you can adopt shared state or
+local state in order to accomplish it.
+
+In this particular case, where we're handling a group by aggregation, we
+can assume that all related messages are in the same partition of a same
+topic (because of the same key). So, according to the consumer group rules, each
+instance will get a particular partition to read data. So, in this case, we
+can use a local state, since a particular instance do not need to share with
+others, because it has a particular partition, exclusive to it.   
+
+
+![](/assets/img/blog/kafka/kafka-streams-local-state.png)
+
+Figure: Local State - from "Kafka: The Definitive Guide" e-book.
+{:.figcaption}
+
+
+When application starts to adopt local state, a more complicated scenario
+arises, and a new set of concerns must be considered:
+
+- **Memory usage**: local state memory must fit into application's
+available memory
+- **Persistence**: data is saved in a memory using a RocksDB database. But
+all changes are also sent to a log-compacted Kafka topic. So, a state is not
+lost if Kafka application shuts down - in this case, the events can be reread
+from this Kafka topic.
+- **Rebalancing**: Partitions can be reassigned for different consumers. In
+that case, the instance that loses partition must store the last good state,
+and the instance that receives this partition must recover the correct state.
+This will work because the state is in a Kafka topic, as said above.
+
+#### Multiphase Processing/Repartitioning
+
+The above approach works for group by types of aggregates. But what if the
+requirement is not specific to individual partitions, but to data obtained
+from all partitions? In that particular case, the approach is still simple:
+to perform local-state actions for particular partitions and them send this
+aggregated data to a second topic, with only one partition. So, a simple
+consumer can read this data to consolidate the overall results.
+
+![](/assets/img/blog/kafka/kafka-streams-multiphase-processing.png)
+
+Figure: Multiphase Processing - from "Kafka: The Definitive Guide" e-book.
+{:.figcaption}
+
+#### Processing with External Lookup: Stream-Table Join
+
+Sometimes, stream processing requires access to an external source of data.
+
+Let's consider that we have to reach a database in order to process our stream.
+The basic approach would be to access database every time an event occur,
+enriching the data and sent it to another topic.
+
+![](/assets/img/blog/kafka/kafka-streams-external-lookup-1.png)
+
+Figure: External Lookup - from "Kafka: The Definitive Guide" e-book.
+{:.figcaption}
+
+But this is a dangerous approach, because adds network latency. In addition,
+stream processing systems can usually handle 100-500k events/sec, but database
+can only handle 10k events/sec in a very good scenario.
+
+A better scenario would be to cache database in the streaming application. In
+order to make this cache to be as precise as possible, one could use Kafka
+Connector for CDC (database events that can be captured) and send this
+events to a topic.
+
+![](/assets/img/blog/kafka/kafka-streams-external-lookup-2.png)
+
+Figure: External Lookup - from "Kafka: The Definitive Guide" e-book.
+{:.figcaption}
+
+Now, data can be looked up from local cache and the event can be enriched
+without the latency issues previously pointed.
+
+This procedure is called a **Stream-Table Join** because one of the streams
+represents changes to a locally cached table.
+{:.note}
+
+#### Streaming Join
+
+This is the scenario in which data from two different streams are joined. In
+order for this to be possible, it is necessary for both topics to have the same
+key.
+
+Let's consider a topic of user's search queries, and another topic of user
+clicks. We can join these two topics in order to understand which search is
+more effective for users in terms of click results.
+
+The two topics must be joined considering a time window. So, let's say that
+the expected time from search to click is five seconds.
+
+![](/assets/img/blog/kafka/kafka-streams-stream-join.png)
+
+Figure: Streaming Join - from "Kafka: The Definitive Guide" e-book.
+{:.figcaption}
+
+The keys are also used as join keys, to relate both streams. So, in a given
+window (U:43, in the figure), is guaranteed that both search and click events
+for a particular user will exist for the same partition (for instance,
+partition 5) of both topics. This join-window for both topics is saved in the
+local RocksDB cache, and this is how it can perform the join.
+
+#### Out-of-Sequence Events
+
+This is the case in which events arrive late in the stream, for instance, due
+to network connectivity issues.
+
+![](/assets/img/blog/kafka/kafka-streams-out-of-sequence.png)
+
+Figure: Out of Sequence Events - from "Kafka: The Definitive Guide" e-book.
+{:.figcaption}
+
+Kafka Streams is able to recogzine that an event is out of sequence (check if
+the event time is older that the current time), define a time period to accept
+and reconcile out-of-sequence events, and to update this events.
+
+This is typically done by maintaining multiple open aggregated windows in the
+local state, giving the developers the ability to configure how long these
+windows are available for updates. The longer this local state windows remain
+opened, more memory is required to maintain it.
+
+Kafka Streams always writes aggreegation result in log-compacted result topics (
+only the latest state is preserved).
+
+#### Reprocessing
+
+In some cases, we can change our streaming application (for both new features
+ou bug fixes). Hence, there is a need to run this new app version on the
+same event stream of the old application, generating new stream of events.
+
+The good practice here is just to use a new consumer group for this new app,
+to start reading from the first offset of the input topic, generating a new
+output topic. Then, both old and new output topics can be compared.
 
 ### Use Cases and Scenarios for Streaming
 
-todo: fill
+As previously said, stream processing is useful in scenarios where you cannot
+wait for hours to complete (as batch), but still you don't have to get the
+return of processing in milisseconds (as request-response).
+
+Some cases that will fit in this scenario (extracted from the "Kafka Definitive
+Guide" e-book) are below:
+
+- **Customer Service in Hotel**: considering an online hotel reservation, it is
+not acceptable to wait for an entire day (as batch) to have the confirmation.
+Instead, it is expected (as near real time) to have, in minutes, the
+confirmation sent by email, the credit card charged on time, and additional
+information of customer history appended to the reservation, for additional
+analysis.
+
+- **Internet of Things**: In stream processing, it is a common scenario to
+try to predict when maintenance is required, by reading sensor information
+from devices.
+
+### Choosing a Stream Processing Approach for Your Application
+
+Depending of the nature of the application, approaches for stream processing
+may differ. It is important to choose the best solution for your
+application based on its particular characteristics.
+
+Different types of applications are listed below:
+
+- **Ingest**: the goal is to get data from one system and send to another,
+with some minor modifications to comply with target system expectations. For
+instance, some simple ETL mechanisms.
+  - In that case, a Kafka Connect may suffice (since it is a ingest-focused
+    system).
+  - But if there is some level of transformation, Kafka Streams can be a good
+  choice, but you need to make sure that Connectors for Source and Sink are
+  also good enough.
+- **Low latency actions**: applications that require very fast response. For
+instance, some detection fraud systems.
+  - Request-response patterns are better to suit this particular need.
+  - But if streams is still the choice, one must make sure that the model is
+  based on event-by-event low latency, instead of microbatching
+- **Asynchronous microservices**: microservices that perform simple actions
+on behalf of a larger business process, such as updating a database. It may
+need to maintain a local cache events as a way to improve performance.
+  - A stream processing system must be able to integrating with Kafka,
+  must have ability to deliver content to microservices local caches,
+  and good support for a local store that serves as a cache or materialized
+  view of the microservice data
+- **Near real time data analyics**: where complex aggregations and joins are
+required in order to produce relevant data.
+  - It is expected a stream processing mechanism with great local store support,
+  in order to perform the complex aggregations, joins, and windows.
 
 ## Kafka Streams Concepts
 
