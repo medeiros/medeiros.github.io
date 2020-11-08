@@ -7,7 +7,7 @@ description: >
 categories: distributedarchitecture, bigdata
 tags: [hadoop, hive, hbase, hdfs]
 comments: true
-#image: /assets/img/blog/general/X.png
+image: /assets/img/blog/general/hadoop-logo.jpg
 ---
 > This page presents a simple way to install Hadoop, Hive, HBase and
 HDFS in a CentOS box using Single Node Cluster without Security. This is
@@ -19,7 +19,7 @@ Hadoop cluster (which may be hard to get).
 - Table of Contents
 {:toc}
 
-## Configuring Hadoop
+## Configure and Run: Hadoop/HDFS
 
 The following steps configure Hadoop in a CentOS7 environment. They were
 mostly extracted from this [excellent post](https://www.itzgeek.com/how-tos/linux/ubuntu-how-tos/install-apache-hadoop-ubuntu-14-10-centos-7-single-node-cluster.html), tested and validated in practice.
@@ -261,6 +261,14 @@ $ ~/.hadoop/sbin/start-yarn.sh
 
 - Resource Manager Web UI: [http://192.168.56.109:8088](http://192.168.56.109:8088)
 
+#### Test HDFS: Directory creation
+
+```bash
+su - hadoop
+$ hdfs dfs -mkdir /tempdir
+$ hdfs dfs -ls /tempdir
+```
+
 #### Testing Connectivity from client machine
 
 The following commands will test if the required TCP ports (to client's
@@ -271,7 +279,7 @@ $ nc -vz 192.168.56.109 9000
 $ nc -vz 192.168.56.109 9866
 ```
 
-## Install and Configure Hive
+## Configure and Run: Hive
 
 Install Hive with the `hadoop` user, in the same parent directory of Hadoop,
 as below:
@@ -348,7 +356,7 @@ adjusted in previous (Hadoop) steps, there is no need to configure anything
 else. Just use some Hive JDBC Driver to connect to
 `jdbc:hive2://192.168.56.109:10000/default` with no password.
 
-## Install and Configure HBase
+## Configure and Run: HBase
 
 The steps to configure HBase in CentOS7 can be found [at this post, in this very same blog](/blog/bigdata,/linux/2020-10-19-Create-Virtual-Machine-on-Windows-with-HBase/#downloading-and-starting-hbase).
 
