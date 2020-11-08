@@ -138,7 +138,7 @@ headers:
   api_auth_token: 11223345-1111-11b1-33n3-123hj32332hj  
 ```  
 
-### setup.py: defining what is going to be deployed
+### setup.py: defining Python packages to be deployed
 
 This file defines the artifacts of our [Flask](https://flask.palletsprojects.com/en/1.1.x/)
 app that will be distributed.
@@ -160,13 +160,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/medeiros/quality-report",
     packages=setuptools.find_packages(),
-    package_data={
-      'src': ['static/css/*', 'static/images/*', 'static/javascript/*',
-              'templates/*']
-    },
-    data_dir=[
-        "config.yaml"
-    ],
     install_requires=[
         'flask', 'objectpath', 'confuse', 'requests', 'pyopenssl'
     ],
@@ -178,11 +171,24 @@ setuptools.setup(
     python_requires='>=3.6',
 )
 ```
+The required dependencies must be explicit informed. The packages (python code)
+are also described, but it is done automatically by the
+`setuptools.find_packages()` method.
 
-The static and configuration files must be declared in specific sections, as
-well as the required dependencies. The packages (python code) are also
-described, but it is done automatically by the `setuptools.find_packages()`
-method.
+Static and configuration files are not defined here, but in the `MANIFEST.in`
+file.
+
+### MANIFEST.in: defining static, dist and config files to deploy
+
+This is the file in which all static files, distribution and configuration
+files must be declared. Setuptools mechanism will find this file and then to
+assume that all content here must be packaged as part of the source dist.
+
+```python
+include config.yaml requirements.txt dist/generate-rpm-package.sh
+recursive-include src/main/resources *
+recursive-include dist/rpmbuild *
+```
 
 ### dist dir: structure for distribution
 
@@ -191,37 +197,21 @@ along with `shell` and `spec` files, to be explained in the following.
 
 #### generate-dist-package.sh: creating our package for distribution
 
-This file is responsible to package the Windows code of our application, along
-with the required versions' definitions. It will not package the
-dependencies, but only the information (version) about them.  
+This file is responsible to package the Windows code of our application as
+a source distribution (sdist). It will not package the dependencies, but only
+the information (version) about them.  
 
 ```bash
 #!/bin/bash
 
-#  remove old dist artifacts
-$ rm -rf build *.egg-info dist/*.whl dist/*.gz
-
-# generate a pipenv lock for artifact freezing, in a text file
-$ pipenv lock -r > requirements.txt
-
-# This will generate a wheel `.whl` file in `dist/` directory.
-# Setup.py is the file that defines the static and config files to be packaged,
-#   along with required dependencies and python version required.
-$ python setup.py bdist_wheel  
-
-# package the required artifacts for distribution
-$ tar zcvf ./dist/quality_report-dist-0.0.1.tar.gz dist/*.whl \
-    dist/rpmbuild dist/generate-rpm-package.sh requirements.txt config.yaml
-
-# remove the no longer required wheel file
-$ rm -rf build *.egg-info dist/*.whl
+pipenv lock -r > requirements.txt
+python setup.py sdist --formats=gztar
 ```
 
 As we can see, the dependencies' freeze happened and the deps/version data was
-saved in a `requirements.txt` file. This file, along with the `config.yaml`
-file and the `generate-rpm-package.sh` file were grouped and packaged in a
-`.tar.gz` file, together with a wheel file (that is the file that contains
-all the Python package code).
+saved in a `requirements.txt` file. The `sdist` of `setuptools` get files
+defined in `MANIFEST.in` and packages defined in `setup.py` and package
+everything in a `quality_report-0.0.1.tar.gz` file.  
 
 The content of a `requirements.txt` file would be similar to the following:
 
@@ -279,29 +269,30 @@ created by the `generate-dist-package.sh` shell script.
 ```bash
 #!/bin/bash
 
+APP_NAME=quality_report-0.0.1
+
 ## preparation
 # to make sure that the following programs exist in the CentOS7 environment
-yum install gcc rpm-build rpm-devel rpmlint make python3 python3-devel \
-  bash coreutils diffutils patch rpmdevtools dos2unix -y
+yum install -y gcc rpm-build rpm-devel rpmlint make python3 python3-devel \
+  bash coreutils diffutils patch rpmdevtools dos2unix
 
 ## execution
 ## create an app directory to group all artifacts/deps and RPM'em
 
 ## download the requirements.txt file dependencies' and save them in
 ##   the app directory
-mkdir -p ./quality_report-0.0.1 && pip3 download -r ../requirements.txt \
-  -d ./quality_report-0.0.1
-## move all code artifacts to the same app directory
-cp -R quality_report*.whl ../requirements.txt ../config.yaml \
-  ./quality_report-0.0.1
+mkdir -p ./$APP_NAME/lib && pip3 download -r ../requirements.txt \
+  -d ./$APP_NAME/lib
+## move source artifacts to the same app directory
+cp -R ../src ../requirements.txt ../config.yaml ./$APP_NAME
 
 ## create a .tar.gz to package all app artifacts from the directory
 ## this package will be saved in the RPM SOURCE structure
-tar -zcvf rpmbuild/SOURCES/quality_report-0.0.1.tar.gz ./quality_report-0.0.1
+tar -zcvf rpmbuild/SOURCES/"$APP_NAME".tar.gz ./$APP_NAME
 
 ## extract a .tar.gz file in the RPM SOURCE directory
 cd rpmbuild/SOURCES
-tar xvf quality_report-0.0.1.tar.gz
+tar zxvf "$APP_NAME".tar.gz
 
 ## generate the RPM package based on the SPEC file and the SOURCE code
 cd ..
@@ -396,10 +387,8 @@ EOF
 
 \%install
 mkdir -p \%{buildroot}{\%{_unitdir},/opt/\%{name}}
-pip3 install -r requirements.txt --no-index --find-links . --target=\%{buildroot}/opt/\%{name}/lib
-unzip quality*.whl -d \%{buildroot}/opt/\%{name}
-rm -rf \%{buildroot}/opt/\%{name}/quality-report-0.0.1.dist-info
-cp config.yaml \%{buildroot}/opt/\%{name}
+pip3 install -r requirements.txt --no-index --find-links ./lib --target=\%{buildroot}/opt/\%{name}/lib
+cp -R src config.yaml \%{buildroot}/opt/\%{name}
 install -m 0755 \%{name}.service \%{buildroot}\%{_unitdir}/\%{name}.service
 
 \%post
@@ -453,7 +442,7 @@ $ pipenv shell
 $ ./dist/generate-dist-package.sh
 ```
 
-This will generate a `quality_report-dist-0.0.1.tar.gz` file for distribution
+This will generate a `quality_report-0.0.1.tar.gz` file for distribution
 in the `dist\` directory. Copy this compacted file into a CentOS7 Virtual
 Machine to continue.
 
@@ -464,8 +453,8 @@ directory and run the following commands **as root**:
 
 ```bash
 $ yum install dos2unix -y
-$ tar zxvf ./quality_report-dist-0.0.1.tar.gz
-$ cd dist
+$ tar zxvf ./quality_report-0.0.1.tar.gz
+$ cd quality_report-0.0.1/dist
 $ dos2unix ./generate-rpm-package.sh ./rpmbuild/SPECS/quality_report.spec
 $ chmod +x ./generate-rpm-package.sh
 $ ./generate-rpm-package.sh
