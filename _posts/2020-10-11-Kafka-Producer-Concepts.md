@@ -515,7 +515,8 @@ public class ProducerDemo {
 
 ## CLI: important commands to know
 
-### Produce messages from a file
+### Producing messages from a file
+
 ```bash
 file: input-messages.txt
 1,message1
@@ -527,7 +528,23 @@ $ ./kafka/bin/kafka-console-producer.sh --broker-list localhost:9092
 < input-messages.txt
 ```
 
+### Producing several messages at once
+
+```bash
+$ ./kafka/bin/kafka-console-producer.sh --broker-list localhost:9092
+--topic sometopic << EOF
+Message 01
+Message 02
+Message 03
+EOF
+```
+
+Using this command, all three messages will be sent only after EOF is hit,
+and Kafka Console Producer shell will then terminate its execution.  
+
+
 ### Change min.insync.replicas from an existing topic
+
 ```bash
 $ kafka-config.sh --bootstrap-server localhost:9092 --topic sometopic
 --add-config min.insync.replicas=2 --alter
