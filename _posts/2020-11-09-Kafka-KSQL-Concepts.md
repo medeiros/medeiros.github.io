@@ -23,60 +23,127 @@ In this page, the main concepts of Kafka KSQL technology will be covered.
 Figure: KSQL Overview.
 {:.figcaption}
 
-## KSQL Commands to Show Topics and their Data
+According to [Confluent page](https://www.confluent.io/product/ksql/), KSQL is
+a streaming mechanism that enables real-time processing against Kafka.
+It provides an intuitive SQL-like interface to manage stream processing, and
+this approach avoids the burden of write Kafka Streams code (in Python of Java).
+It allow us to perform a very broad range of operations, such as data filtering,
+transformations, aggregations, joins, windows and session handling.
+
+Kafka KSQL is not part of Apache Kafka distribution. You have to download
+Confluent dist in order to have it.
+{:.note}
+
+## Push and Pull Queries
+
+Kafka KSQL works with queries. In that regard, there are two types of queries
+to consider and to understand:
+
+- **Push Queries**: The query the state of the system in motion and continue to
+output results until they meet a LIMIT condition or are terminated by the user.
+  - These are the most common queries
+  - `EMIT CHANGES` clause is required for this type of query since KSQL 5.4
+  onwards.
+- **Pull Queries**: Query the current state of the system, return a result,
+and terminate.
+  - These are materialized aggregate tables, which are those created by a
+  `CREATE TABLE AS SELECT <fields>, <agg functions> FROM <sources> GROUP BY <key>`
+  kind of statement.
+
+## How to Run
+
+- Start Zookeeper and Kafka in Apache Kafka distribution, as usual
+- Download [Confluent Kafka](https://www.confluent.io/download/) (required
+  to run KSQL)
+  - Please note that `confluent/etc/ksqldb/ksql-server.properties` file is
+  configured to listen to port `8088` and to connect at Kafka Cluster in
+  `0.0.0.0:9092`. Change this values right now if they are not suitable to
+  your Kafka installation
+- Execute the following commands in Confluent distribution directory:
+
+```bash
+$ cd ~/confluent  
+
+# starting server
+[confluent]$ ./bin/ksql-server-start ./etc/ksqldb/ksql-server.properties
+
+# running CLI - inform http protocol or it will not work
+[confluent]$ ./bin/ksql http://localhost:8088
+```
+
+## KSQL Commands
+
+Somes things to consider regarding KSQL commands in CLI:
+
+- KSQL commands and queries are case-insensitive
+- All statements end with semicolon (;)
+
+### Showing Topics and their Data
 
 ```ksql
 # list existing topics
-list topics;
-show topics;
+ksql> list topics;
+ksql> show topics;
 
 # print topic data
-print <topicname>;
-print <topicname> from beginning;
-print <topicname> from beginning limit 2;
-print <topicname> from beginning interval 2 limit 2;
+ksql> print <topicname>;
+ksql> print <topicname> from beginning;
+ksql> print <topicname> from beginning limit 2;
+ksql> print <topicname> from beginning interval 2 limit 2;
 ```
 
-## Creating a Stream
+### Creating a Stream
+
+When creating a Stream, the `ROWTIME (bigint)` and `ROWKEY (varchar)` fields
+will be implicitly created.
+
+In order for the streams to be properly created, the related topics must
+exist prior to the stream creation.
+{:.note}
 
 ```ksql
-create stream users_stream (name VARCHAR, countrycode VARCHAR)
-with (KAFKA_TOPIC='users', VALUE_FORMAT='DELIMITED');
+ksql> create stream users_stream (name VARCHAR, countrycode VARCHAR)
+  with (KAFKA_TOPIC='users', VALUE_FORMAT='DELIMITED');
+
+ksql> create stream userprofile_stream (userid INT, firstname VARCHAR, lastname
+  VARCHAR, countrycode VARCHAR, rating DOUBLE)
+  with (KAFKA_TOPIC='userprofile', VALUE_FORMAT='JSON');
 ```
 
 - "DELIMITED" means CSV data (comma-delimited values)
+- Another supported value="JSON": in that case, JSON object fields are mapped
+to stream fields
 - Keyworks may be written in lowercase as well
 
-## Showing the Details of new Streams
+### Showing the Details of new Streams
 
 ```ksql
-list streams;
-show streams;
-describe 'users';  # to see stream fields
+ksql> list streams;
+or
+ksql> show streams;
+
+ksql> describe 'users';  # to see stream fields and data types
 ```
 
-## Query Stream
+### Select Query Stream
 
-By default, select queries adopt __latest__ consumption of data (so, only new
-data are shown). But this behavior can be changed by using SET/UNSET directives,
-as below:
+By default, print of data in topics and select queries adopt __latest__
+consumption of data (so, only new data are shown). But this behavior can be
+changed by using SET/UNSET directives, as below:
 
 ```ksql
-set 'auto.offset.reset'='earliest'
+ksql> set 'auto.offset.reset'='earliest';
 
-select name, countrycode from users_stream
+ksql> select name, countrycode from users_stream
   emit changes;   
 
-unset 'auto.offset.reset'
+ksql> unset 'auto.offset.reset';
 ```
 
-The 'emit changes' clause is required in KSQL 5.4 onwards (for push queries).
-{:.note}
-
-## Query Streams with Limits
+### Query Streams with Limits
 
 ```ksql
-select * from users_stream emit changes limit 2;
+ksql> select * from users_stream emit changes limit 2;
 ```
 
 Using limit, query is finalized when amount or records are reached. Without
@@ -86,19 +153,42 @@ until the defined limit; in this meantime, CLI remains waiting/blocking
 - **auto.offset.reset='earliest' + limit**: start reading messages and leaves
 as soon as the limit is reached
 
-## Aggregate Function: COUNT
+### Aggregate Function: COUNT
 
 ```ksql
-select countrycode, count(*) from users_stream
-group by countrycode
-emit changes;
+ksql> select countrycode, count(*) as countries_count from users_stream
+  group by countrycode
+  emit changes;
 ```
 
-## Deleting a Stream
+### Deleting a Stream
 
 ```ksql
-drop stream if exists users_stream delete topic;
+ksql> drop stream if exists users_stream delete topic;
 ```
+
+
+## Generating Synthetic Data
+
+Usually, it's useful to generate synthetic data for testing purposes. KSQL has
+a tool to do it, called `ksql-datagen`.
+
+The basic syntax is the following:
+
+```bash
+[confluent]$ ./bin/ksql-datagen schema=path/to/.avro/file format=JSON \
+  topic=topic_name key=topic_key_name iterations=10
+```
+
+`Iterations` refer to the maximum number of records to be generated.
+
+## KSQL Build-In Functions
+
+There are two type of KSQL built-in functions:
+
+- **Scalar Functions**: get one or more values and returns one or more values
+(map)
+- **Aggregation Functions**: aggregate stream list values
 
 
 ## References
