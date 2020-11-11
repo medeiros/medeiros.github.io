@@ -39,9 +39,10 @@ Confluent dist in order to have it.
 Kafka KSQL works with queries. In that regard, there are two types of queries
 to consider and to understand:
 
-- **Push Queries**: The query the state of the system in motion and continue to
-output results until they meet a LIMIT condition or are terminated by the user.
-  - These are the most common queries
+- **Push Queries**: Query the state of the system in motion (real-time) and
+continue to output results until they meet a LIMIT condition or are terminated
+by the user.
+  - These are the most common queries (and default from KSQL 5.3 onwards)
   - `EMIT CHANGES` clause is required for this type of query since KSQL 5.4
   onwards.
 - **Pull Queries**: Query the current state of the system, return a result,
@@ -49,6 +50,7 @@ and terminate.
   - These are materialized aggregate tables, which are those created by a
   `CREATE TABLE AS SELECT <fields>, <agg functions> FROM <sources> GROUP BY <key>`
   kind of statement.
+  - It is required to performs queries on it with rowkey
 
 ## How to Run
 
@@ -122,7 +124,8 @@ ksql> list streams;
 or
 ksql> show streams;
 
-ksql> describe 'users';  # to see stream fields and data types
+ksql> describe 'users';           # to see stream fields and data types
+ksql> describe extended 'users';  # to see stream in detail
 ```
 
 ### Select Query Stream
@@ -167,8 +170,7 @@ ksql> select countrycode, count(*) as countries_count from users_stream
 ksql> drop stream if exists users_stream delete topic;
 ```
 
-
-## Generating Synthetic Data
+### Generating Synthetic Data
 
 Usually, it's useful to generate synthetic data for testing purposes. KSQL has
 a tool to do it, called `ksql-datagen`.
@@ -182,13 +184,109 @@ The basic syntax is the following:
 
 `Iterations` refer to the maximum number of records to be generated.
 
-## KSQL Build-In Functions
+### KSQL Build-In Functions
 
 There are two type of KSQL built-in functions:
 
 - **Scalar Functions**: get one or more values and returns one or more values
 (map)
 - **Aggregation Functions**: aggregate stream list values
+
+### Creating a new Stream (from file) Based on Existing Stream
+
+Let's consider the file `user-profile-pretty.sql`:
+
+```sql
+set 'auto.offset.reset'= 'earliest';
+
+create stream user_profile_pretty as
+  select firstname + ' ' + ucase(lastname) + ' from ' + countrycode + ' has
+    a rating of ' + cast(rating as varchar) + ' stars. ' +
+    case
+      when rating < 2.5 then 'Poor'
+      when rating between 2.5 and 4.2 then 'Good'
+      else 'Excellent'
+      end
+    as description   
+  from user_profile_stream emit changes;
+
+unset 'auto.offset.reset';
+```
+
+This second stream (user_profile_pretty) remains bounded to the first
+(user_profile_stream), with a running query; if the second stream is stopped,
+the first stop to work, as expected.
+{:.note}
+
+To run this file from KSQL CLI, we can just run:
+
+```ksql
+ksql> run script '/path/to/file/user-profile-pretty.sql'
+```
+
+### Delete a Stream with a Running Query
+
+The `user_profile_pretty` stream is running and we want to delete it. The
+steps are below described:
+
+```ksql
+ksql> terminate <query ID>
+ksql> drop stream if exists user_profile_pretty delete topic;
+```
+
+As pointed, query must be deleted before the stream.
+
+
+## Tables in KSQL
+
+Streams are a continuum of data in time. Tables, in the other hand, represent
+the state of data right now.
+
+Records relate with table two different ways:
+
+- **add new records**: when there is no records with the same key
+- **update existing records**: when new data has the same key as previous data
+
+The `offset earliest` concept do not apply for tables, because each query
+always brings the complete and final state for each key in general, regardless
+of offset position.
+{:.note}
+
+## Joins
+
+The Join mechanism is similiar from database, but with differences because of
+the type of data (streams and tables).
+
+Streams and Tables can be joined in the following way:
+
+- Stream + Stream => Stream
+- Table + Table => Table
+- Stream + Table = Stream
+
+### Join Requirements
+
+In order to be joined, two objects (Stream or Table) must have the following
+characteristics:
+
+- Co-partitioned data:
+  - Input records must have the same number of partitions at both sides
+- Key must exists at both sides
+- For Tables only:
+  - Key must be varchar/string
+  - Message key must have the same content as defined in Key column
+
+### First Join
+
+Joining a Stream and a Table (Stream + Table => Stream):
+
+```ksql
+select * from userprofile up
+left join contrytable ct
+on ct.countrycode = up.countrycode;
+```
+
+The command `describe extended` can be used to check this new stream details.
+
 
 
 ## References
