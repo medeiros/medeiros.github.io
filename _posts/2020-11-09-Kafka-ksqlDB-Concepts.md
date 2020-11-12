@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "Kafka KSQL Concepts"
+title: "Kafka ksqlDB Concepts"
 description: >
-  Review of KSQL concepts in Apache Kafka.
+  Review of ksqlDB concepts in Apache Kafka.
 categories: distributedarchitecture
 tags: [core, kafka]
 comments: true
@@ -20,7 +20,7 @@ In this page, the main concepts of Kafka KSQL technology will be covered.
 
 ![](/assets/img/blog/kafka/kafka-ksql-basics.png)
 
-Figure: KSQL Overview.
+Figure: ksqlDB Overview.
 {:.figcaption}
 
 According to [Confluent page](https://www.confluent.io/product/ksql/), KSQL is
@@ -36,14 +36,14 @@ Confluent dist in order to have it.
 
 ## Push and Pull Queries
 
-Kafka KSQL works with queries. In that regard, there are two types of queries
+Kafka ksqlDB works with queries. In that regard, there are two types of queries
 to consider and to understand:
 
 - **Push Queries**: Query the state of the system in motion (real-time) and
 continue to output results until they meet a LIMIT condition or are terminated
 by the user.
-  - These are the most common queries (and default from KSQL 5.3 onwards)
-  - `EMIT CHANGES` clause is required for this type of query since KSQL 5.4
+  - These are the most common queries (and default from ksqlDB 5.3 onwards)
+  - `EMIT CHANGES` clause is required for this type of query since ksqlDB 5.4
   onwards.
 - **Pull Queries**: Query the current state of the system, return a result,
 and terminate.
@@ -56,7 +56,7 @@ and terminate.
 
 - Start Zookeeper and Kafka in Apache Kafka distribution, as usual
 - Download [Confluent Kafka](https://www.confluent.io/download/) (required
-  to run KSQL)
+  to run ksqlDB)
   - Please note that `confluent/etc/ksqldb/ksql-server.properties` file is
   configured to listen to port `8088` and to connect at Kafka Cluster in
   `0.0.0.0:9092`. Change this values right now if they are not suitable to
@@ -73,16 +73,16 @@ $ cd ~/confluent
 [confluent]$ ./bin/ksql http://localhost:8088
 ```
 
-## KSQL Commands
+## ksqlDB Commands
 
-Somes things to consider regarding KSQL commands in CLI:
+Somes things to consider regarding ksqlDB commands in CLI:
 
-- KSQL commands and queries are case-insensitive
+- ksqlDB commands and queries are case-insensitive
 - All statements end with semicolon (;)
 
 ### Showing Topics and their Data
 
-```ksql
+```sql
 # list existing topics
 ksql> list topics;
 ksql> show topics;
@@ -103,7 +103,7 @@ In order for the streams to be properly created, the related topics must
 exist prior to the stream creation.
 {:.note}
 
-```ksql
+```sql
 ksql> create stream users_stream (name VARCHAR, countrycode VARCHAR)
   with (KAFKA_TOPIC='users', VALUE_FORMAT='DELIMITED');
 
@@ -119,7 +119,7 @@ to stream fields
 
 ### Showing the Details of new Streams
 
-```ksql
+```sql
 ksql> list streams;
 or
 ksql> show streams;
@@ -134,7 +134,7 @@ By default, print of data in topics and select queries adopt __latest__
 consumption of data (so, only new data are shown). But this behavior can be
 changed by using SET/UNSET directives, as below:
 
-```ksql
+```sql
 ksql> set 'auto.offset.reset'='earliest';
 
 ksql> select name, countrycode from users_stream
@@ -145,7 +145,7 @@ ksql> unset 'auto.offset.reset';
 
 ### Query Streams with Limits
 
-```ksql
+```sql
 ksql> select * from users_stream emit changes limit 2;
 ```
 
@@ -158,7 +158,7 @@ as soon as the limit is reached
 
 ### Aggregate Function: COUNT
 
-```ksql
+```sql
 ksql> select countrycode, count(*) as countries_count from users_stream
   group by countrycode
   emit changes;
@@ -166,13 +166,13 @@ ksql> select countrycode, count(*) as countries_count from users_stream
 
 ### Deleting a Stream
 
-```ksql
+```sql
 ksql> drop stream if exists users_stream delete topic;
 ```
 
 ### Generating Synthetic Data
 
-Usually, it's useful to generate synthetic data for testing purposes. KSQL has
+Usually, it's useful to generate synthetic data for testing purposes. ksqlDB has
 a tool to do it, called `ksql-datagen`.
 
 The basic syntax is the following:
@@ -184,15 +184,24 @@ The basic syntax is the following:
 
 `Iterations` refer to the maximum number of records to be generated.
 
-### KSQL Build-In Functions
+### ksqlDB Build-In Functions
 
-There are two type of KSQL built-in functions:
+There are two type of ksqlDB built-in functions:
 
 - **Scalar Functions**: get one or more values and returns one or more values
 (map)
 - **Aggregation Functions**: aggregate stream list values
 
-### Creating a new Stream (from file) Based on Existing Stream
+### Creating a New Stream Based on Existing Stream
+
+To create a new stream based on the query of another stream:
+
+```sql
+ksql> create stream weatherraw with (value_format='AVRO') as
+  select city->name as cityname, description from weather;
+```
+
+### Creating a New Stream (From File) Based on Existing Stream
 
 Let's consider the file `user-profile-pretty.sql`:
 
@@ -218,9 +227,9 @@ This second stream (user_profile_pretty) remains bounded to the first
 the first stop to work, as expected.
 {:.note}
 
-To run this file from KSQL CLI, we can just run:
+To run this file from ksqlDB CLI, we can just run:
 
-```ksql
+```sql
 ksql> run script '/path/to/file/user-profile-pretty.sql'
 ```
 
@@ -229,7 +238,7 @@ ksql> run script '/path/to/file/user-profile-pretty.sql'
 The `user_profile_pretty` stream is running and we want to delete it. The
 steps are below described:
 
-```ksql
+```sql
 ksql> terminate <query ID>
 ksql> drop stream if exists user_profile_pretty delete topic;
 ```
@@ -237,7 +246,18 @@ ksql> drop stream if exists user_profile_pretty delete topic;
 As pointed, query must be deleted before the stream.
 
 
-## Tables in KSQL
+### Creating a Table and Querying It
+
+```sql
+-- table as a aggregated view of current data
+ksql> create table countryDrivers as select countryCode, count(*) as numDrivers
+from driversLocation group by contryCode;
+
+-- tables must be queried with rowKey
+ksql> select countrycode, numDrivers from countryDrivers where rowKey='BR';
+```
+
+## Tables in ksqlDB
 
 Streams are a continuum of data in time. Tables, in the other hand, represent
 the state of data right now.
@@ -275,17 +295,133 @@ characteristics:
   - Key must be varchar/string
   - Message key must have the same content as defined in Key column
 
+### Rekeyed Table
+
+In order to perform joins, a stream must have a key. What happens if a stream
+do not have a key?
+
+A new rekeyed stream must be created from the original one, and the
+`partition by` clause must be included:
+
+```sql
+ksql> select rowKey, city_name from weatherraw -- rowKey is null
+
+ksql> create stream whatherrekeyed as
+  select * from weatherraw partition by city_name -- city_name is the key now
+
+ksql> select rowKey, city_name from whatherrekeyed -- rowKey is city_name value
+
+-- and now a table can be created:
+ksql> create table weathernow with (kafka_topic='weatherrekeyed',
+  value_format='AVRO', key='city_name')
+```
+
 ### First Join
 
 Joining a Stream and a Table (Stream + Table => Stream):
 
-```ksql
+```sql
 select * from userprofile up
 left join contrytable ct
 on ct.countrycode = up.countrycode;
 ```
 
 The command `describe extended` can be used to check this new stream details.
+
+### Repartition a Stream
+
+
+
+## Complete Example: Create, Populate, Aggregate and Get Data
+
+```sql
+-- 1. create a stream
+ksql> create stream driversLocation (driverId integer, countryCode varchar,
+  city varchar, driverName varchar)
+  with (kafka_topic='drivers_location', value_format='JSON', partitions='1');
+
+-- 2. populate stream with data
+ksql> insert into driversLocation (driverId, countryCode, city, driverName)
+  values (1, 'BR', 'Sao Paulo', 'Joao');
+ksql> select * from driversLocation emit changes;
+
+-- 3. create an aggregated table
+ksql> create table contryDrivers as
+  select couutryCode, count(*) as numDrivers from driversLocation
+  group by countryCode;
+
+-- run pull query (returns immediately)
+ksql> select countryCode, numDrivers from countryDrivers where rowKey='BR';
+```
+
+## Using Kafka Connect with ksqlDB
+
+ksqlDB is able to register Kafka Connect sources and sinks.
+
+Let's consider a Postgres table:
+
+```sql
+> CREATE TABLE carusers (username VARCHAR, ref SERIAL PRIMARY KEY);
+> INSERT INTO carusers VALUES ('Maria');
+```
+
+The first step here is to register a Kafka JDBC Source Connector. This can be
+done by using ksqlDB CLI:
+
+```sql
+ksql> create source connector "postgres-jdbc-source"
+  with ("connector.class='io.confluent.connect.jdbc.JdbcSourceConnector'",
+    "connection.url='jdbc:postgresql://postgres:5432/postgres'",
+    "mode='incrementing'", "incrementing.column.name='ref'",
+    "table.whitelist='carusers'", "connection.password='password'",
+    "connection.user='postgres'", "topic.prefix='db-'", "key='username'")
+```
+
+A `db-carusers` topic will be created and Kafka Connect Source will send data
+to it at each change in Postgres table.
+
+This entries can be monitored in ksqlDB, as previously seen in this post:
+
+```sql
+ksql> print 'db-carusers' from beginning;
+```
+
+## Data Encodings
+
+ksqlDB supports three serialization mechanisms: `CSV`, `AVRO` and `JSON`.
+
+### JSON and CSV
+
+If one of these value formats are defined in the Stream and data came to the
+stream in different formats, no message will arrive at the stream, due to the
+existing validation mechanism. The error will be available at the log files,
+that can be configured in the `etc/ksqldb/log4j.properties` file.
+
+### AVRO
+
+In order to Avro to work with ksqlDB, Confluent Schema Registry must be
+running. To use this data encoding mechanism, it is just necessary to
+specify `value_format='AVRO'` in the stream creation.
+
+Avro has a schema mechanism that allows data to be properly validated. So, when
+trying to generate an invalid value, the error is identified at the producer
+side of Kafka, due to the ability to validate data in Avro against its
+schema before sending.
+
+## Data Structures: Nested JSON
+
+ksqlDB supports `nested` and `flat` data structures.
+For `nested` structures ksqlDB adopts the data type STRUCT, as below:
+
+```sql
+ksql> create stream weather(city STRUCT <name varchar, country varchar,
+  latitude double, longitude double>, description varchar)
+  with (kafka_topic='weather', value_format='JSON');
+
+ksql> select city->name as city_name, city->country as city_country from
+  weather emit changes;
+```
+
 
 
 
