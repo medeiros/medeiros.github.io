@@ -330,7 +330,63 @@ The command `describe extended` can be used to check this new stream details.
 
 ### Repartition a Stream
 
+Joins require that related topics are co-partitioned. That means all the topics
+related to the streams must have the same number of partitions.
 
+But it is normal that different streams are created with a different number
+of partitions. Therefore, when it is required to perform a join using those
+streams, it is first necessary to repartition them to have the same number of
+partitions.
+
+The strategy for repartition is: create a new stream based on the original
+stream, forcing the number of partitions of this new stream. Behind the scenes,
+what happens is that a new topic is created with the desired partitions for it.
+
+```sql
+ksql> create stream driverprofile_rekeyed with (partitions=1) as
+  select * from driver_profile partition by driver_name;
+
+-- lets validate our assumptions
+ksql> describe extended driverprofile_rekeyed;
+ksql> describe extended driver_profile;
+```
+
+### Merge Streams
+
+Merge joins two streams as one.
+
+```sql
+ksql> insert into some_stream select * from another_stream;
+```
+
+- Streams must be of the exact same schema
+- Two or more streams can be combined
+
+For instance, let's populate two topics (`some_t` and `other_t`) with data:
+
+```bash
+[confluent]$ ./bin/ksql-datagen schema=path/to/.avro/file format=JSON \
+  topic=some_t key=id iterations=10
+
+[confluent]$ ./bin/ksql-datagen schema=path/to/.avro/file format=JSON \
+  topic=other_t key=id iterations=10
+```
+
+Now, let's create two independent streams to bind to those topics:
+
+```sql
+ksql> create stream a_stream with (KAFKA_TOPIC='some_t', value_format='AVRO');
+ksql> create stream b_stream with (KAFKA_TOPIC='other_t', value_format='AVRO');
+```
+
+Now, let's merge them in a brand new stream:
+
+```sql
+ksql> create stream merge_ab as select 'Some', * from a_stream;
+ksql> insert into stream merge_ab select 'Other', * from b_stream;
+
+ksql> select * from merge_ab emit changes;
+```
 
 ## Complete Example: Create, Populate, Aggregate and Get Data
 
@@ -353,6 +409,94 @@ ksql> create table contryDrivers as
 -- run pull query (returns immediately)
 ksql> select countryCode, numDrivers from countryDrivers where rowKey='BR';
 ```
+
+## Windowing
+
+Windowing concepts may be found at the ["Kafka Streams Concepts" page](/blog/distributedarchitecture/2020-10-25-Kafka-Streams-Concepts/#windowed-operations)
+in this same blog. The concepts declared there are the same for ksqlDB.
+
+Once windows are defined, what can be done with them?
+
+- Aggregate data (such as `count`)
+- Group data (`group`)
+- Map a field as an array (`collect_list`)
+- Get the highest frequency rate of a field (`topk`)
+- See the window limits (`windowStart` and `windowEnd`)
+
+Some examples are found below:
+
+```sql
+-- total of users in 60 seconds
+ksql> select city_name, count(*) from world
+  window tumbling (size 60 seconds)
+  group by city_name;
+
+-- list of users in 60 seconds
+ksql> select city_name, collect_list(user) from world
+  window tumbling (size 60 seconds)
+  group by city_name;
+
+-- get start/end time of window, along with the highest frequency cities   
+ksql> select timestampToString(WindowStart(), 'HH:mm:ss'),
+  timestampToString(WindowEnd(), 'HH:mm:ss'), city_name
+  topk(city_name, 3), count(*) from world
+  window tumbling (size 1 minute)
+  group by city_name;
+
+city_name, collect_list(user) from world
+  window tumbling (size 60 seconds)
+  group by city_name;
+```
+
+
+## Functions
+
+### User Defined Functions
+
+There are two types of user defined functions:
+
+- **UDF: User Defined Functions**: stateless scalar functions (one input and
+  one output)
+- **UDAF: User Defined Aggregated Functions**: statefull aggregated functions
+  (one or more inputs, and one output)
+
+Those functions are implemented in isolation, in a very simple Java code,
+and deployed as a separated jar, in a particular directory called `ext`.
+This directory must be created inside the base directory defined by the
+`ksql.extension.dir` property:
+
+```sql
+ksql> list properties;   -- check for 'ksql.extension.dir' prop value
+```
+
+After put the jar in this directory, it is necessary to restart ksqlDB in order
+to changes to take effect.
+
+In order to view the installed functions and get details of them, one can
+just type:
+
+```sql
+ksql> list functions;
+ksql> describe function <function_name>;
+```
+
+And in order to use the function, one can just declare it in a select statement:
+
+```sql
+ksql> select my_own_function('some value') from ...;
+```
+
+More detailed information about UDF creation can be found [on this Confluent article](https://kafka-tutorials.confluent.io/udf/ksql.html).
+
+
+### Geospatial
+
+This is a scalar function, able to get the distance between two coordinates.
+
+```sql
+geo_distance(lat1, lon1, lat2, lon2, 'km')
+```
+
 
 ## Using Kafka Connect with ksqlDB
 
@@ -423,9 +567,8 @@ ksql> select city->name as city_name, city->country as city_country from
 ```
 
 
-
-
 ## References
 
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
 - [Stephane Maarek's Kafka Courses @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac)
+- [How to build a User-Defined Function (UDF) to transform events](https://kafka-tutorials.confluent.io/udf/ksql.html)
