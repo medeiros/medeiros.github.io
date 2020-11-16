@@ -73,7 +73,29 @@ $ cd ~/confluent
 [confluent]$ ./bin/ksql http://localhost:8088
 ```
 
-## ksqlDB Commands
+### Configuring ksqlDB CLI
+
+Settings in ksqlDB can be configured in **session** level or **server** level.
+
+- **Server level**: `./etc/ksqldb/ksql-server.properties` file
+- **Session level**: There are some available options:
+  - to use `SET` command
+  - to adopt config file when ksqlDB session is created:
+```bash
+[confluent $] ./bin/ksql-server ./etc/ksqldb/ksql-server.properties \
+  --config-file /path/to/config/file
+```
+
+In order to check configuration variables, one can type in ksqlDB CLI:
+
+```sql
+ksql> list properties;
+```
+
+More information about ksqlDB CLI starting can be found [here](https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/installing/#start-the-ksqldb-cli).
+
+
+## ksqlDB Main Commands
 
 Somes things to consider regarding ksqlDB commands in CLI:
 
@@ -272,7 +294,7 @@ always brings the complete and final state for each key in general, regardless
 of offset position.
 {:.note}
 
-## Joins
+## Joins (for Streams and Tables)
 
 The Join mechanism is similiar from database, but with differences because of
 the type of data (streams and tables).
@@ -448,6 +470,19 @@ city_name, collect_list(user) from world
   group by city_name;
 ```
 
+## State Stores
+
+For stateful operations, Kafka Streams adopts the concept of **State Stores**.
+
+- Apply to **Windowing**, **Join** and **Aggregation** concepts
+- Adopts [RocksDB](https://rocksdb.org/) database per default
+- Storage directory defined by `ksql.streams.state.dir` property. By default,
+state is stored in the `/tmp/kafka-streams` directory. In this directory,
+RocksDB files are created.
+
+Stateful operations generate additional overhead (IO processing), so
+they will perform worse than stateless operations.
+{:.note}
 
 ## Functions
 
@@ -457,7 +492,7 @@ There are two types of user defined functions:
 
 - **UDF: User Defined Functions**: stateless scalar functions (one input and
   one output)
-- **UDAF: User Defined Aggregated Functions**: statefull aggregated functions
+- **UDAF: User Defined Aggregated Functions**: stateful aggregated functions
   (one or more inputs, and one output)
 
 Those functions are implemented in isolation, in a very simple Java code,
@@ -488,7 +523,6 @@ ksql> select my_own_function('some value') from ...;
 
 More detailed information about UDF creation can be found [on this Confluent article](https://kafka-tutorials.confluent.io/udf/ksql.html).
 
-
 ### Geospatial
 
 This is a scalar function, able to get the distance between two coordinates.
@@ -497,10 +531,59 @@ This is a scalar function, able to get the distance between two coordinates.
 geo_distance(lat1, lon1, lat2, lon2, 'km')
 ```
 
+## KSQL Deployment Choices
+
+There are two main ways to deploy ksqlDB:
+
+- **Interactive Mode**: Using CLI, Confluence Control Center or [REST API](https://docs.ksqldb.io/en/0.10.0-ksqldb/developer-guide/api/)
+- **Headless Mode**: By executing a specific script:
+
+```bash
+[confluent $] ./bin/ksql-server-start ./etc/ksqldb/ksql-server.properties \
+    --queries-files=/path/to/query/file.ksql
+```
+
+In headless mode, command prompt do not work. In order to check for
+results, the related topic must be consumed.
+{:.note}
+
+## Query Explain Plan
+
+This is a similar concept to relational databases.
+First, it is necessary to get the execution ID of a query:
+
+```sql
+ksql> show queries;
+```
+
+Now, one can show the execution plan for this particular query:
+
+```sql
+ksql> explain <query id>;
+```
+
+The Query Execution Plan will be shown, along with runtime information, metrics,
+and query topology (the same from Kafka Streams).
+
+## Scaling, HA and Load Balancing
+
+The ksqlDB application run on top of Kafka Streams mechanism. So, in order to
+scale, it is only required to add more instances.
+- All instances must have the same properties values in order to form a ksqlDB
+cluster and share the workload: `bootstrap.server` and `ksql.service.id`.
+  - By default, [`ksql.service.id`](https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#ksqlserviceid)
+  = `default_`.
+- In case of failure, other instances take charge.
+
+In regards of **High Availability**, ksqlDB cluster continues to process data
+seamlessly with both entrance and leaving of instances in the cluster. If there
+are no instances running during a period of time and then the first instance
+starts to work again, processing will restart from the latest read message
+(no data is lost).
 
 ## Using Kafka Connect with ksqlDB
 
-ksqlDB is able to register Kafka Connect sources and sinks.
+ksqlDB is able to register both Kafka Connect sources and sinks.
 
 Let's consider a Postgres table:
 
@@ -572,3 +655,7 @@ ksql> select city->name as city_name, city->country as city_country from
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
 - [Stephane Maarek's Kafka Courses @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac)
 - [How to build a User-Defined Function (UDF) to transform events](https://kafka-tutorials.confluent.io/udf/ksql.html)
+- [ksqlDB Configuration Parameter Reference](https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference)
+- [Configure ksqlDB CLI](https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/installing/#start-the-ksqldb-cli)
+- [ksqlDB REST API Reference](https://docs.ksqldb.io/en/0.10.0-ksqldb/developer-guide/api/)
+- [Develop ksqlDB Applications](https://docs.ksqldb.io/en/latest/developer-guide/)
