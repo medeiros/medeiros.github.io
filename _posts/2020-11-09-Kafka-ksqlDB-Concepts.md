@@ -16,21 +16,21 @@ In this page, the main concepts of Kafka KSQL technology will be covered.
 - Table of Contents
 {:toc}
 
-## KSQL Overview
+## ksqlDB Overview
 
 ![](/assets/img/blog/kafka/kafka-ksql-basics.png)
 
 Figure: ksqlDB Overview.
 {:.figcaption}
 
-According to [Confluent page](https://www.confluent.io/product/ksql/), KSQL is
+According to [Confluent page](https://www.confluent.io/product/ksql/), ksqlDB is
 a streaming mechanism that enables real-time processing against Kafka.
 It provides an intuitive SQL-like interface to manage stream processing, and
 this approach avoids the burden of write Kafka Streams code (in Python of Java).
 It allow us to perform a very broad range of operations, such as data filtering,
 transformations, aggregations, joins, windows and session handling.
 
-Kafka KSQL is not part of Apache Kafka distribution. You have to download
+Kafka ksqlDB is not part of Apache Kafka distribution. You have to download
 Confluent dist in order to have it.
 {:.note}
 
