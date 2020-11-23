@@ -161,6 +161,7 @@ is followed by a `items` attribute, that defines the data type for its items.
 schema:
 ```json
 {"name": "emails", "type": "array", "items": "string", "default": []}
+```
 
 example data:
 ```json
@@ -176,6 +177,7 @@ in the map.
 schema:
 ```json
 {"name": "scores", "type": "map", "values": "long", "default": {}}
+```
 
 example data:
 ```json
@@ -193,6 +195,7 @@ The most common use case for unions is to defined a optional value, as below:
 schema:
 ```json
 {"name": "middle_name", "type": ["null", "string"], "default": null}
+```
 
 example data:
 ```json
@@ -208,6 +211,7 @@ two attributes: `name` and `size`.
 schema:
 ```json
 {"type": "fixed", "name": "md5", "size": 16}
+```
 
 example data:
 ```json
