@@ -6,7 +6,7 @@ description: >
 categories: distributedarchitecture
 tags: [core, kafka]
 comments: true
-image: /assets/img/blog/kafka/confluent-schema-registry-overview.png
+image: /assets/img/blog/kafka/schema-registry-pattern.png
 ---
 > Kafka is a distributed, resilient, fault tolerant streaming platform that
 works with high data throughput.
