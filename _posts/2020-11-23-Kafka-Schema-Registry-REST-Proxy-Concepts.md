@@ -6,7 +6,7 @@ description: >
 categories: distributedarchitecture
 tags: [core, kafka]
 comments: true
-#image: /assets/img/blog/kafka/kafka-ksql-basics.png
+image: /assets/img/blog/kafka/confluent-schema-registry-overview.png
 ---
 > Kafka is a distributed, resilient, fault tolerant streaming platform that
 works with high data throughput.
@@ -17,7 +17,7 @@ technologies will be covered.
 - Table of Contents
 {:toc}
 
-## The Problem with Data Change
+## The Problem with Data Change and Duplication
 
 Kafka receives and delivers **bytes**. It does not know what are in those
 bytes - and it's important that it do not know it, since this is a guarantee of
@@ -28,20 +28,32 @@ But there are drawbacks in this approach. If the producer send some
 In order to avoid such scenario, it is necessary to adopt a **schema**, that is
 verified over data in order to avoid things to break.
 
-So, Schema Registry was created to solve this problem.
+In addition to adopt a schema, it is also important that this approach consider
+data optimization, in a way that data could be separated from schema to avoid
+duplication (and increase in payload size). Schema Registry can be be adopted
+to solve this problem.
 
-## Schema Registry
+## Schema Registry Pattern
 
-Schema Registry is a separated component, responsible for validation of schema
-between producers and consumers. So, both producers and consumers must be able
-to connect and talk to it.
+Schema Registry is a pattern that separates schema from data. In Kafka, it
+means that a separate component stores the Schema, and only data is sent to
+Kafka. So, both producers and consumers must be able to connect and talk to
+both Kafka Cluster and Schema Registry.
 
-Schema Registry is also able to reject bad data (which means data that do not
-comply with the desired schema).
+![](/assets/img/blog/kafka/schema-registry-pattern.png)
+
+Figure: Schema Registry Pattern.
+{:.figcaption}
+
+In this pattern, the payload size to the Kafka Cluster is optimized, because
+the Schema is sent only to the Schema Registry (and not to Kafka), and only
+the data (without schema) is sent to Kafka. The consumers and producers are
+the ones who have to relate Schema with data (and validate/reject bad data
+based on the schema, ensuring that bad data never reaches Kafka cluster).
 
 Also, a common data format must be adopted. This data format must support
-schemas and evolutions of data, and must be lightweight. Schema Registry
-uses [Apache Avro](https://avro.apache.org/) as its offficial data format.
+schemas and evolutions of data, and must be lightweight. [Apache Avro](https://avro.apache.org/)
+is a most used data format.
 
 ## Apache Avro and Data Format Comparison
 
@@ -634,7 +646,52 @@ $ java -jar avro-tools-1.9.2.jar tojson --pretty <file>.avro
 
 ## Schema Evolution
 
-Todo: fill it
+Schema Evolution is the ability to support changes in the schema. For instance,
+the following is a representation of a schema evolution `(v1 -> v2)`:
+
+- **Schema (v1)**: firstName, lastName
+- **Schema (v2)**: firstName, lastName, **email**
+
+### Types of Schema Evolution
+
+There are four types of Schema Evolution:
+
+type|description|in depth
+--|--|--
+**Backward**|when a schema can be used to read data from `old schema`|is possible thanks to the `default` (new schema tries to read old data that has no value for a field, and then assume its default value for that field bacause it was not found)
+**Forward**|when a schema can be used to read data from `newer schema`|is natural because new data read from an old schema will get no effect (new fields will be ignored). Delete fields in the new schema without `default` in the old schema is not forward compatible.
+**Full**|both Forward and Backward|The best approach is to adopt this type; it is necessary to add fields with `default` values and only remove field (in newes schema) who have `default` values.
+**Breaking**|neither Forward or Backward|Must avoid: **a)** Add/remove elements of a `Enum`; **b)** change the field type (i.e.: from string to int); **c)** rename a required, non-default field
+
+> It is better, in general, to adopt a full compatibility approach, since it is
+easy to do and brings a lot of benefits.
+
+### General Rules to Write an Avro Schema
+
+1. Make primary key `required`
+2. Define `default` values for all field that must change somehow in the future
+3. Try to avoid to use `Enums`, since enum evolution are not supported
+4. Do not rename fields. Use `alias` instead
+5. When evolving a schema, ALWAYS set `default` values
+5. When evolving a schema, NEVER remove a `required` field
+
+
+## Implementing a Schema Registry Pattern
+
+[Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) is a implementation of a Schema Registry Pattern.
+It is a [Confluent product](https://www.confluent.io/), a separated component from Kafka distribution.
+
+### Confluent Schema Registry Operations
+
+todo: fill it
+
+### Producers and Consumers With Avro and Schema Registry
+
+What actually happens is the following:
+
+1. Consumer Avro Serializer: todo: fill it
+
+todo: fill it
 
 ## References
 
