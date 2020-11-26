@@ -28,6 +28,9 @@ But there are drawbacks in this approach. If the producer send some
 In order to avoid such scenario, it is necessary to adopt a **schema**, that is
 verified over data in order to avoid things to break.
 
+A Schema can be applied to message key, message value, or both.
+{:.note}
+
 In addition to adopt a schema, it is also important that this approach consider
 data optimization, in a way that data could be separated from schema to avoid
 duplication (and increase in payload size). Schema Registry can be be adopted
@@ -51,9 +54,21 @@ the data (without schema) is sent to Kafka. The consumers and producers are
 the ones who have to relate Schema with data (and validate/reject bad data
 based on the schema, ensuring that bad data never reaches Kafka cluster).
 
-Also, a common data format must be adopted. This data format must support
-schemas and evolutions of data, and must be lightweight. [Apache Avro](https://avro.apache.org/)
-is a most used data format.
+In addition, a common data format for the messages must be adopted. This data
+format must support schemas and evolutions of data, and must be lightweight.
+[Apache Avro](https://avro.apache.org/) is a most used data format.
+
+An Avro file has both Schema and Data. But in the Schema Registry adoption,
+what happens is the following:
+
+1. Avro serializer (in producer) splits schema and data as separate units
+2. Producer send the schema to the Schema Registry and receives an ID (if it
+  is a new schema)
+3. Producer send data to Kafka. This ID goes in the metadata message
+4. Consumer gets the message from Kafka.
+5. Consumer uses the message ID to retrieve the schema from Schema Registry
+6. Avro deserializer (in consumer) uses retrieved Schema to deserialize and
+read the message
 
 ## Apache Avro and Data Format Comparison
 
@@ -658,13 +673,25 @@ There are four types of Schema Evolution:
 
 type|description|in depth
 --|--|--
-**Backward**|when a schema can be used to read data from `old schema`|is possible thanks to the `default` (new schema tries to read old data that has no value for a field, and then assume its default value for that field bacause it was not found)
-**Forward**|when a schema can be used to read data from `newer schema`|is natural because new data read from an old schema will get no effect (new fields will be ignored). Delete fields in the new schema without `default` in the old schema is not forward compatible.
+**Backward**|when a schema can be used to **read** data from `older schema`|is possible thanks to the `default` (new schema tries to read old data that has no value for a field, and then assume its default value for that field bacause it was not found)
+**Forward**|when a schema can be used to **read** data from `newer schema`|is natural because new data read from an old schema will get no effect (new fields will be ignored). Delete fields in the new schema without `default` in the old schema is not forward compatible.
 **Full**|both Forward and Backward|The best approach is to adopt this type; it is necessary to add fields with `default` values and only remove field (in newes schema) who have `default` values.
 **Breaking**|neither Forward or Backward|Must avoid: **a)** Add/remove elements of a `Enum`; **b)** change the field type (i.e.: from string to int); **c)** rename a required, non-default field
 
+Forward Compatibility change is the most common in Kafka. It is a common
+scenario to start using a Producer with a newer Schema version, while the
+consumers keep working with the same (previous) version (_a schema continues
+to work by reading data from newer schemas_), and these consumers upgrade their
+schema versions later on.
+
+Backward Compatibility change is less common. In that case, one must wait for
+all consumers to upgrade their Schema versions and, after that, new messages
+can start to be produced using the newer schema (_a schema can be used to
+read data from old schemas_).
+
 > It is better, in general, to adopt a full compatibility approach, since it is
 easy to do and brings a lot of benefits.
+
 
 ### General Rules to Write an Avro Schema
 
@@ -681,15 +708,39 @@ easy to do and brings a lot of benefits.
 [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) is a implementation of a Schema Registry Pattern.
 It is a [Confluent product](https://www.confluent.io/), a separated component from Kafka distribution.
 
-### Confluent Schema Registry Operations
-
-todo: fill it
 
 ### Producers and Consumers With Avro and Schema Registry
 
-What actually happens is the following:
+Using Confluent CLI tools, it is possible to produce and consume messages in
+Avro format:
 
-1. Consumer Avro Serializer: todo: fill it
+```bash
+$ kafka-avro-console-producer --bootstrap-server localhost:9092 --topic \
+  test-avro --property schema.registry.url=http://localhost:8081 --property \
+  value.schema=\
+  '{"type": "record", "name": "myrecord", "fields": [{"name": "f1", "type":"string"}]}'
+
+$ kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic \
+  test-avro --property schema.registry.url=http://localhost:8081 \
+  --from-beginning
+```
+
+The value of `schema.registry.url` property requires a http protocol to be
+explicitly defined. If this property is not explicitly set here, Kafka will
+look for it in the default file property (
+`/etc/schema-registry/schema-registry.properties`).  
+
+### Confluent Schema Registry Operations
+
+Using REST API (_Confluent REST Proxy - more on that below on this page_), it
+is possible to perform the following actions against schemas:
+
+- Add Schemas
+- Get Schemas
+- Update Schemas
+- Delete Schemas
+
+## Confluent Rest Proxy
 
 todo: fill it
 
