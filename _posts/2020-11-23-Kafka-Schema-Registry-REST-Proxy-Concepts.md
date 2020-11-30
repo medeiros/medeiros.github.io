@@ -33,7 +33,7 @@ A Schema can be applied to message key, message value, or both.
 
 In addition to adopt a schema, it is also important that this approach consider
 data optimization, in a way that data could be separated from schema to avoid
-duplication (and increase in payload size). Schema Registry can be be adopted
+duplication (and increase in payload size). Schema Registry can be adopted
 to solve this problem.
 
 ## Schema Registry Pattern
@@ -69,6 +69,17 @@ what happens is the following:
 5. Consumer uses the message ID to retrieve the schema from Schema Registry
 6. Avro deserializer (in consumer) uses retrieved Schema to deserialize and
 read the message
+
+## Schema Registry Drawbacks
+
+- A specific setup must be made;
+- High availability must be ensured in another point in the architecture;
+- Clients (consumers and producers) have to be partially changed (to inform
+  the schema registry url);
+- Avro has a learning curve;
+- Schema Registry is not present in the Kafka distribution. There is a free and
+open source product created by Confluent, but some specific features on it are
+paid.
 
 ## Apache Avro and Data Format Comparison
 
@@ -740,12 +751,536 @@ is possible to perform the following actions against schemas:
 - Update Schemas
 - Delete Schemas
 
-## Confluent Rest Proxy
+## Confluent REST Proxy
 
-todo: fill it
+![](/assets/img/blog/kafka/kafka-rest-proxy-overview.png)
+
+Figure: Confluent REST Proxy Overview.
+{:.figcaption}
+
+Confluent REST Proxy is a tool to allow the interaction between Kafka and
+non-Java clients. It uses HTTP as a universal protocol for communication, and
+REST as its architectural style.
+
+- It may or may not work with Avro (in the figure, Schema Registry can or
+  cannot be used).
+- Performance drops 3-4x in comparison to Java clients, but is still fast and
+acceptable for the majority of use cases.
+  - HTTP is slower than native, binary protocol
+
+### Header Data
+
+#### Content-Type
+
+The following is the template for a Content-Type that clients send/receive
+to/from the server in request/response header:
+
+> Content-Type: application/vnd.kafka.[embedded_format].[api_version]+[serialization_format]
+
+- **embedded_format**: the acceptable domain is: `json`, `binary` or `avro`
+- **api_version**: the choices are: `v1` or `v2`. Always adopt `v2`.
+- **serialization_format**: always adopt: `json`
+
+If embedded format is `binary`, data must be sent as a base64-encoded string
+and the content type will be `application/vnd.kafka.binary.v2+json`. This
+base64-encoded string is decoded when reach Kafka Cluster (so the raw data
+is saved into Kafka topic, and not the encoded data).
+
+If data is just JSON, you can use `json` as the embedded format, and the
+Content-Type will be `application/vnd.kafka.json.v2+json`
+
+If your data is Avro data, the Content-Yype will be
+`application/vnd.kafka.avro.v2+json`, and a schema (or schema ID) must be
+added into the request.
+
+#### Accept
+
+The following is the template for a Accept that clients send to the server
+in the response header:
+
+> Accept: application/vnd.kafka.[api_version]+[serialization_format]
+
+> Accept: application/json
+
+The domains for `api_version` and `serialization_format` are the same from
+`Content-type` section above. `api_version` may not be informed (in that case,
+any version is accepted). Alternatively, `application/json` is also supported.
+
+Possible/viable usages:
+
+```
+Content-type: application/vnd.kafka.json.v2+json
+Accept: application/vnd.kafka.v2+json
+        application/vnd.kafka+json
+        application/json
+
+Content-type: application/vnd.kafka.avro.v2+json
+Accept: application/vnd.kafka.v2+json
+        application/vnd.kafka+json
+        application/json
+
+Content-type: application/vnd.kafka.binary.v2+json
+Accept: application/vnd.kafka.v2+json
+        application/vnd.kafka+json
+        application/json
+```
+
+### Basic REST Operations
+
+#### GET /topics
+
+Get a list of Kafka topics.
+
+Request:
+```
+GET /topics HTTP /1.1
+Accept: application/vnd.kafka.v2+json
+```
+
+Response:
+```json
+HTTP 1.1 200 OK
+Content-Type: application/vnd.kafka.v2+json
+
+["topic1", "topic2"]
+```
+
+#### GET /topics/(string: topic_name)
+
+Get metadata about a specific topic.
+
+Request:
+```
+GET /topics/test HTTP /1.1
+Accept: application/vnd.kafka.v2+json
+```
+
+Response:
+```json
+HTTP 1.1 200 OK
+Content-Type: application/vnd.kafka.v2+json
+
+{
+  "name": "test",
+  "configs": {
+     "cleanup.policy": "compact"
+  },
+  "partitions": [
+    {
+      "partition": 1,
+      "leader": 1,
+      "replicas": [
+        {
+          "broker": 1,
+          "leader": true,
+          "in_sync": true,
+        },
+        {
+          "broker": 2,
+          "leader": false,
+          "in_sync": true,
+        }
+      ]
+    },
+    {
+      "partition": 2,
+      "leader": 2,
+      "replicas": [
+        {
+          "broker": 1,
+          "leader": false,
+          "in_sync": true,
+        },
+        {
+          "broker": 2,
+          "leader": true,
+          "in_sync": true,
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Producer with REST Proxy
+
+We can use the `topics` api and the `HTTP POST verb` in order to produce
+messages to Kafka Cluster:
+
+```
+POST /topics/(string: topic_name)
+```
+
+Here are some examples, extracted from [Confluent REST Proxy API Reference page](https://docs.confluent.io/5.3.2/kafka-rest/api.html):
+
+#### Example: Binary Request
+
+```json
+POST /topics/test HTTP/1.1
+Host: kafkaproxy.example.com
+Content-Type: application/vnd.kafka.binary.v2+json
+Accept: application/vnd.kafka.v2+json, application/vnd.kafka+json, application/json
+
+{
+  "records": [
+    {
+      "key": "a2V5",
+      "value": "Y29uZmx1ZW50"
+    },
+    {
+      "value": "a2Fma2E=",
+      "partition": 1
+    },
+    {
+      "value": "bG9ncw=="
+    }
+  ]
+}
+```
+
+#### Example: Binary Response
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/vnd.kafka.v2+json
+
+{
+  "key_schema_id": null,
+  "value_schema_id": null,
+  "offsets": [
+    {
+      "partition": 2,
+      "offset": 100
+    },
+    {
+      "partition": 1,
+      "offset": 101
+    },
+    {
+      "partition": 2,
+      "offset": 102
+    }
+  ]
+}
+```
+
+#### Example: JSON Request
+
+```json
+POST /topics/test HTTP/1.1
+Host: kafkaproxy.example.com
+Content-Type: application/vnd.kafka.json.v2+json
+Accept: application/vnd.kafka.v2+json, application/vnd.kafka+json, application/json
+
+{
+  "records": [
+    {
+      "key": "somekey",
+      "value": {"foo": "bar"}
+    },
+    {
+      "value": [ "foo", "bar" ],
+      "partition": 1
+    },
+    {
+      "value": 53.5
+    }
+  ]
+}
+```
+
+#### Example: JSON Response
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/vnd.kafka.v2+json
+
+{
+  "key_schema_id": null,
+  "value_schema_id": null,
+  "offsets": [
+    {
+      "partition": 2,
+      "offset": 100
+    },
+    {
+      "partition": 1,
+      "offset": 101
+    },
+    {
+      "partition": 2,
+      "offset": 102
+    }
+  ]
+}
+```
+
+#### Example: Avro Request
+
+```json
+POST /topics/test HTTP/1.1
+Host: kafkaproxy.example.com
+Content-Type: application/vnd.kafka.avro.v2+json
+Accept: application/vnd.kafka.v2+json, application/vnd.kafka+json, application/json
+
+{
+  "value_schema": "{\"name\":\"int\",\"type\": \"int\"}",
+  "records": [
+    {
+      "value": 12
+    },
+    {
+      "value": 24,
+      "partition": 1
+    }
+  ]
+}
+```
+
+#### Example: Avro Response
+```json
+HTTP/1.1 200 OK
+Content-Type: application/vnd.kafka.v2+json
+
+{
+  "key_schema_id": null,
+  "value_schema_id": 32,
+  "offsets": [
+    {
+      "partition": 2,
+      "offset": 103
+    },
+    {
+      "partition": 1,
+      "offset": 104
+    }
+  ]
+}
+```
+
+### Consumer with REST proxy
+
+According to the [Confluent REST Proxy API Reference page](https://docs.confluent.io/5.3.2/kafka-rest/api.html):
+
+> "The proxy can convert data stored in Kafka in serialized form into a
+JSON-compatible embedded format. Currently three formats are supported:
+raw binary data is encoded as base64 strings, Avro data is converted into
+embedded JSON objects, and JSON is embedded directly.
+Because consumers are stateful, any consumer instances created with the REST
+API are tied to a specific REST proxy instance. A full URL is provided when the
+instance is created and it should be used to construct any subsequent requests.
+Failing to use the returned URL for future consumer requests will result in 404
+errors because the consumer instance will not be found. If a REST proxy
+instance is shutdown, it will attempt to cleanly destroy any consumers before
+it is terminated."
+
+There are some steps to be followed in order to read data from a topic:
+
+#### Create the Consumer instance in the Consumer Group
+
+`POST /consumers/(string:group_name)`
+
+Example Request:
+
+```json
+POST /consumers/testgroup/ HTTP/1.1
+Host: kafkaproxy.example.com
+Content-Type: application/vnd.kafka.v2+json
+
+{
+  "name": "my_consumer",
+  "format": "binary",
+  "auto.offset.reset": "earliest",
+  "auto.commit.enable": "false"
+}
+```
+
+Example Response:
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/vnd.kafka.v2+json
+
+{
+  "instance_id": "my_consumer",
+  "base_uri": "http://proxy-instance.kafkaproxy.example.com/consumers/testgroup/instances/my_consumer"
+}
+```
+
+#### Subscribe to a Topic
+
+Example Request:
+
+```json
+POST /consumers/testgroup/instances/my_consumer/subscription HTTP/1.1
+Host: proxy-instance.kafkaproxy.example.com
+Content-Type: application/vnd.kafka.v2+json
+
+{
+  "topics": [
+    "test1",
+    "test2"
+  ]
+}
+```
+
+Example Response:
+
+```json
+HTTP/1.1 204 No Content
+```
+
+#### Get Records
+
+Example Binary Request:
+
+```json
+GET /consumers/testgroup/instances/my_consumer/records?timeout=3000&max_bytes=300000 HTTP/1.1
+Host: proxy-instance.kafkaproxy.example.com
+Accept: application/vnd.kafka.binary.v2+json
+```
+
+Example Binary Response:
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/vnd.kafka.binary.v2+json
+
+[
+  {
+    "topic": "test",
+    "key": "a2V5",
+    "value": "Y29uZmx1ZW50",
+    "partition": 1,
+    "offset": 100,
+  },
+  {
+    "topic": "test",
+    "key": "a2V5",
+    "value": "a2Fma2E=",
+    "partition": 2,
+    "offset": 101,
+  }
+]
+```
+
+Example Avro Request:
+
+```json
+GET /consumers/testgroup/instances/my_consumer/records?timeout=3000&max_bytes=300000 HTTP/1.1
+Host: proxy-instance.kafkaproxy.example.com
+Accept: application/vnd.kafka.avro.v2+json
+```
+
+Example Avro Response:
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/vnd.kafka.avro.v2+json
+
+[
+  {
+    "topic": "test",
+    "key": 1,
+    "value": {
+      "id": 1,
+      "name": "Bill"
+    },
+    "partition": 1,
+    "offset": 100,
+  },
+  {
+    "topic": "test",
+    "key": 2,
+    "value": {
+      "id": 2,
+      "name": "Melinda"
+    },
+    "partition": 2,
+    "offset": 101,
+  }
+]
+```
+
+Example JSON Request:
+
+```json
+GET /consumers/testgroup/instances/my_consumer/records?timeout=3000&max_bytes=300000 HTTP/1.1
+Host: proxy-instance.kafkaproxy.example.com
+Accept: application/vnd.kafka.json.v2+json
+```
+
+Example JSON Response:
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/vnd.kafka.json.v2+json
+
+[
+  {
+    "topic": "test",
+    "key": "somekey",
+    "value": {"foo":"bar"},
+    "partition": 1,
+    "offset": 10,
+  },
+  {
+    "topic": "test",
+    "key": "somekey",
+    "value": ["foo", "bar"],
+    "partition": 2,
+    "offset": 11,
+  }
+]
+```
+
+#### Process Records
+
+This is an application step. Read data is processed by the application in its
+particular way.
+
+#### Commit the Offsets
+
+Example Request:
+
+```json
+POST /consumers/testgroup/instances/my_consumer/offsets HTTP/1.1
+Host: proxy-instance.kafkaproxy.example.com
+Content-Type: application/vnd.kafka.v2+json
+
+{
+  "offsets": [
+    {
+      "topic": "test",
+      "partition": 0,
+      "offset": 20
+    },
+    {
+      "topic": "test",
+      "partition": 1,
+      "offset": 30
+    }
+  ]
+}
+```
+
+### In Production
+
+- Adjust the configuration file: `confluent/etc/kafka-rest/kafka-rest.properties`.
+- For several REST proxies, create several properties files and run different
+JVM process in order to scale
+- Since it is not a cluster, it is required to put a load balancer to manage
+connections (AWS, HAProxy, NGinx, Apache, etc).
+
+### More information
+
+It is also possible to handle partitions and brokers in terms of REST API.
+The detailed information can be found on the [Confluent REST Proxy API Reference page](https://docs.confluent.io/5.3.2/kafka-rest/api.html).
+
 
 ## References
 
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
 - [Stephane Maarek's Kafka Courses @ Udemy](https://www.udemy.com/courses/search/?courseLabel=4556&q=stephane+maarek&sort=relevance&src=sac)
 - [Avro Specification](https://avro.apache.org/docs/current/spec.html)
+- [Confluent REST Proxy API Reference](https://docs.confluent.io/5.3.2/kafka-rest/api.html)
