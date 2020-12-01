@@ -768,6 +768,45 @@ REST as its architectural style.
 acceptable for the majority of use cases.
   - HTTP is slower than native, binary protocol
 
+
+### Starting REST Proxy
+
+The basic command to start Confluent REST Proxy is the following:
+
+```bash
+[user@host confluent]$ ./bin/kafka-rest-start -daemon ./etc/kafka-rest/kafka-rest.properties
+```
+
+By default, Confluent REST Proxy will answer requests at port `8082`, and will
+connect to Kafka Cluster at `localhost:2181` (Zookeeper). So, the following
+`curl` HTTP GET call can be used to check if Kafka REST Proxy is responding
+properly:
+
+```bash
+[user@host confluent]$ curl localhost:8082/topics | jq
+```
+
+A list of local topics should be shown.
+
+The Zookeeper URL that Confluent REST Proxy uses to connect to Kafka Cluster
+can be changed by adding the following property at `kafka-rest.properties` file:
+
+```properties
+zookeeper.connect=localhost:2181
+```
+
+It is also possible to configure Kafka REST Proxy to use Schema Registry. It
+is only necessary to enter the following property into `kafka-rest.properties`
+file:
+
+```properties
+schema.registry.url=http://localhost:8081
+```
+
+When configuring Schema Registry URL property, it is mandatory to declare the
+protocol (http or https).
+{:.note}
+
 ### Header Data
 
 #### Content-Type
@@ -827,6 +866,9 @@ Accept: application/vnd.kafka.v2+json
 
 ### Basic REST Operations
 
+It is not possible to create topics using REST Proxy. The operations are
+related to visualization of topic data, messages production and consumption.
+
 #### GET /topics
 
 Get a list of Kafka topics.
@@ -835,6 +877,11 @@ Request:
 ```
 GET /topics HTTP /1.1
 Accept: application/vnd.kafka.v2+json
+```
+
+cURL call:
+```bash
+$ curl -H "Accept: application/vnd.kafka.v2+json" localhost:8082/topics | jq
 ```
 
 Response:
@@ -853,6 +900,11 @@ Request:
 ```
 GET /topics/test HTTP /1.1
 Accept: application/vnd.kafka.v2+json
+```
+
+cURL call:
+```bash
+$ curl localhost:8082/topics/test | jq
 ```
 
 Response:
@@ -911,7 +963,50 @@ messages to Kafka Cluster:
 POST /topics/(string: topic_name)
 ```
 
-Here are some examples, extracted from [Confluent REST Proxy API Reference page](https://docs.confluent.io/5.3.2/kafka-rest/api.html):
+In the following example, a cURL call will send two records in a single message
+to a Kafka topic:
+```bash
+$ curl -X POST -H "Content-Type: application/vnd.kafka.json.v2+json" \
+  -H "Accept: application/vnd.kafka.v2+json" \
+  -d '{"records": [{"value": {"lang": "Python"}},{"value": {"lang": "Java"}}]}' \
+  localhost:8082/topics/test | jq
+```
+
+cUrl Response (one offset is returned per each record previously sent):
+
+```json
+{
+  "offsets": [
+    {
+      "partition": 0,
+      "offset": 3,
+      "error_code": null,
+      "error": null
+    },
+    {
+      "partition": 0,
+      "offset": 4,
+      "error_code": null,
+      "error": null
+    }
+  ],
+  "key_schema_id": null,
+  "value_schema_id": null
+}
+```
+
+It is important to consider that the payload (body request) must adopt the
+following structure for JSON sending:
+
+```json
+{"records": [
+  {"value": (JSON Object of Data)},
+  {"value": (Another JSON Object of Data)},
+  ...
+  ]}
+```
+
+The next sections present examples extracted from the [Confluent REST Proxy API Reference page](https://docs.confluent.io/5.3.2/kafka-rest/api.html):
 
 #### Example: Binary Request
 
@@ -1089,10 +1184,18 @@ Content-Type: application/vnd.kafka.v2+json
 
 {
   "name": "my_consumer",
-  "format": "binary",
+  "format": "json",
   "auto.offset.reset": "earliest",
   "auto.commit.enable": "false"
 }
+```
+
+With cUrl:
+
+```bash
+curl -v -X POST -H "Content-type: application/vnd.kafka.v2+json" \
+  -d '{ "name": "my_consumer", "format": "json", "auto.offset.reset": "earliest", "auto.commit.enable": "false" }' \
+  localhost:8082/consumers/testgroup | jq
 ```
 
 Example Response:
@@ -1103,7 +1206,7 @@ Content-Type: application/vnd.kafka.v2+json
 
 {
   "instance_id": "my_consumer",
-  "base_uri": "http://proxy-instance.kafkaproxy.example.com/consumers/testgroup/instances/my_consumer"
+  "base_uri": "http://localhost:8082/consumers/testgroup/instances/my_consumer"
 }
 ```
 
@@ -1122,6 +1225,15 @@ Content-Type: application/vnd.kafka.v2+json
     "test2"
   ]
 }
+```
+
+With cUrl:
+
+```bash
+curl -v -X POST -H "Content-type: application/vnd.kafka.v2+json" \
+  -d '{"topics": ["test"]}' \
+  http://localhost:8082/consumers/testgroup/instances/my_consumer/subscription \
+  | jq
 ```
 
 Example Response:
@@ -1210,6 +1322,14 @@ Host: proxy-instance.kafkaproxy.example.com
 Accept: application/vnd.kafka.json.v2+json
 ```
 
+With cUrl:
+
+```bash
+curl -v -H "Accept: application/vnd.kafka.json.v2+json" \
+  localhost:8082/consumers/testgroup/instances/my_consumer/records?timeout=3000&max_bytes=300000 \
+  | jq
+```
+
 Example JSON Response:
 
 ```json
@@ -1263,6 +1383,37 @@ Content-Type: application/vnd.kafka.v2+json
   ]
 }
 ```
+
+With cUrl:
+
+```bash
+curl -v -X POST -H "Content-type: application/vnd.kafka.v2+json" \
+  -d '{ "offsets": [{ "topic": "test", "partition": 0, "offset": 9 }]}' \
+  localhost:8082/consumers/testgroup/instances/my_consumer/offsets
+```
+
+Response:
+
+```json
+HTTP/1.1 200 OK
+```
+
+#### Delete the Consumer Group
+
+With cUrl:
+
+```bash
+curl -v -X DELETE -H "Content-Type: application/vnd.kafka.v2+json" \
+  http://localhost:8082/consumers/testgroup/instances/my_consumer
+# No content in response
+```
+
+Response Header:
+
+```json
+HTTP/1.1 204 No Content
+```
+
 
 ### In Production
 
