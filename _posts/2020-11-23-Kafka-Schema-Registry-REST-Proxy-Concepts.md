@@ -79,8 +79,7 @@ read the message
   the schema registry url);
 - Avro has a learning curve;
 - Schema Registry is not present in the Kafka distribution. There is a free and
-open source product created by Confluent, but some specific features on it are
-paid.
+open source product created by Confluent, but some specific features are paid.
 
 ## Apache Avro and Data Format Comparison
 
