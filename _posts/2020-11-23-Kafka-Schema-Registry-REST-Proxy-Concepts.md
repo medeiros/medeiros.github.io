@@ -62,9 +62,9 @@ An Avro file has both Schema and Data. But in the Schema Registry adoption,
 what happens is the following:
 
 1. Avro serializer (in producer) splits schema and data as separate units
-2. Producer send the schema to the Schema Registry and receives an ID (if it
+2. Producer sends the schema to the Schema Registry and receives an ID (if it
   is a new schema)
-3. Producer send data to Kafka. This ID goes in the metadata message
+3. Producer sends data to Kafka. This ID goes in the metadata message
 4. Consumer gets the message from Kafka.
 5. Consumer uses the message ID to retrieve the schema from Schema Registry
 6. Avro deserializer (in consumer) uses retrieved Schema to deserialize and
