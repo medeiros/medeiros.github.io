@@ -66,7 +66,8 @@ what happens is the following:
   is a new schema)
 3. Producer sends data to Kafka. This ID goes in the message metadata
 4. Consumer gets the message from Kafka.
-5. Consumer uses the message ID to retrieve the schema from Schema Registry
+5. Consumer uses the message ID from message metadata to retrieve the schema
+from Schema Registry
 6. Avro deserializer (in consumer) uses retrieved Schema to deserialize and
 read the message
 
