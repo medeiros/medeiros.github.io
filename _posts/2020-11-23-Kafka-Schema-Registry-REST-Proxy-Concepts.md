@@ -56,7 +56,7 @@ based on the schema, ensuring that bad data never reaches Kafka cluster).
 
 In addition, a common data format for the messages must be adopted. This data
 format must support schemas and evolutions of data, and must be lightweight.
-[Apache Avro](https://avro.apache.org/) is a most used data format.
+[Apache Avro](https://avro.apache.org/) is the most used data format.
 
 An Avro file has both Schema and Data. But in the Schema Registry adoption,
 what happens is the following:
