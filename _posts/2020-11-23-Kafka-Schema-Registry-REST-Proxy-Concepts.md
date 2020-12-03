@@ -684,9 +684,9 @@ There are four types of Schema Evolution:
 
 type|description|in depth
 --|--|--
-**Backward**|when a schema can be used to **read** data from `older schema`|is possible thanks to the `default` (new schema tries to read old data that has no value for a field, and then assume its default value for that field bacause it was not found)
-**Forward**|when a schema can be used to **read** data from `newer schema`|is natural because new data read from an old schema will get no effect (new fields will be ignored). Delete fields in the new schema without `default` in the old schema is not forward compatible.
-**Full**|both Forward and Backward|The best approach is to adopt this type; it is necessary to add fields with `default` values and only remove field (in newes schema) who have `default` values.
+**Backward**|when a schema can be used to **read** data from `older schema`|it is possible thanks to the `default` (new schema tries to read old data that has no value for a field, and then assume its default value for that field, since it was not found)
+**Forward**|when a schema can be used to **read** data from `newer schema`|it is natural because data from a new schema read from an current schema will get no effect (new fields will be ignored). Delete fields in the new schema without `default` in the current schema is not forward compatible.
+**Full**|both Forward and Backward|The best approach is to adopt this type; it is necessary to add fields with `default` values and only remove fields (in new schema) who have `default` values.
 **Breaking**|neither Forward or Backward|Must avoid: **a)** Add/remove elements of a `Enum`; **b)** change the field type (i.e.: from string to int); **c)** rename a required, non-default field
 
 Forward Compatibility change is the most common in Kafka. It is a common
@@ -828,7 +828,7 @@ is saved into Kafka topic, and not the encoded data).
 If data is just JSON, you can use `json` as the embedded format, and the
 Content-Type will be `application/vnd.kafka.json.v2+json`
 
-If your data is Avro data, the Content-Yype will be
+If your data is Avro data, the Content-Type will be
 `application/vnd.kafka.avro.v2+json`, and a schema (or schema ID) must be
 added into the request.
 
@@ -1119,7 +1119,7 @@ Content-Type: application/vnd.kafka.avro.v2+json
 Accept: application/vnd.kafka.v2+json, application/vnd.kafka+json, application/json
 
 {
-  "value_schema": "{\"name\":\"int\",\"type\": \"int\"}",
+  "value_schema": "{\"name\":\"string\",\"type\": \"int\"}",
   "records": [
     {
       "value": 12
