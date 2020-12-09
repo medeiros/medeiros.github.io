@@ -995,6 +995,32 @@ cUrl Response (one offset is returned per each record previously sent):
 }
 ```
 
+The next example send two records as Avro messages to a Kafka topic:
+```bash
+$ curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+  -H "Accept: application/vnd.kafka.v2+json" \
+  -d '{"value_schema": "{\"name\": \"Languages\", \"type\": \"record\", \"fields\": [{\"name\": \"lang\", \"type\": \"string\", \"default\": \"none\"}]}", "records": [{"value": {"lang": "Python"}},{"value": {"lang": "Java"}}]}' \
+  localhost:8082/topics/test | jq
+```
+
+cUrl Response (one offset is returned per each record previously sent):
+
+```json
+{
+  "offsets": [
+    {
+      "partition": 0,
+      "offset": 16,
+      "error_code": null,
+      "error": null
+    },
+  ],
+  "key_schema_id": null,
+  "value_schema_id": 101
+}
+```
+
+
 It is important to consider that the payload (body request) must adopt the
 following structure for JSON sending:
 
@@ -1119,13 +1145,15 @@ Content-Type: application/vnd.kafka.avro.v2+json
 Accept: application/vnd.kafka.v2+json, application/vnd.kafka+json, application/json
 
 {
-  "value_schema": "{\"name\":\"string\",\"type\": \"int\"}",
+  "value_schema": "{\"name\":\"userData\",\"type\": \"record\", \"fields\": [
+    {\"name\": \"name\", \"type\": \"string\"},
+    {\"name\": \"age\", \"type\": \"int\", \"default\": 0}]}",
   "records": [
     {
-      "value": 12
+      "value": { "name": "Daniel", "age": 40 }
     },
     {
-      "value": 24,
+      "value": { "name": "Joao", "age": 32 },
       "partition": 1
     }
   ]
