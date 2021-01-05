@@ -386,7 +386,7 @@ number of partitions of your topic do not change. If they change, you may have
 unexpected behaviors.
 - It is also possible to overwrite the algorithm behavior (change
 [MurmurHash2](https://en.wikipedia.org/wiki/MurmurHash) for
-something else), by overwriting the Kafka `TopicPartition` class.
+something else), by overwriting the Kafka `DefaultPartitioner` class.
 - You can also to explicit define which data goes to which partition of a topic,
 when writing the producer client. You have to use the API for that.
 
