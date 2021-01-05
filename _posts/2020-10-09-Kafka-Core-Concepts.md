@@ -388,7 +388,8 @@ unexpected behaviors.
 [MurmurHash2](https://en.wikipedia.org/wiki/MurmurHash) for
 something else), by overwriting the Kafka `DefaultPartitioner` class.
 - You can also to explicit define which data goes to which partition of a topic,
-when writing the producer client. You have to use the API for that.
+when writing the producer client. You have to use the API for that (
+`ProducerRecord` class).
 
 
 ## Topics and Partitions in a Cluster
