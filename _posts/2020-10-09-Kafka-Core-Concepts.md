@@ -976,6 +976,19 @@ kafka3:9092 --group sometopic-g1 --reset-offsets --shift-by -2 --execute
 --topic sometopic
 ```
 
+### Reassigning Partitions
+
+```bash
+$ kafka-reassign-partitions.sh --zookeeper host:2181 
+  --topics-to-move-json-file file.json --generate
+
+$ kafka-reassign-partitions.sh --zookeeper host:2181
+  --reassignment-json-file file.json --execute
+
+$ kafka-reassign-partitions.sh --zookeeper host:2181
+  --reassignment-json-file file.json --verify
+```
+
 ## References
 
 - [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/)
