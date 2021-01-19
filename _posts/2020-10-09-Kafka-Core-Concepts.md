@@ -898,17 +898,13 @@ $ ./kafka-topics.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
 $ ./kafka-configs.sh --zookeeper zookeeper1,zookeeper2,zookeeper3:2181/kafka
 --entity-type topics --entity-name sometopic --describe
 
-# list topic configuration properties (new)
-$ ./kafka-configs.sh --bootstrap-server kafka1:9092,kafka2:9092 --topic
-sometopic --describe
-
 # adding a partition (the number must be higher than actual # of partitions)
 $ ./kafka-topics.sh --bootstrap-server kafka1:9092 --alter --topic sometopic
 --partitions 3
 
 # adding a property configuration
-$ ./kafka-configs.sh --bootstrap-server kafka1:2181 --topic sometopic
---add-config min.insync.replicas=2 --alter
+$ ./kafka-configs.sh --zookeeper kafka1:2181 --entity-type topics 
+--entity-name sometopic --add-config min.insync.replicas=2 --alter
 
 # removing a property configuration
 $ ./kafka-configs.sh --zookeeper zookeeper1:2181/kafka --topic sometopic
