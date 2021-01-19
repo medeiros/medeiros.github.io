@@ -309,7 +309,7 @@ it inactive
 - `heartbeat.interval.ms` (default: 3000, or 3s): this is the period of time
 in which Kafka consumers will send heartbeats to the broker. The general rule
 of thumb is to set this value as 1/3 of `session.timeout.ms`
-- `max.poll.interval.ms` (defalt: 30000, or 5 minutes): This is the maximum
+- `max.poll.interval.ms` (default: 30000, or 5 minutes): This is the maximum
 interval of time between two `poll()` calls, before to declare the consumer
 as inactive.
   - This is particularly important to big data applications iteractions, like
