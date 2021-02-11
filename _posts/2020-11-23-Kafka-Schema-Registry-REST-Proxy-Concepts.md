@@ -83,7 +83,7 @@ open source product created by Confluent, but some specific features are paid.
 
 ## Apache Avro and Data Format Comparison
 
-The most basic data format is CSV. These is a are very simple and flexible
+The most basic data format is CSV. This is a very simple and flexible
 format, but it is fragile, since data types must be inferred.
 
 So, data format evolved to tables. Those have a clear data structure for data
