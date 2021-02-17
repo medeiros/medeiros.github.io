@@ -146,7 +146,7 @@ Figure: Kafka Consumer Poll and Broker.
 
 ### Importart throughput properties
 
-Some importart properties that can improve you throughput is below listed. If
+Some important properties that can improve you throughput is below listed. If
 there is no need to improve throughput, those can remain as defaults:
 
 - `fetch.min.bytes` (default: 1): control how many data can be send in a
