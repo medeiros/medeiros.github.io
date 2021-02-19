@@ -359,7 +359,7 @@ need to maintain a local cache events as a way to improve performance.
   must have ability to deliver content to microservices local caches,
   and good support for a local store that serves as a cache or materialized
   view of the microservice data
-- **Near real time data analyics**: where complex aggregations and joins are
+- **Near real time data analytics**: where complex aggregations and joins are
 required in order to produce relevant data.
   - It is expected a stream processing mechanism with great local store support,
   in order to perform the complex aggregations, joins, and windows.
