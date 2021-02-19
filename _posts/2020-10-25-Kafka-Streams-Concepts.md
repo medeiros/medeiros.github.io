@@ -546,7 +546,7 @@ parallel to read data from the topic.
 There is no need for any cluster! Just run the Java process and that's it.
 {:.note}
 
-Kafka Streams algo handle rebalancing (in a case that one of the Kafka Streams
+Kafka Streams also handle rebalancing (in a case that one of the Kafka Streams
 application processes dies), just as with consumers.
 
 ### Streams Repartition
