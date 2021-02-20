@@ -722,7 +722,7 @@ Some operations related to data writing:
 - `TO:` is a terminal, sink operation, used to write data in a topic.
   - `stream.to("output-topic");`
   - `table.to("output-topic");`
-- `THROUGH:` it writes data to a topic and gets a strem/table of the same
+- `THROUGH:` it writes data to a topic and gets a stream/table of the same
 topic. So, it is not a terminal operation.
   - `KStream<String, Long> newStream = stream.through("output-topic"); `
   - `KTable<String, Long> newTable = table.through("output-topic"); `
