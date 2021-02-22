@@ -425,7 +425,7 @@ ksql> select * from driversLocation emit changes;
 
 -- 3. create an aggregated table
 ksql> create table contryDrivers as
-  select couutryCode, count(*) as numDrivers from driversLocation
+  select countryCode, count(*) as numDrivers from driversLocation
   group by countryCode;
 
 -- run pull query (returns immediately)
