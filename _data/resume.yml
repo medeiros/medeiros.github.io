@@ -202,6 +202,10 @@ education:
     endDate: "2000-01-01"
     gpa: "Approved"
 awards:
+  - title: "Confluent Certified Developer for Apache Kafka"
+    date: "2021-05-15"
+    awarder: "Confluent"
+    summary: ""
   - title: "Oracle Certified Expert, EE 6 JavaBeans Developer"
     date: "2012-12-01"
     awarder: "Oracle"
@@ -211,7 +215,7 @@ awards:
     awarder: "Sun Microsystems"
     summary: ""
   - title: "Certified ScrumMaster"
-    date: "2003-01-01"
+    date: "2012-01-01"
     awarder: "Scrum Alliance"
     summary: ""
 publications:
@@ -284,6 +288,7 @@ interests:
       - "Rock"
       - "Jazz"
       - "Classical"
+      - "Lofi Hip Hop"
       - "Instrumental (guitar, drums, bass)"
   - name: "Philosophy"
     keywords:
