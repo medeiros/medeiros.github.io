@@ -3,7 +3,7 @@
 # See also: <https://jsonresume.org/>.
 basics:
   name: "Daniel Medeiros de Assis"
-  label: "Software Engineer"
+  label: "Software Engineer | Confluent Certified Developer for Apache Kafka"
   picture: "/assets/img/me-3.png"
   email: ""
   #phone: "(912) 555-4321"
