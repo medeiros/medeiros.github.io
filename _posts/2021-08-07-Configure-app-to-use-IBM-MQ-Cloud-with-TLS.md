@@ -117,7 +117,7 @@ keytool -importkeystore -srckeystore mykeystore.jks \
 
 openssl pkcs12 -nodes -in mykeystore.p12 -out mykeystore.pem
 ```
-(based on: [Java Keystore COnvert to PEM format](https://www.baeldung.com/java-keystore-convert-to-pem-format)
+(based on: [Converting a Java Keystore Into PEM Format](https://www.baeldung.com/java-keystore-convert-to-pem-format)
 
 ### Create truststore file (based on the keystore)
 
