@@ -62,4 +62,4 @@ mysql -u root -p'root' -h [remote host] -P 3306 -D [dbname]
 
 ## References
 
-[Configuring database connection results in Error: Host 'xxxxxxx' is not allowed to connect to this MySQL server] (https://confluence.atlassian.com/jirakb/configuring-database-connection-results-in-error-host-xxxxxxx-is-not-allowed-to-connect-to-this-mysql-server-358908249.html)
+[Configuring database connection results in Error: Host 'xxxxxxx' is not allowed to connect to this MySQL server](https://confluence.atlassian.com/jirakb/configuring-database-connection-results-in-error-host-xxxxxxx-is-not-allowed-to-connect-to-this-mysql-server-358908249.html)
