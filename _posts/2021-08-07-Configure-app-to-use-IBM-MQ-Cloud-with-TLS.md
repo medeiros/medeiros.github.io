@@ -117,7 +117,7 @@ keytool -importkeystore -srckeystore mykeystore.jks \
 
 openssl pkcs12 -nodes -in mykeystore.p12 -out mykeystore.pem
 ```
-(based on: https://www.baeldung.com/java-keystore-convert-to-pem-format)
+(based on: [Java Keystore COnvert to PEM format](https://www.baeldung.com/java-keystore-convert-to-pem-format)
 
 ### Create truststore file (based on the keystore)
 
@@ -162,27 +162,26 @@ openssl pkcs12 -nodes -in myTrustStore.p12 -out myTrustStore.pem
 
 ## References
 
-- https://www.baeldung.com/java-keystore-convert-to-pem-format
-- https://www.ibm.com/docs/en/ibm-mq/8.0?topic=support-tlsssl-troubleshooting-information
-- https://www.ibm.com/docs/en/ibm-mq/9.2?topic=java-tls-cipherspecs-ciphersuites-in-mq-classes
-- https://www.ibm.com/docs/en/ibm-mq/7.5?topic=problems-tlsssl-troubleshooting-information
-- https://www.ibm.com/docs/en/ibm-mq/9.0?topic=java-enabling-tls-in-mq-classes
-- https://www.ibm.com/docs/en/ibm-mq/9.2?topic=java-tls-cipherspecs-ciphersuites-in-mq-classes
-- https://www.ibm.com/support/pages/why-tls-connection-mq-failing-compcode-2-mqccfailed-reason-2400-mqrcunsupportedciphersuite-exception
-- https://www.ibm.com/docs/en/ibm-mq/9.1?topic=java-tls-cipherspecs-ciphersuites-in-mq-classes
-- https://www.ibm.com/mysupport/s/question/0D50z000062kvHW/what-tls-cipherspecsciphersuites-are-supported-when-connecting-from-oracle-java-nonibm-jre-to-mq-queue-manager?language=en_US
-- https://stackoverflow.com/questions/43736957/jmscmq0001-ibm-mq-call-failed-with-compcode-2-mqcc-failed-reason-2400
-- https://www.ibm.com/docs/en/ibm-mq/9.1?topic=jms-tls-cipherspecs-ciphersuites-in-mq-classes
-- https://stackoverflow.com/questions/55737975/ibm-mq-call-failed-with-compcode-2-mqcc-failed-reason-2035-mqrc-not-au
-- https://myshittycode.com/2019/04/23/spring-boot-connecting-to-ibm-mq-over-jms-using-non-ibm-jre/
-- https://www.ibm.com/docs/en/ibm-mq/9.1?topic=properties-mq-queue
-- https://stackoverflow.com/questions/59773898/ibm-mq-get-message-with-french-symbols
-- https://www.ibm.com/docs/en/ibm-mq/7.5?topic=conversion-message-types
-- https://www.ibm.com/docs/en/ibm-mq/7.5?topic=messages-mqrfh2-header
-- http://www.mqseries.net/phpBB2/viewtopic.php?=&p=171236
-- https://www.ibm.com/docs/en/ibm-mq/7.5?topic=applications-creating-destinations#q032240___q032240_4
-- https://www.ibm.com/docs/en/rtw/9.2.0?topic=request-adding-message-headers
-- https://stackoverflow.com/questions/61340723/why-rfh2-header-is-put-before-the-message-instead-of-in-the-header
-- https://stackoverflow.com/questions/51437107/wso2-remove-mqrfh2-header-from-outgoing-ibm-mq-message
-- http://www.mqseries.net/phpBB/viewtopic.php?t=38803&sid=1e841dc96cb96b0785397761dc423ef1
-- https://www.ibm.com/docs/en/ibm-mq/9.2?topic=applications-creating-destinations-in-jms-application#q032240___q032240_4
+- [Converting a Java Keystore Into PEM Format](https://www.baeldung.com/java-keystore-convert-to-pem-format)
+- [TLS/SSL troubleshooting information](https://www.ibm.com/docs/en/ibm-mq/8.0?topic=support-tlsssl-troubleshooting-information)
+- [TLS CipherSpecs and CipherSuites in IBM MQ classes for Java](https://www.ibm.com/docs/en/ibm-mq/9.2?topic=java-tls-cipherspecs-ciphersuites-in-mq-classes)
+- [TLS/SSL troubleshooting information](https://www.ibm.com/docs/en/ibm-mq/7.5?topic=problems-tlsssl-troubleshooting-information)
+- [Enabling TLS in IBM MQ classes for Java](https://www.ibm.com/docs/en/ibm-mq/9.0?topic=java-enabling-tls-in-mq-classes)
+- [TLS CipherSpecs and CipherSuites in IBM MQ classes for Java](https://www.ibm.com/docs/en/ibm-mq/9.2?topic=java-tls-cipherspecs-ciphersuites-in-mq-classes)
+- [Why is TLS connection to MQ failing with compcode '2' ('MQCC_FAILED') reason '2400' ('MQRC_UNSUPPORTED_CIPHER_SUITE')" exception?](https://www.ibm.com/support/pages/why-tls-connection-mq-failing-compcode-2-mqccfailed-reason-2400-mqrcunsupportedciphersuite-exception)
+- [TLS CipherSpecs and CipherSuites in IBM MQ classes for Java](https://www.ibm.com/docs/en/ibm-mq/9.1?topic=java-tls-cipherspecs-ciphersuites-in-mq-classes)
+- [What TLS cipherspecs/ciphersuites are supported when connecting from Oracle Java (non-IBM JRE) to MQ queue manager?](https://www.ibm.com/mysupport/s/question/0D50z000062kvHW/what-tls-cipherspecsciphersuites-are-supported-when-connecting-from-oracle-java-nonibm-jre-to-mq-queue-manager?language=en_US)
+- [JMSCMQ0001: IBM MQ call failed with compcode '2' ('MQCC_FAILED') reason '2400' ('MQRC_UNSUPPORTED_CIPHER_SUITE')](https://stackoverflow.com/questions/43736957/jmscmq0001-ibm-mq-call-failed-with-compcode-2-mqcc-failed-reason-2400)
+- [TLS CipherSpecs and CipherSuites in IBM MQ classes for JMS](https://www.ibm.com/docs/en/ibm-mq/9.1?topic=jms-tls-cipherspecs-ciphersuites-in-mq-classes)
+- [IBM MQ call failed with compcode '2' ('MQCC_FAILED') reason '2035' ('MQRC_NOT_AUTHORIZED')](https://stackoverflow.com/questions/55737975/ibm-mq-call-failed-with-compcode-2-mqcc-failed-reason-2035-mqrc-not-au)
+- [Spring Boot: Connecting to IBM MQ over JMS using non-IBM JRE](https://myshittycode.com/2019/04/23/spring-boot-connecting-to-ibm-mq-over-jms-using-non-ibm-jre/)
+- [IBM MQ queue properties](https://www.ibm.com/docs/en/ibm-mq/9.1?topic=properties-mq-queue)
+- [IBM MQ get message with french symbols](https://stackoverflow.com/questions/59773898/ibm-mq-get-message-with-french-symbols)
+- [JMS message types and conversion](https://www.ibm.com/docs/en/ibm-mq/7.5?topic=conversion-message-types)
+- [The MQRFH2 header and JMS](https://www.ibm.com/docs/en/ibm-mq/7.5?topic=messages-mqrfh2-header)
+- [JMS TextMessage and RFH2](http://www.mqseries.net/phpBB2/viewtopic.php?=&p=171236)
+- [Creating destinations in a JMS application](https://www.ibm.com/docs/en/ibm-mq/7.5?topic=applications-creating-destinations#q032240___q032240_4)
+- [Adding message headers](https://www.ibm.com/docs/en/rtw/9.2.0?topic=request-adding-message-headers)
+- [Why RFH2 header is put before the message instead of in the header?](https://stackoverflow.com/questions/61340723/why-rfh2-header-is-put-before-the-message-instead-of-in-the-header)
+- [WSO2: Remove MQRFH2 header from outgoing IBM MQ message](https://stackoverflow.com/questions/51437107/wso2-remove-mqrfh2-header-from-outgoing-ibm-mq-message)
+- [How to remove header data from JMS Message from Visual Basic](http://www.mqseries.net/phpBB/viewtopic.php?t=38803&sid=1e841dc96cb96b0785397761dc423ef1)
