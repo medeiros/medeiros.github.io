@@ -18,9 +18,8 @@ In this page, its remote access perspective will be covered.
 ## MySQL and Remote Access
 
 In order to access MySQL remotely, it is necessary to allow the origin IP, and
-then to grant permission in the database.
-
-To check which port MySQL is running:
+then to grant permission in the database. It is also important to know which
+port MySQL is running in the server.
 
 ## Check which port MySQL is running  
 
