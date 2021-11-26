@@ -62,6 +62,8 @@ menu:
     url:               /projects/
   - title:             Kafka
     url:               /blog/kafka/
+  - title:             AWS
+    url:               /blog/aws/
   - title:             SmartHome (pt_BR)
     url:               /blog/smarthome/
   #- title:             Documentation
