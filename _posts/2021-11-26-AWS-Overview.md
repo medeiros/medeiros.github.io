@@ -28,8 +28,7 @@ An Amazon Machine Image (AMI) is a template to create instances. That template c
 - You can also launch multiple instances of an AMI
 - If an instance fails, you can launch a new instance from the AMI
 
-[More information can be found in the specific AWS page.](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instances-and-amis.html)
-
+More information related to Instances and AMIs can be found [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instances-and-amis.html), and AMI specific details can be found [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html).
 
 ## References
 
