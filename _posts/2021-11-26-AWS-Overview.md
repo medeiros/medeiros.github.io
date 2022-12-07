@@ -17,8 +17,10 @@ In this page, the overview of AWS will be covered.
 
 ## Regions and AZs
 
-TODO: Fill
-{:.note}
+Regions are isolated geographic areas, which brings the best fault tolerance and stability.
+When viewing resources in AWS console, you can only see resources related to your current region. There is no way to share resources between regions - those are not automatically replicated, and area isolated from each other.
+When an instance is launch, it is required that an [AMI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (Amazon Machine Image) in the same region is selected. But if the AMI in is a different region, it can be [copied](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html).
+
 
 ## References
 
