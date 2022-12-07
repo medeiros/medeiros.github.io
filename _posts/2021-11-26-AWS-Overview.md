@@ -21,6 +21,15 @@ Regions are isolated geographic areas, which brings the best fault tolerance and
 When viewing resources in AWS console, you can only see resources related to your current region. There is no way to share resources between regions - those are not automatically replicated, and area isolated from each other.
 When an instance is launch, it is required that an [AMI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (Amazon Machine Image) in the same region is selected. But if the AMI in is a different region, it can be [copied](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html).
 
+## Instances and AMIs
+
+An Amazon Machine Image (AMI) is a template to create instances. That template cointans elements such as operational system, application server, and applications. From an AMI, you can launch an instance. A instance is a copy of an AMI running as a virtual server in the cloud.
+
+- You can also launch multiple instances of an AMI
+- If an instance fails, you can launch a new instance from the AMI
+
+[More information can be found in the specific AWS page.](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instances-and-amis.html)
+
 
 ## References
 
