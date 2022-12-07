@@ -30,6 +30,39 @@ An Amazon Machine Image (AMI) is a template to create instances. That template c
 
 More information related to Instances and AMIs can be found [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instances-and-amis.html), and AMI specific details can be found [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html).
 
+## Available Regions
+
+Those are available regions provided by an AWS Account (as in December/2022). To use a region introduced after March 20, 2019, it is required to enable that region. More information can be found [here](https://docs.aws.amazon.com/general/latest/gr/rande-manage.html).
+
+Code|Name|Opt-in Status
+-----
+us-east-2|US East (Ohio)|Not required
+us-east-1|US East (N. Virginia)|Not required
+us-west-1|US West (N. California)|Not required
+us-west-2|US West (Oregon)|Not required
+af-south-1|Africa (Cape Town)|Required
+ap-east-1|Asia Pacific (Hong Kong)|Required
+ap-south-2|Asia Pacific (Hyderabad)|Required
+ap-southeast-3|Asia Pacific (Jakarta)|Required
+ap-south-1|Asia Pacific (Mumbai)|Not required
+ap-northeast-3|Asia Pacific (Osaka)|Not required
+ap-northeast-2|Asia Pacific (Seoul)|Not required
+ap-southeast-1|Asia Pacific (Singapore)|Not required
+ap-southeast-2|Asia Pacific (Sydney)|Not required
+ap-northeast-1|Asia Pacific (Tokyo)|Not required
+ca-central-1|Canada (Central)|Not required
+eu-central-1|Europe (Frankfurt)|Not required
+eu-west-1|Europe (Ireland)|Not required
+eu-west-2|Europe (London)|Not required
+eu-south-1|Europe (Milan)|Required
+eu-west-3|Europe (Paris)|Not required
+eu-south-2|Europe (Spain)|Required
+eu-north-1|Europe (Stockholm)|Not required
+eu-central-2|Europe (Zurich)|Required
+me-south-1|Middle East (Bahrain)|Required
+me-central-1|Middle East (UAE)|Required
+sa-east-1|South America (São Paulo)|Not required
+
 ## References
 
 - [AWS Cloud Practitioner Essentials ](https://aws.amazon.com/pt/training/digital/aws-cloud-practitioner-essentials/)
