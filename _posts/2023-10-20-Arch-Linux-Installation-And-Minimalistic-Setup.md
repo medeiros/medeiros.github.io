@@ -227,11 +227,12 @@ that I consider important to mention:
 - _section 1.9.1. Example layouts_: make sure that the partition layout is 
 similar but slightly different - as below:
 
-| Mount point | Partition | Partition type | Size
-| ----------- | --------- | -------------- | ----
-| /mnt/boot   | /dev/efi_system_partition  | EFI system partition | 320 MiB
-| [SWAP]      | /dev/swap_partition	| Linux swap | 1 GB
-| /mnt | /dev/root_partition | Linux x86-64 root (/) | Remainder of the device
+Mount point | Partition | Partition type | Size
+--- | --- | --- | ---
+/mnt/boot | /dev/efi_system_partition | EFI system partition | 320 MB
+[SWAP] | /dev/swap_partition | Linux swap | 1 GB
+/mnt | /dev/root_partition | Linux x86-64 root (/) | Remainder of the device
+
 - _section 3.3. Time Zone_: for Brazil, use `ln -sf 
 /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime`
 - _sectiion 3.4. Localization_: in `/etc/vconsole.conf`, for Brazil, set 
