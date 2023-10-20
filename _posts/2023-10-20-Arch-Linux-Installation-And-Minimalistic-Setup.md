@@ -7,7 +7,7 @@ description: >
 categories: linux
 tags: [archlinux]
 comments: true
-image: /assets/img/blog/aws/aws-overview.png
+image: /assets/img/blog/arch/archlinux.png
 ---
 > The new setup of an Arch Linux environment is a demanding task, and 
 also a very personal experience. 
