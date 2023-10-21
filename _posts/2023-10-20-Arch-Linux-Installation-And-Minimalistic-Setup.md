@@ -529,7 +529,7 @@ That's it! Your laptop is dual boot ready, with Windows 11 and Arch Linux!
 The following actions are related to the configuration of Arch Linux 
 for personal usage. 
 
-### External drive
+### Mount an external drive for data
 
 In my setup, my personal data will be located in an external drive, plugged 
 in a USB port. 
@@ -576,11 +576,14 @@ $ sudo nvim /etc/fstab
 # /dev/sda1
 UUID=<add-uuid> /home/daniel/data ext4 rw,nofail,x-systemd.device-timeout=3  0 2
 ```
-Some keynotes:
-- te external device is mapped as a `data` subdir, inside my home dir. So, it 
-gives me the illusion that is part of the home filesystem;
-- the external drive that I have is a ext4 Linux filesystem, hence it must 
+Understanding this entry in depth:
+- the external device is mapped as a `data` subdir, inside my home dir. I like 
+this kind of abstraction in Linux, where everything is a file and also it can 
+give me the pleasant illusion that an external drive can be treated is part of 
+the home filesystem;
+- the external drive that I own is an ext4 Linux filesystem, hence it must 
 be mounted as ext4;
+- the option `rw` mounts the drive with read/write permission;
 - the option `nofail` ignores mounting if the device is not plugged;
 - the option `x-systemd.device-timeout` waits for 3 seconds for the external 
 drive to be plugged before give up;
