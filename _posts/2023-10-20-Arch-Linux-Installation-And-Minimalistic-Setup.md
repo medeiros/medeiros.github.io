@@ -581,7 +581,7 @@ I want to map this device to an entry point `~/data` (inside my home directory).
 So, an entry must be added to the `/etc/fstab`, as following: 
 
 ```
-$ sudo nvim /etc/fstab
+$ sudo vim /etc/fstab
 ```
 
 ```bash
