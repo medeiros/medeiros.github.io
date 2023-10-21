@@ -156,7 +156,7 @@ mirror and download the *x86_64.iso* file (usually 808MB size).
 
 #### Writing Arch ISO in a USB flash drive
 
-Since the ISO is downloaded, the next step is to write it to an valid USB 
+Since the ISO is downloaded, the next step is to write it to a valid USB 
 flash drive.
 
 For this scenario (UEFI-only booting, since we're using Windows 11), it 
