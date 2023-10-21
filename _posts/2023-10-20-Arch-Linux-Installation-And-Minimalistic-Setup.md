@@ -240,13 +240,271 @@ Mount point | Partition | Partition type | Size
 
 ### Configuring Dual Boot with rEFInd
 
-TODO: explain how to configure rEFInd
+#### Defining a boot loader
+
+In order to configure Dual Boot, the first step is to select a UEFI Boot 
+Loader. [Arch Linux provides a list of available boot loaders
+](https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader), which 
+can be defined as a "a piece of software started by the firmware 
+(BIOS or UEFI)" ... that "is responsible for loading the kernel with 
+the wanted kernel parameters and any external initramfs images." [^6]
+
+Out of all this options, my choice is for 
+[rEFInd](https://wiki.archlinux.org/title/REFInd).
+
+#### Locating ESP: Boot Loader partition
+
+Please note that _esp_ denotes the mountpoint of the EFI system 
+partition [^7]. It will probably be **/boot**. In order to verify, 
+execute as below:
+
+```
+# findmnt /boot
+TARGET SOURCE         FSTYPE OPTIONS
+/boot  /dev/nvme0n1p1 vfat   rw,relatime,fmask=0022,...
+```
+
+Since Windows is already in place in this laptop, this _esp_ directory 
+should not be empty. There should be an EFI directory, with vendor subdirs, 
+as below:
+
+```
+daniel@ataraxia /boot> pwd
+/boot
+
+daniel@ataraxia /boot> ll
+total 99M
+drwxr-xr-x  4 root root 4.0K Dec 31  1969  ./
+drwxr-xr-x 17 root root 4.0K Sep 16 19:02  ../
+drwxr-xr-x  7 root root 4.0K Oct 20 21:29  EFI/
+-rwxr-xr-x  1 root root  72M Sep 16 19:57  initramfs-linux-fallback.img*
+-rwxr-xr-x  1 root root  15M Sep 16 19:56  initramfs-linux.img*
+drwxr-xr-x  2 root root 4.0K Jun 28  2022 'System Volume Information'/
+-rwxr-xr-x  1 root root  13M Sep 16 19:56  vmlinuz-linux*
+
+daniel@ataraxia /boot> ll EFI
+total 28K
+drwxr-xr-x 7 root root 4.0K Oct 20 21:02 ./
+drwxr-xr-x 4 root root 4.0K Dec 31  1969 ../
+drwxr-xr-x 2 root root 4.0K Jun 28  2022 Boot/
+drwxr-xr-x 5 root root 4.0K Sep 16 15:04 dell/
+drwxr-xr-x 4 root root 4.0K Jun 28  2022 Microsoft/
+drwxr-xr-x 2 root root 4.0K Sep 16 19:28 tools/
+```
+
+#### Locating ArchOS disk partuuid
+
+You need to discover the partuuid of the disk device where Arch OS will be 
+installed. In order to do so, follow as below:
+
+```
+# findmnt /
+TARGET
+  SOURCE         FSTYPE OPTIONS
+/ /dev/nvme0n1p4 ext4   rw,relatime
+
+# ls -la /dev/disk/by-partuuid | grep nvme0n1p4 | cut -d' ' -f 10
+<it will give you an uuid, like 1c234579-21g1-48aa-7d1u-111x4555d123>
+```
+
+This partuuid code will be required later on, during rEFInd configuration.
+
+
+#### Installing rEFInd boot loader
+
+Just install the refind package:
+
+```
+sudo pacman -S refind
+```
+
+After that, let's proceed with the manual installation.
+
+> The Arch Linux Wiki Page [explains in 
+> depth](https://wiki.archlinux.org/title/REFInd#Manual_installation) how to 
+> perform this installation, but this can be hard to apply, since the 
+> definitions are broad and generic. This section aim to simplify this 
+> process by defining the exact steps to perform in this particular 
+> context [^8].
+
+First, copy the executable file to the ESP directory:
+
+```
+# mkdir -p esp/EFI/refind
+# cp /usr/share/refind/refind_x64.efi esp/EFI/refind/
+```
+
+Then use efibootmgr to create a boot entry in the UEFI NVRAM:
+
+```
+# pacman -S efibootmgr
+
+# efibootmgr --create --disk /dev/nvme0n1 --part p1 \
+  --loader /EFI/refind/refind_x64.efi \
+  --label "rEFInd Boot Manager" --unicode
+```
+
+At this point, rEFInd is installed, but not configured.
+
+#### Configuring rEFInd Boot Loader
+
+Now, create a config file `refind.conf`, as below:
+
+```
+# cp /usr/share/refind/refind.conf-sample esp/EFI/refind/refind.conf
+```
+
+You can also copy icons, if you prefer (not required):
+
+```
+# cp -r /usr/share/refind/icons esp/EFI/refind/
+```
+
+Then, edit the refind.conf file as below:
+
+```
+# vim esp/EFI/refind/refind.conf
+```
+
+In this file, the customized parts are pointed below. Make sure that the 
+following entries are set, so rEFInd boot manager will be configured to 
+show a text option to choose between Windows and ArchLinux, and it will 
+wait for 5 seconds until execute the boot for the selected option:
+
+```bash
+# Timeout in seconds for the main menu screen. Setting the timeout to 0
+# disables automatic booting (i.e., no timeout). Setting it to -1 causes
+# an immediate boot to the default OS *UNLESS* a keypress is in the buffer
+# when rEFInd launches, in which case that keypress is interpreted as a
+# shortcut key. If no matching shortcut is found, rEFInd displays its
+# menu with no timeout.
+#
+timeout 5
+
+# Whether to store rEFInd's rEFInd-specific variables in NVRAM (1, true,
+# or on) or in files in the "vars" subdirectory of rEFInd's directory on
+# disk (0, false, or off). Using NVRAM works well with most computers;
+# however, it increases wear on the motherboard's NVRAM, and if the EFI
+# is buggy or the NVRAM is old and worn out, it may not work at all.
+# Storing variables on disk is a viable alternative in such cases, or
+# if you want to minimize wear and tear on the NVRAM; however, it won't
+# work if rEFInd is stored on a filesystem that's read-only to the EFI
+# (such as an HFS+ volume), and it increases the risk of filesystem
+# damage. Note that this option affects ONLY rEFInd's own variables,
+# such as the PreviousBoot, HiddenTags, HiddenTools, and HiddenLegacy
+# variables. It does NOT affect Secure Boot or other non-rEFInd
+# variables.
+# Default is true
+#
+use_nvram false
+
+# Use text mode only. When enabled, this option forces rEFInd into text mode.
+# Passing this option a "0" value causes graphics mode to be used. Pasing
+# it no value or any non-0 value causes text mode to be used.
+# Default is to use graphics mode.
+#
+textonly
+
+# Which non-bootloader tools to show on the tools line, and in what
+# order to display them:
+#  shell            - the EFI shell (requires external program; see rEFInd
+#                     documentation for details)
+#  memtest          - the memtest86 program, in EFI/tools, EFI/memtest86,
+#                     EFI/memtest, EFI/tools/memtest86, or EFI/tools/memtest
+#  gptsync          - the (dangerous) gptsync.efi utility (requires external
+#                     program; see rEFInd documentation for details)
+#  gdisk            - the gdisk partitioning program
+#  apple_recovery   - boots the Apple Recovery HD partition, if present
+#  windows_recovery - boots an OEM Windows recovery tool, if present
+#                     (see also the windows_recovery_files option)
+#  mok_tool         - makes available the Machine Owner Key (MOK) maintenance
+#                     tool, MokManager.efi, used on Secure Boot systems
+#  csr_rotate       - adjusts Apple System Integrity Protection (SIP)
+#                     policy. Requires "csr_values" to be set.
+#  install          - an option to install rEFInd from the current location
+#                     to another ESP
+#  bootorder        - adjust the EFI's (NOT rEFInd's) boot order
+#  about            - an "about this program" option
+#  hidden_tags      - manage hidden tags
+#  exit             - a tag to exit from rEFInd
+#  shutdown         - shuts down the computer (a bug causes this to reboot
+#                     many UEFI systems)
+#  reboot           - a tag to reboot the computer
+#  firmware         - a tag to reboot the computer into the firmware's
+#                     user interface (ignored on older computers)
+#  fwupdate         - a tag to update the firmware; launches the fwupx64.efi
+#                     (or similar) program
+#  netboot          - launch the ipxe.efi tool for network (PXE) booting
+# Default is shell,memtest,gdisk,apple_recovery,windows_recovery,mok_tool,about,hidden_tags,shutdown,reboot,firmware,fwupdate
+# To completely disable scanning for all tools, provide a showtools line
+# with no options.
+#
+#showtools shell, bootorder, gdisk, memtest, mok_tool, apple_recovery, windows_recovery, about, hidden_tags, reboot, exit, firmware, fwupdate
+showtools 
+
+# Set the default menu selection.  The available arguments match the
+# keyboard accelerators available within rEFInd.  You may select the
+# default loader using:
+#  - A digit between 1 and 9, in which case the Nth loader in the menu
+#    will be the default.
+#  - A "+" symbol at the start of the string, which refers to the most
+#    recently booted loader.
+#  - Any substring that corresponds to a portion of the loader's title
+#    (usually the OS's name, boot loader's path, or a volume or
+#    filesystem title).
+# You may also specify multiple selectors by separating them with commas
+# and enclosing the list in quotes. (The "+" option is only meaningful in
+# this context.)
+# If you follow the selector(s) with two times, in 24-hour format, the
+# default will apply only between those times. The times are in the
+# motherboard's time standard, whether that's UTC or local time, so if
+# you use UTC, you'll need to adjust this from local time manually.
+# Times may span midnight as in "23:30 00:30", which applies to 11:30 PM
+# to 12:30 AM. You may specify multiple default_selection lines, in which
+# case the last one to match takes precedence. Thus, you can set a main
+# option without a time followed by one or more that include times to
+# set different defaults for different times of day.
+# The default behavior is to boot the previously-booted OS.
+#
+#default_selection 1
+#default_selection Microsoft
+#default_selection "+,bzImage,vmlinuz"
+#default_selection Maintenance 23:30 2:00
+#default_selection "Maintenance,macOS" 1:00 2:30
+default_selection Arch
+
+# Below is a more complex Linux example, specifically for Arch Linux.
+# This example MUST be modified for your specific installation; if nothing
+# else, the PARTUUID code must be changed for your disk. Because Arch Linux
+# does not include version numbers in its kernel and initrd filenames, you
+# may need to use manual boot stanzas when using fallback initrds or
+# multiple kernels with Arch. This example is modified from one in the Arch
+# wiki page on rEFInd (https://wiki.archlinux.org/index.php/rEFInd).
+menuentry "Arch Linux" {
+    icon     /EFI/refind/icons/os_arch.png
+    volume   "Arch Linux"
+    loader   /vmlinuz-linux
+    initrd   /initramfs-linux.img
+    options "rw root=/dev/disk/by-partuuid/<add here the Arch OS partuuid>"
+    submenuentry "Boot using fallback initramfs" {
+        initrd /initramfs-linux-fallback.img
+    }
+    submenuentry "Boot to terminal" {
+        add_options "systemd.unit=multi-user.target"
+    }
+    #disabled
+}
+
+```
+
+At this point, rEFInd is properly set. Now, restart the computer and 
+configure the last steps at BIOS.
 
 #### In Dell BIOS
 
 These are final actions in Dell BIOS:
 
-- Remove your USB flash drive
+- Remove your USB flash drive (if plugged)
 - Enter into Dell BIOS
 - Click on the menu _"Boot Configuration"_ 
 - In the _"Boot Sequence"_ section, make sure that
@@ -257,6 +515,9 @@ That's it! Your laptop is dual boot ready, with Windows 11 and Arch Linux!
 
 ## Post-Install actions
 
+The following actions are related to the configuration of Arch Linux 
+for personal usage. 
+
 TODO: add setup details (configure external drive, etc)
 
 ## References
@@ -266,3 +527,6 @@ TODO: add setup details (configure external drive, etc)
 [^3]: [ArchWiki: USB flash installation medium](https://wiki.archlinux.org/title/USB_flash_installation_medium): see section "2.3.2 - Using manual formatting/UEFI only/In Windows" 
 [^4]: [Microsoft Recovery Key Page](https://account.microsoft.com/devices/recoverykey)
 [^5]: [Arch Wiki: Dual boot with Windows](https://wiki.archlinux.org/title/Dual_boot_with_Windows), section "1.1 - Important Information/Windows UEFI vs BIOS limitations"
+[^6]: [Arch boot process: Boot loader](https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader)
+[^7]: [Arch Linux: rEFInd - Beginning](https://wiki.archlinux.org/title/REFInd#)
+[^8]: [Arch Wiki: rEFInd - Manual Installation](https://wiki.archlinux.org/title/REFInd#Manual_installation)
