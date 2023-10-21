@@ -630,14 +630,6 @@ Now you can run `startx` at command line, or login again.
 
 A very basic i3 GUI interface will appear. 
 
-### Git
-
-Just install git. It will be required many, many times.
-
-```
-sudo pacman -S git
-```
-
 ### Setting up applications 
 
 So far, Arch Linux was properly installed in dual boot, along with a 
@@ -658,6 +650,14 @@ configurations:
 
 This is in tune with one definition of minimalism that I like: _**"all the 
 things that I have must be clearly funcional or give me joy"**_.
+
+#### Git
+
+Just install git. It will be required many, many times.
+
+```
+sudo pacman -S git
+```
 
 #### Terminal and shell
 
