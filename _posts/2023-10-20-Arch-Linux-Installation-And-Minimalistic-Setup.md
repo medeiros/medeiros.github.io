@@ -71,8 +71,16 @@ requirement in some particular scenarios - mostly related to data
 compatibility);
 - **External data files**: my data files will reside on an external drive, so 
 the local disk will only maintain OS and application files; 
-- **Minimalism is the key**: the idea is to have a simple and clean 
-environment, without distractions in order to maximize productivity.
+- **Minimalism is the key**: my minimalistic drive is to create a simple and 
+productive environment, so I will choose my setup carefully, considering 
+that new programs and configurations:
+- should provide me with a sense of aesthetics;
+- should have a clear meaning;
+- should be funcional;
+- should improve my productivity;
+- should be logical. 
+These are in tune with one definition of minimalism that I like: _**"all the 
+things that I have must be clearly funcional or give me joy"**_.
 
 ### Key concepts
 
@@ -630,28 +638,7 @@ Now you can run `startx` at command line, or login again.
 
 A very basic i3 GUI interface will appear. 
 
-### Setting up applications 
-
-So far, Arch Linux was properly installed in dual boot, along with a 
-proper window system. But, at this pont, the i3 interface is very basic. 
-
-My approach is minimalistic, which doesn't mean I have to suffer. It is 
-necessary to add a few more programs to create a productive environment 
-without clutter. 
-
-My minimalistic drive is to create a simple and productive environment, 
-so I will choose my setup carefully, considering that new programs and 
-configurations:
-- should provide me with a sense of aesthetics;
-- should have a clear meaning;
-- should be funcional;
-- should improve my productivity;
-- should be logical. 
-
-This is in tune with one definition of minimalism that I like: _**"all the 
-things that I have must be clearly funcional or give me joy"**_.
-
-#### Git
+### Git
 
 Just install git. It will be required many, many times.
 
@@ -659,7 +646,7 @@ Just install git. It will be required many, many times.
 sudo pacman -S git
 ```
 
-#### Terminal and shell
+### Terminal and shell
 
 The most important thing now is to setup a shell and terminal.
 My choices in that regard are:
@@ -671,7 +658,7 @@ My choices in that regard are:
 Those three programs must be installed and properly configured to work 
 together. 
 
-##### Linux Shell: Fish
+#### Linux Shell: Fish
 
 Fish is a linux shell with more practical features than xterm.
 
@@ -696,7 +683,7 @@ end
 Now, when you execute `ll` in terminal, the `ls -lah` will run, 
 instead - like an alias, but different.
 
-##### Terminal Multiplexer: tmux
+#### Terminal Multiplexer: tmux
 
 Tmux is a terminal multiplexer. It is a program that can open multiple 
 panes in the terminal interface. In fact, there are more related concepts, 
@@ -736,7 +723,7 @@ bind - split-window -v -c "#{pane_current_path}"
 #bind-key C-a send-prefix
 ```
 
-##### Terminal Emulator: Alacritty
+#### Terminal Emulator: Alacritty
 
 Alacritty is a very useful and efficient terminal emulator.
 It will adopt fish (as shell) along with tmux (terminal multiplex) in a 
@@ -777,7 +764,7 @@ shell:
 So, now Alacritty is configure to use `fish` shell with `tmux`, and the `Darcula` 
 theme to make things prettier. 
 
-###### i3 bind key for Alacritty
+##### i3 bind key for Alacritty
 
 The last step is to configure i3 to run Alacritty. Edit i3 config file and 
 replace the existing `i3-sensible-terminal` by `alacritty`, as below:
@@ -796,7 +783,7 @@ Press `$mod+Enter` to open Alacritty window.
 
 Now, the terminal configuration is complete.
 
-#### Wireless interaction: iwd
+### Wireless interaction: iwd
 
 [Iwd](https://wiki.archlinux.org/title/Iwd) is a minimal wireless daemon. 
 I like to use the iwctl interactive prompt to handle wireless connections.
@@ -816,7 +803,7 @@ $ sudo iwctl station wlan0 show
 $ sudo iwctl station wlan0 connect isengard pwdIseng
 ```
 
-#### Run Dialog: rofi
+### Run Dialog: rofi
 
 [Rofi](https://wiki.archlinux.org/title/Rofi) is a nice run dialog.
 
@@ -838,7 +825,7 @@ vim ~/.config/i3/config
 bindsym $mod+d exec --no-startup-id rofi -show drun
 ```
 
-#### Browser: qutebrowser
+### Browser: qutebrowser
 
 [Qutebrowser](https://wiki.archlinux.org/title/Qutebrowser) is a 
 keyboard-focused web browser. It supports the vim keymap, which is 
@@ -852,7 +839,7 @@ sudo pacman -S qutebrowser
 
 After that, just use `rofi` run dialog to start it.
 
-#### Sound: Pulseaudio and ALSA
+### Sound: Pulseaudio and ALSA
 
 [Pulseaudio](https://wiki.archlinux.org/title/PulseAudio) is a sound 
 server that works between application and hardware device. It uses 
@@ -901,7 +888,7 @@ Oct 21 08:31:04 ataraxia systemd[4434]: Started Sound Service.
 And you can also test the sound by starting some audio (access Youtube 
 or similar) and type `alsamixer` in the terminal to enable/test sound.
 
-#### Image conversion: imagick
+### Image conversion: imagick
 
 The urge to convert images types is most common that it looks.
 
@@ -930,7 +917,7 @@ another (the originals will be retained):
 mogrify -format png *.jpg
 ```
 
-#### Background: feh
+### Background: feh
 
 [Feh](https://wiki.archlinux.org/title/Feh) is a highly configurable program 
 that allows you, among other things, to set your wallpaper.
@@ -945,14 +932,14 @@ You can set a single wallpaper or define a randomize mode, to random select
 one between several files. In the next sections of this page, `feh` will be 
 used to define a random background.
 
-#### Control bar: polybar
+### Control bar: polybar
 
 [Polybar](https://wiki.archlinux.org/title/Polybar) is a very handy and 
 essential tool. It allow us to get real-time information about the system 
 (CPU, RAM, time, disk usage, battery, etc) and also to work in conjunction 
 with i3 to define bind keys to control backlight and audio volume levels.
 
-##### Installation
+#### Installation
 
 As expected:
 
@@ -960,7 +947,7 @@ As expected:
 $ sudo pacman -S polybar
 ```
 
-##### Configuration
+#### Configuration
 
 Execute the following command to create a config file:
 
@@ -1001,7 +988,7 @@ echo "Bars launched..."
 > In this config, only one bar will be used. However, The commented code makes 
 clear that multiple bars could be configured, if desired.
 
-##### date module
+#### date module
 
 This module is for date/time presentation.
 
@@ -1022,7 +1009,7 @@ label = %date%
 label-foreground = ${colors.primary}
 ```
 
-##### pulseaudio module
+#### pulseaudio module
 
 This module is for volume control.
 
@@ -1073,7 +1060,7 @@ click-right = pavucontrol
 ; click-middle = 
 ```
 
-##### backlight module
+#### backlight module
 
 This module is for monitor backlight.
 
@@ -1134,7 +1121,7 @@ bar-fill = ─
 bar-empty = ─
 ```
 
-##### battery module
+#### battery module
 
 This module is for battery.
 
@@ -1270,7 +1257,7 @@ animation-low-framerate = 200
 
 ```
 
-##### Config i3 to launch polybar
+#### Config i3 to launch polybar
 
 The last step is to config i3 to launch polybar and disable the 
 previous i3 status bar. Make sure the end of `config` file is as below: 
@@ -1288,7 +1275,7 @@ exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 #}
 ```
 
-#### Random/Timed Wallpaper: Systemd/User and shell scripting
+### Random/Timed Wallpaper: Systemd/User and shell scripting
 
 This solution uses a 
 [Systemd/User](https://wiki.archlinux.org/title/Systemd/User) to change the 
@@ -1387,7 +1374,7 @@ NEXT                            LEFT LAST                          PASSED UNIT  
 Sat 2023-10-21 18:07:22 -03 1min 13s Sat 2023-10-21 17:57:22 -03 8min ago change-wallpaper.timer change-wallpaper.service
 ```
 
-#### Lock screen
+### Lock screen
 
 The i3 window manager does not have lock screen functionality by default. 
 What we want here is to be able to lock/unlock the screen, and also that 
@@ -1400,7 +1387,7 @@ So, the following utilities must be installed:
 
 > There is a very informative [Githib Gist in that regard](https://gist.github.com/rometsch/6b35524bcc123deb7cd30b293f2088d8). This section uses some of the concepts explained there. 
 
-##### Installing lock programs
+#### Installing lock programs
 
 Let's install those in a basic way:
 
@@ -1408,7 +1395,7 @@ Let's install those in a basic way:
 $ sudo pacman -S i3lock xautolock
 ```
 
-##### Configuring i3lock
+#### Configuring i3lock
 
 Now, we need to setup i3wm keybinding. The `Ctrl+Alt+l` (last one is a 
 lowercase L) combination will be set to lock the screen. It would also be 
@@ -1475,7 +1462,7 @@ After that, one can reload i3wm (via `$mod+Shift+r`) and try. When pressing
 `Ctrl+Alt+l`, the screen will lock with a specific backgroung image. Then type 
 your user's password and press ENTER to unlock.
 
-##### Configuring autolock
+#### Configuring autolock
 
 Since the i3lock it properly set, it is time to configure autolock.
 We'll just add a new line in the i3wm config file:
@@ -1501,8 +1488,7 @@ it also locks the screen during Netflix movies (which is not cool); so this
 solution must be evolved to not to lock when streaming video is running in the 
 browser (even if mouse or keyboard are not used).
 
-
-#### Beautifier: Picom
+### Beautifier: Picom
 
 [Picom](https://wiki.archlinux.org/title/Picom) is a tool to make the 
 interfaces and applications prettier.
@@ -1536,7 +1522,7 @@ opacity-rule = [
 ];
 ```
 
-#### Viewnior
+### Viewnior
 
 [Viewnior](https://siyanpanayotov.com/project/viewnior/download/) is a 
 simple image viewer program that can be used to show several images in 
@@ -1550,13 +1536,13 @@ $ sudo pacman -S viewnior
 
 And that's it. Use it at will.
 
-#### NeoVim
+### NeoVim
 
-##### Installing
+#### Installing
 
-##### Adding plugins
+#### Adding plugins
 
-#### Premium streaming content: chromium-widevine
+### Premium streaming content: chromium-widevine
 
 `qutebrowser` is not able to run premium streaming content out of the box. 
 So, for that reason it is necessary to install `chromium-widevine`.
@@ -1583,9 +1569,7 @@ $ makepkg --clean
 That's it. Now you can reload qutebrowser and it will be able to open 
 and run content from Netflix, Spotify and etc.
 
-### Final configurations 
-
-#### Mount an external drive for data
+### Mount an external drive for data
 
 In my setup, my personal data will be located in an external drive, plugged 
 in a USB port. 
