@@ -814,7 +814,6 @@ $ sudo iwctl help
 $ sudo iwctl station list
 $ sudo iwctl station wlan0 show
 $ sudo iwctl station wlan0 connect isengard pwdIseng
-
 ```
 
 #### Run Dialog: rofi
@@ -853,11 +852,522 @@ sudo pacman -S qutebrowser
 
 After that, just use `rofi` run dialog to start it.
 
-#### Convert jpg to png: imagick
+#### Sound: Pulseaudio and ALSA
 
-#### Task bar: polybar
+[Pulseaudio](https://wiki.archlinux.org/title/PulseAudio) is a sound 
+server that works between application and hardware device. It uses 
+[ALSA](https://wiki.archlinux.org/title/Advanced_Linux_Sound_Architecture), 
+a set of drivers for sound.
+
+It is necessary to install some programs:
+
+First, install `alsamixer`:
+
+```
+$ sudo pacman -S alsa-utils
+```
+
+Then, install `pulseaudio`:
+
+```
+$ sudo pacman -S pulseaudio
+```
+
+After that, reboot. Pulseaudio will start automatically, since it is a 
+[Systemd/User](https://wiki.archlinux.org/title/Systemd/User).
+
+You can check if it's running by entering the following command:
+
+```
+$ systemctl --user status pulseaudio.service
+
+● pulseaudio.service - Sound Service
+     Loaded: loaded (/usr/lib/systemd/user/pulseaudio.service; disabled; preset: enabled)
+     Active: active (running) since Sat 2023-10-21 08:31:04 -03; 9h ago
+TriggeredBy: ● pulseaudio.socket
+   Main PID: 4518 (pulseaudio)
+      Tasks: 12 (limit: 18864)
+     Memory: 12.6M
+        CPU: 67ms
+     CGroup: /user.slice/user-1000.slice/user@1000.service/session.slice/pulseaudio.service
+             ├─4518 /usr/bin/pulseaudio --daemonize=no --log-target=journal
+             └─4544 /usr/lib/pulse/gsettings-helper
+
+Oct 21 08:31:04 ataraxia systemd[4434]: Starting Sound Service...
+Oct 21 08:31:04 ataraxia pulseaudio[4518]: stat('/etc/pulse/default.pa.d'): No such file or directory
+Oct 21 08:31:04 ataraxia systemd[4434]: Started Sound Service.
+```
+
+And you can also test the sound by starting some audio (access Youtube 
+or similar) and type `alsamixer` in the terminal to enable/test sound.
+
+#### Image conversion: imagick
+
+The urge to convert images types is most common that it looks.
+
+The [ImageMagick](https://wiki.archlinux.org/title/ImageMagick) program is 
+valuable in that sense. It can convert a lot of image types.
+
+
+```
+$ sudo pacman -S imagemagick
+```
+
+After that, to convert a single file from different types is as simple as 
+executing the following command:
+
+```
+$ convert image.png image.jpg
+```
+
+Very handy when you want to use some image but the format is not 
+supported.
+
+But you can also convert all files in a directory from one type to 
+another (the originals will be retained):
+
+```
+mogrify -format png *.jpg
+```
 
 #### Background: feh
+
+[Feh](https://wiki.archlinux.org/title/Feh) is a highly configurable program 
+that allows you, among other things, to set your wallpaper.
+
+In order to install it, execute the command as following:
+
+```
+$ sudo pacman -S feh
+```
+
+You can set a single wallpaper or define a randomize mode, to random select
+one between several files. In the next sections of this page, `feh` will be 
+used to define a random background.
+
+#### Control bar: polybar
+
+[Polybar](https://wiki.archlinux.org/title/Polybar) is a very handy and 
+essential tool. It allow us to get real-time information about the system 
+(CPU, RAM, time, disk usage, battery, etc) and also to work in conjunction 
+with i3 to define bind keys to control backlight and audio volume levels.
+
+##### Installation
+
+As expected:
+
+```
+$ sudo pacman -S polybar
+```
+
+##### Configuration
+
+Execute the following command to create a config file:
+
+```
+$ cp /etc/polybar/config.ini ~/.config/polybar
+```
+
+Then edit this file and change the existing attributes as below:
+
+```
+$ vim ~/.config/polybar/config.ini
+```
+
+```bash
+modules-left = xworkspaces date xwindow
+modules-right = cpu memory filesystem pulseaudio xkeyboard wlan backlight battery
+```
+> These modules will be configured one by one, in the next sections. 
+
+Also, create a `launch.sh` file to call polybar:
+
+```
+$ vim ~/.config/polybar/launch.sh
+```
+
+```bash
+#!/usr/bin/env bash
+
+polybar-msg cmd quit
+
+echo "---" | tee -a /tmp/polybar.log #/tmp/polybar2.log
+polybar example 2>&1 | tee -a /tmp/polybar.log & disown
+#polybar bar2 2>&1 | tee -a /tmp/polybar2.log & disown
+
+echo "Bars launched..."
+```
+
+> In this config, only one bar will be used. However, The commented code makes 
+clear that multiple bars could be configured, if desired.
+
+##### date module
+
+This module is for date/time presentation.
+
+Configure it as follows:
+
+```
+$ vim ~/.config/polybar/config.ini
+```
+```bash
+[module/date]
+type = internal/date
+interval = 1
+
+date = %H:%M
+date-alt = %d/%m/%Y %H:%M:%S
+
+label = %date%
+label-foreground = ${colors.primary}
+```
+
+##### pulseaudio module
+
+This module is for volume control.
+
+Configure it as follows:
+
+```
+$ vim ~/.config/polybar/config.ini
+```
+```bash
+[module/pulseaudio]
+type = internal/pulseaudio
+use-ui-max = true
+interval = 5
+
+; Available tags:
+;   <label-volume> (default)
+;   <ramp-volume>
+;   <bar-volume>
+format-volume = <label-volume>
+format-volume-prefix = "VOL "
+format-volume-prefix-foreground = ${colors.primary}
+
+; Available tags:
+;   <label-muted> (default)
+;   <ramp-volume>
+;   <bar-volume>
+;format-muted = <label-muted>
+
+; Available tokens:
+;   %percentage% (default)
+;   %decibels%
+;label-volume = %percentage%%
+
+; Available tokens:
+;   %percentage% (default)
+;   %decibels%
+label-volume = %percentage%%
+label-muted = muted
+label-muted-foreground = ${colors.disabled}
+
+; Only applies if <ramp-volume> is used
+ramp-volume-0 = 0
+ramp-volume-1 = 1
+ramp-volume-2 = 2
+
+; Right and Middle click
+click-right = pavucontrol
+; click-middle = 
+```
+
+##### backlight module
+
+This module is for monitor backlight.
+
+Configure it as follows:
+
+```
+$ vim ~/.config/polybar/config.ini
+```
+```bash
+[module/backlight]
+type = internal/backlight
+format-prefix = "BCL "
+format-prefix-foreground = ${colors.primary}
+
+; Use the following command to list available cards:
+; $ ls -1 /sys/class/backlight/
+card = intel_backlight
+
+; Use the `/sys/class/backlight/.../actual-brightness` file
+; rather than the regular `brightness` file.
+; Defaults to true unless the specified card is an amdgpu backlight.
+; New in version 3.6.0
+use-actual-brightness = true
+
+; Enable changing the backlight with the scroll wheel
+; NOTE: This may require additional configuration on some systems. Polybar will
+; write to `/sys/class/backlight/${self.card}/brightness` which requires polybar
+; to have write access to that file.
+; DO NOT RUN POLYBAR AS ROOT. 
+; The recommended way is to add the user to the
+; `video` group and give that group write-privileges for the `brightness` file.
+; See the ArchWiki for more information:
+; https://wiki.archlinux.org/index.php/Backlight#ACPI
+; Default: false
+enable-scroll = true
+
+; Available tags:
+;   <label> (default)
+;   <ramp>
+;   <bar>
+format = <label>
+
+; Available tokens:
+;   %percentage% (default)
+label = %percentage%%
+
+; Only applies if <ramp> is used
+ramp-0 = 🌕
+ramp-1 = 🌔
+ramp-2 = 🌓
+ramp-3 = 🌒
+ramp-4 = 🌑
+
+; Only applies if <bar> is used
+bar-width = 10
+bar-indicator = |
+bar-fill = ─
+bar-empty = ─
+```
+
+##### battery module
+
+This module is for battery.
+
+Configure it as follows:
+
+```
+$ vim ~/.config/polybar/config.ini
+```
+```bash
+[module/battery]
+type = internal/battery
+
+; This is useful in case the battery never reports 100% charge
+; Default: 100
+full-at = 99
+
+; format-low once this charge percentage is reached
+; Default: 10
+; New in version 3.6.0
+low-at = 5
+
+; Use the following command to list batteries and adapters:
+; $ ls -1 /sys/class/power_supply/
+battery = BAT0
+adapter = ADP1
+
+; If an inotify event haven't been reported in this many
+; seconds, manually poll for new values.
+;
+; Needed as a fallback for systems that don't report events
+; on sysfs/procfs.
+;
+; Disable polling by setting the interval to 0.
+;
+; Default: 5
+poll-interval = 5
+
+; see "man date" for details on how to format the time string
+; NOTE: if you want to use syntax tags here you need to use %%{...}
+; Default: %H:%M:%S
+time-format = %H:%M
+
+; Available tags:
+;   <label-charging> (default)
+;   <bar-capacity>
+;   <ramp-capacity>
+;   <animation-charging>
+format-charging = <animation-charging> <label-charging>
+
+; Available tags:
+;   <label-discharging> (default)
+;   <bar-capacity>
+;   <ramp-capacity>
+;   <animation-discharging>
+format-discharging = <ramp-capacity> <label-discharging>
+
+; Available tags:
+;   <label-full> (default)
+;   <bar-capacity>
+;   <ramp-capacity>
+;format-full = <ramp-capacity> <label-full>
+
+; Format used when battery level drops to low-at
+; If not defined, format-discharging is used instead.
+; Available tags:
+;   <label-low>
+;   <animation-low>
+;   <bar-capacity>
+;   <ramp-capacity>
+; New in version 3.6.0
+;format-low = <label-low> <animation-low>
+
+; Available tokens:
+;   %percentage% (default) - is set to 100 if full-at is reached
+;   %percentage_raw%
+;   %time%
+;   %consumption% (shows current charge rate in watts)
+label-charging = Charging %percentage%%
+
+; Available tokens:
+;   %percentage% (default) - is set to 100 if full-at is reached
+;   %percentage_raw%
+;   %time%
+;   %consumption% (shows current discharge rate in watts)
+label-discharging = Discharging %percentage%%
+
+; Available tokens:
+;   %percentage% (default) - is set to 100 if full-at is reached
+;   %percentage_raw%
+label-full = Fully charged
+
+; Available tokens:
+;   %percentage% (default) - is set to 100 if full-at is reached
+;   %percentage_raw%
+;   %time%
+;   %consumption% (shows current discharge rate in watts)
+; New in version 3.6.0
+label-low = BATTERY LOW
+
+; Only applies if <ramp-capacity> is used
+ramp-capacity-0 = 
+ramp-capacity-1 = 
+ramp-capacity-2 = 
+ramp-capacity-3 = 
+ramp-capacity-4 = 
+
+; Only applies if <bar-capacity> is used
+bar-capacity-width = 10
+
+; Only applies if <animation-charging> is used
+animation-charging-0 = 
+animation-charging-1 = 
+animation-charging-2 = 
+animation-charging-3 = 
+animation-charging-4 = 
+; Framerate in milliseconds
+animation-charging-framerate = 750
+
+; Only applies if <animation-discharging> is used
+animation-discharging-0 = 
+animation-discharging-1 = 
+animation-discharging-2 = 
+animation-discharging-3 = 
+animation-discharging-4 = 
+; Framerate in milliseconds
+animation-discharging-framerate = 500
+
+; Only applies if <animation-low> is used
+; New in version 3.6.0
+animation-low-0 = !
+animation-low-1 = 
+animation-low-framerate = 200
+
+```
+
+#### Random/Timed Wallpaper: Systemd/User and shell scripting
+
+This solution uses a 
+[Systemd/User](https://wiki.archlinux.org/title/Systemd/User) to change the 
+wallpaper from time to time. It chooses a random wallpaper and apply it.
+
+
+First, it is necessary to create directories for script files:
+
+```
+$ mkdir -p ~/.config/scripts ~/.config/systemd/user
+```
+
+Then, it is necessary to create the shell script to set the wallpaper:
+
+```
+$ vim ~/.config/scripts/change-wallpaper.sh 
+```
+```bash
+#!/bin/sh
+# This file lives at `~/.config/scripts/change-wallpaper.sh`
+# Sets background wallpaper of X display :0 to a random JPG file chosen from
+# the directory `~/.config/wallpapers`
+DISPLAY=:0 feh --no-fehbg --bg-fill --randomize ~/.config/wallpapers/1920x1080/*.jpg
+```
+
+After that, the service file should be created: 
+
+```
+$ vim ~/.config/systemd/user/change-wallpaper.service 
+```
+```bash
+# The ~/.config/systemd/user directory is the standard location for user units.
+
+[Unit]
+Description=Change the wallpaper on X display :0
+Wants=change-wallpaper.timer
+
+[Service]
+# Type=oneshot is standard practice for units that start short-running shell scripts. 
+Type=oneshot
+# Adjust path to script as needed
+ExecStart=/bin/sh /home/daniel/.config/scripts/change-wallpaper.sh
+
+[Install]
+WantedBy=graphical.target
+```
+
+And the, the timer file should be created:
+
+```
+$ vim ~/.config/systemd/user/change-wallpaper.timer 
+```
+```bash
+[Unit]
+Description=Change the wallpaper on X display :0 every few minutes
+Requires=change-wallpaper.service
+
+[Timer]
+# Changes wallpaper every x minutes; adjusts as needed
+# will run change-wallpaper service x minutes after the timer first activates
+OnActiveSec=2s
+# and then periodically every x minutes after that 
+OnUnitActiveSec=10m
+
+[Install]
+WantedBy=timers.target
+```
+
+Then, add some wallpapers (JPG files) in the 
+`~/.config/wallpapers/1920x1080` dir.
+
+And finally, register the timer and the service:
+
+```
+systemctl --user enable --now ~/.config/systemd/user/change-wallpaper.service
+systemctl --user enable --now ~/.config/systemd/user/change-wallpaper.timer
+```
+
+For validation, execute:
+
+```
+$ systemctl --user list-timers
+$ systemctl --user status change-wallpaper.service
+$ systemctl --user status change-wallpaper.timer
+```
+
+At this point, if the services are running well, one of the wallpaper 
+files' in the specified directory will be randomly selected and applied
+at each 10 minutes.
+- wallpaper.service must be loaded but inactive
+- wallpaper.timer must be loaded and active (waiting)
+- list-timers must show something like the following:
+
+```
+NEXT                            LEFT LAST                          PASSED UNIT                   ACTIVATES
+Sat 2023-10-21 18:07:22 -03 1min 13s Sat 2023-10-21 17:57:22 -03 8min ago change-wallpaper.timer change-wallpaper.service
+```
 
 #### Lock screen
 
@@ -872,7 +1382,7 @@ So, the following utilities must be installed:
 
 > There is a very informative [Githib Gist in that regard](https://gist.github.com/rometsch/6b35524bcc123deb7cd30b293f2088d8). This section uses some of the concepts explained there. 
 
-##### Installing utilities
+##### Installing lock programs
 
 Let's install those in a basic way:
 
@@ -973,7 +1483,6 @@ it also locks the screen during Netflix movies (which is not cool); so this
 solution must be evolved to not to lock when streaming video is running in the 
 browser (even if mouse or keyboard are not used).
 
-#### Pulseaudio
 
 #### Picom
 
@@ -985,7 +1494,9 @@ browser (even if mouse or keyboard are not used).
 
 ##### Adding plugins
 
-### Mount an external drive for data
+### Final configurations 
+
+#### Mount an external drive for data
 
 In my setup, my personal data will be located in an external drive, plugged 
 in a USB port. 
