@@ -89,8 +89,8 @@ BitLocker. So, it is mandatory to know your Bitlocker PIN.
 
 ### Windows 11 previously installed
 
-I still have the urge to maintain a Windows system, mostly because of 
-compatibility issues.
+I still need to maintain a Windows system, mostly because of 
+compatibility issues in Windows application files.
 
 Windows is not able to perform dual boot with Linux systems (but Linux is able
 to detect and work with Windows systems at boot). So, the best approach in 
