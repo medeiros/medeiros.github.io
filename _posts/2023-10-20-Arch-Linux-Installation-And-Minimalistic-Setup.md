@@ -1275,7 +1275,7 @@ exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 #}
 ```
 
-### Random/Timed Wallpaper: Systemd/User and shell scripting
+### Random Wallpaper: Systemd/User & scripting
 
 This solution uses a 
 [Systemd/User](https://wiki.archlinux.org/title/Systemd/User) to change the 
@@ -1522,7 +1522,7 @@ opacity-rule = [
 ];
 ```
 
-### Viewnior
+### Image viewer: Viewnior
 
 [Viewnior](https://siyanpanayotov.com/project/viewnior/download/) is a 
 simple image viewer program that can be used to show several images in 
@@ -1536,7 +1536,7 @@ $ sudo pacman -S viewnior
 
 And that's it. Use it at will.
 
-### NeoVim
+### Text editor: NeoVim
 
 #### Installing
 
