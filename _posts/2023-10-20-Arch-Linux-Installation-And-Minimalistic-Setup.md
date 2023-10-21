@@ -638,7 +638,7 @@ Just install git. It will be required many, many times.
 sudo pacman -S git
 ```
 
-### Setting up applications for i3wm
+### Setting up applications 
 
 So far, Arch Linux was properly installed in dual boot, along with a 
 proper window system. But, at this pont, the i3 interface is very basic. 
@@ -1278,8 +1278,11 @@ previous i3 status bar. Make sure the end of `config` file is as below:
 ```
 $ vim ~/.config/i3/config
 ```
+
+```
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 
+#make sure to remove or comment this section
 #bar {
 #        status_command i3status
 #}
