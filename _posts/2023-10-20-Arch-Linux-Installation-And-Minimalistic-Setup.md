@@ -329,7 +329,7 @@ After that, let's proceed with the manual installation.
 
 First, copy the executable file to the ESP directory:
 
-```shell
+```
 # mkdir -p esp/EFI/refind
 # cp /usr/share/refind/refind_x64.efi esp/EFI/refind/
 ```
