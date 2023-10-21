@@ -839,6 +839,15 @@ sudo pacman -S qutebrowser
 
 After that, just use `rofi` run dialog to start it.
 
+### Backlight: Linux configuration 
+
+to do: finalize it - https://www.ejmastnak.com/tutorials/arch/backlight/
+
+### Copy and Paste: Linux configuration
+
+to do: finalize it - https://www.ejmastnak.com/tutorials/arch/copy-paste/
+
+
 ### Sound: Pulseaudio and ALSA
 
 [Pulseaudio](https://wiki.archlinux.org/title/PulseAudio) is a sound 
@@ -1538,9 +1547,7 @@ And that's it. Use it at will.
 
 ### Text editor: NeoVim
 
-#### Installing
-
-#### Adding plugins
+to do: finalize it
 
 ### Premium streaming content: chromium-widevine
 
@@ -1636,6 +1643,10 @@ And that's it. You can restart to validate the solution. You can also plug
 the external drive at any time and type `sudo mount -a`; this command will 
 read the `/etc/fstab` file and apply the mount action immediately.
 
+## Conclusions
+
+to do: finalize it 
+
 ## References
 
 [^1]: [Change Bitlocker PIN in Windows10](https://www.thewindowsclub.com/change-bitlocker-pin-in-windows-10))
@@ -1650,3 +1661,4 @@ read the `/etc/fstab` file and apply the mount action immediately.
 [^10]: [Understanding /etc/group File in Linux](https://www.cyberciti.biz/faq/understanding-etcgroup-file/)
 [^11]: [Install and start Xorg](https://www.ejmastnak.com/tutorials/arch/startx/)
 [^12]: [Github: Alacritty Themes](https://github.com/alacritty/alacritty-theme)
+- [Find Your Footing After Installing Arch Linux](https://www.ejmastnak.com/tutorials/arch/about/)
