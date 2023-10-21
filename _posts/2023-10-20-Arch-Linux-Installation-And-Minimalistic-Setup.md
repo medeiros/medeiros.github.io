@@ -60,14 +60,14 @@ Internet access.
 
 The requirements for this system are the following:
 
-- **Security at boot**: Dell Security Password applied at BIOS, in order to 
-password validation to be prompted at every boot. It is an additional layer 
-to protect against unauthorized access (theft prevention, mostly);
+- **Security at boot**: Dell Security Password should applied at BIOS, in 
+order to password validation to be prompted at every boot. It is an additional 
+layer to protect against unauthorized access (theft prevention, mostly);
 - **Dual boot**: with previous Windows 11 system (Windows is still a 
 requirement in some particular scenarios - mostly related to data 
 compatibility);
-- **External data files**: my data files reside on an external drive, so the 
-local disk only have OS and application files; 
+- **External data files**: my data files will reside on an external drive, so 
+the local disk will only maintain OS and application files; 
 - **Minimalism is the key**: the idea is to have a simple and clean 
 environment, without distractions in order to maximize productivity.
 
