@@ -1521,7 +1521,7 @@ $ mkdir ~/.config/picom
 $ cp /etc/xdg/picom.conf ~/.config/picom/picom.conf
 ```
 
-And then a opacity rule must be added for Alacritty terminal:
+And then an opacity rule must be added for Alacritty terminal:
 
 ```
 $ vim ~/.config/picom/picom.conf
