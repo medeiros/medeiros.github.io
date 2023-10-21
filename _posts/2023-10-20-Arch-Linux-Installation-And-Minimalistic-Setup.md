@@ -18,7 +18,9 @@ Arch Linux environment with my personal minimalistic approach.
 - Table of Contents
 {:toc}
 
-## Hardware and approach
+## Project: Minimalistic Arch Linux
+
+### Hardware 
 
 This is the laptop hardware spec I will adopt in this article:
 
@@ -51,7 +53,9 @@ This is the laptop hardware spec I will adopt in this article:
   - Keyboard layout: Portuguese Brazilian (ABNT-2)
   - Time Zone: America/Sao Paulo (UTC-3)
 
-My approach for this setup considers the following:
+### Requirements
+
+The requirements for this setup are the following:
 
 - **Security at boot**: Dell Security Password applied at BIOS, in order to 
 password validation to be prompted at every boot. It is an additional layer 
@@ -63,7 +67,7 @@ local disk only have OS and application files
 - **Minimalism is the key**: the idea is to have a simple and clean 
 environment, without distractions in order to maximize productivity.
 
-## Key concepts
+### Key concepts
 
 These are key concepts that are important to know beforehand:
 
@@ -211,7 +215,9 @@ in "Microsoft Recovery Key" page [^4]).
 - Move the USB flash device using the arrows - make sure that it will be 
 above "Windows Boot Manager" 
 
-## Installing Arch Linux
+## Installation: Arch Linux
+
+### Basic installation
 
 The best way to install Arch Linux in my opinion is to follow the excellent
 Arch Wiki on that regard: 
@@ -500,7 +506,7 @@ menuentry "Arch Linux" {
 At this point, rEFInd is properly set. Now, restart the computer and 
 configure the last steps at BIOS.
 
-#### In Dell BIOS
+### Finishing configuration in Dell BIOS
 
 These are final actions in Dell BIOS:
 
