@@ -519,7 +519,7 @@ These are final actions in Dell BIOS:
 
 That's it! Your laptop is dual boot ready, with Windows 11 and Arch Linux!
 
-## Post-Install actions
+## Post-Installation
 
 The following actions are related to the configuration of Arch Linux 
 for personal usage. 
