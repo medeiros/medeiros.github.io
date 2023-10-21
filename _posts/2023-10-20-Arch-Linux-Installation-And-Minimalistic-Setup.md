@@ -220,7 +220,7 @@ in "Microsoft Recovery Key" page [^4]).
 - Connect your USB flash drive
 - Re-enter into Dell BIOS
 - Click on the menu _"Boot Configuration"_ 
-- In the _"Boot Sequence"_ section,, locate your USB flash drive. 
+- In the _"Boot Sequence"_ section, locate your USB flash drive. 
 - Move the USB flash device using the arrows - make sure that it will be 
 above "Windows Boot Manager" 
 
