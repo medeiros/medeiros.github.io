@@ -541,6 +541,320 @@ That's it! Your laptop is dual boot ready, with Windows 11 and Arch Linux!
 The following actions are related to the configuration of Arch Linux 
 for personal usage. 
 
+### X Window System 
+
+In order to have a productive environment, it is mandatory to install a 
+X Window System, that contains a Display Server and a Window Manager. 
+Those are required for any GUI applications.
+
+The first step is to install a display server. My choice is for 
+[Xorg](https://wiki.archlinux.org/title/Xorg).
+
+#### Installing Display Server: Xorg
+
+[Xorg](https://wiki.archlinux.org/title/Xorg) the most traditional 
+display server in Linux. 
+
+To install Xorg, run as follows:
+
+```
+sudo pacman -S xorg xorg-xinit
+```
+
+> Explanation: xorg is a package group—it contains the Xorg display server 
+and a collection of other useful X-related packages; xorg-init is used to 
+start the X Window System [^11]
+
+#### Installing Window Manager: i3wm
+
+My choice for a window manager is [i3](https://i3wm.org/). It is a tiling
+window manager, apropriate for my minimalistic approach.
+
+```
+sudo pacman -S i3-wm i3status i3blocks
+```
+
+> Explanation: i3-wm is the i3 window manager; i3status and i3blocks 
+provide the i3 status bar. [^11]
+
+
+#### Configuring startx
+
+Once X is installed, now the next step is to configure the `~/.xinitrc` file. 
+This file is the configuration file for the `startx` program (which is the 
+one who actually starts the X Window System and launches the window 
+manager).
+
+So, create a `.xinitrc` with the following content:
+
+```
+vim ~/.xinitrc
+```
+
+```bash
+#!/bin/bash
+
+setxkbmap -model pc105 -layout br -variant abnt2
+
+exec i3
+```
+
+The `setxkbmap` line just define the pt_BR keyboard of my laptop (to be 
+used in the X system). After that, the `exec i3` command will execute 
+the i3 window manager.
+
+Finally, let's add `startx` to `.bash_profile` file, so that it runs at every
+login:
+
+
+```
+vim ~/.bash_profile
+```
+
+```bash
+#
+# ~/.bash_profile
+#
+
+if [[ -z $DISPLAY ]]; then
+  startx
+fi
+
+[[ -f ~/.bashrc ]] && . ~/.bashrc
+```
+
+This way, at each login, if the login is performed by an user (if there is 
+a display), then executes `startx` to load the i3 window manager.
+
+#### Running startx: starting interface
+
+Now you can run `startx` at command line, or login again.
+
+A very basic i3 GUI interface will appear. 
+
+### Improving for productivity
+
+So far, Arch Linux was properly installed in dual boot, along with a 
+proper window system. But, at this pont, the i3 interface is very basic. 
+
+My approach is minimalistic, which doesn't 
+mean I have to suffer. It is necessary to add a few more programs. 
+My minimalistic drive is to create a simple and productive environment, 
+so I will choose my setup carefully, considering that new programs and 
+configurations:
+- should provide me with a sense of aesthetics;
+- should have a clear meaning;
+- should be funcional;
+- should improve my productivity;
+- should be logical. 
+
+This is in tune with one definition of minimalism that I like: _**"all the 
+things that I have must be clearly funcional or give me joy"**_.
+
+### Git
+
+Just install git. It will be required many, many times.
+
+```
+sudo pacman -S git
+```
+
+### Terminal and shell
+
+The most important thing now is to setup a shell and terminal.
+My choices in that regard are:
+
+- **Fish**: for Linux shell
+- **Tmux**: for terminal multiplexer
+- **Alacritty**: for terminal manager
+
+Those three programs must be installed and properly configured to work 
+together. 
+
+#### Linux Shell: Fish
+
+Fish is a linux shell with more practical features than xterm.
+
+```
+sudo pacman -S fish
+```
+
+Let's extend the basic feature here by adding a simpler approach to the 
+common `ls -l` command. 
+Instead of create an alias, we will create a fish function to `ll`:
+
+```
+$ vim ~/.config/fish/functions/ll.fish
+```
+
+```bash
+function ll
+    ls -lah $argv
+end
+```
+
+Now, when you execute `ll` in terminal, the `ls -lah` will run, 
+instead - like an alias, but different.
+
+#### Terminal Multiplexer: tmux
+
+Tmux is a terminal multiplexer. It is a program that can open multiple 
+panes in the terminal interface. In fact, there are more related concepts, 
+such as Sessions, Windows and Panes, that can be better understand 
+[in this article](https://haseebmajid.dev/posts/2023-05-02-my-development-workflow-with-alacritty-fish-tmux-nvim/).
+
+In order to install tmux, execute as below:
+
+```
+sudo pacman -S tmux
+```
+
+Regarding configuration, I want to change some default bind keys to make 
+easier for me to create vertical and horizontal panes, and I want to use 
+fish shell every time I use tmux. So, my config file is as below:
+
+```
+vim ~/.tmux.conf
+```
+
+```bash
+set-option -g default-shell /bin/fish
+
+#change splits to be more natural
+unbind %
+unbind '"'
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+
+#example: run fish commands
+#bind-key l run-shell "develop"
+#bind-key / command-prompt "split-window 'exec man %%'"
+
+#example: change from ctrl-b to ctrl-a
+#set-option -g prefix C-a
+#unbind-key C-b
+#bind-key C-a send-prefix
+```
+
+#### Terminal Emulator: Alacritty
+
+Alacritty is a very useful and efficient terminal emulator.
+It will adopt fish (as shell) along with tmux (terminal multiplex) in a 
+unified solution.
+
+Execute the following to install Alacritty:
+
+```
+sudo pacman -S alacritty
+```
+
+Then, download some nice visual themes [^12] :
+
+```
+mkdir -p ~/.config/alacritty/themes
+git clone https://github.com/alacritty/alacritty-theme ~/.config/alacritty/themes
+```
+
+Once the program and themes are in place, configure Alacritty as below:
+
+```
+vim ~/.config/alacritty/alacritty.yml
+```
+
+```bash
+# from https://github.com/alacritty/alacritty-theme/tree/4cb179606c3dfc7501b32b6f011f9549cee949d3
+import:
+  - ~/.config/alacritty/themes/themes/darcula.yaml
+...
+shell:
+  program: /usr/bin/fish
+  args:
+    - -l
+    - -c
+    - "tmux attach || tmux"
+```
+
+So, now Alacritty is configure to use `fish` shell with `tmux`, and the `Darcula` 
+theme to make things prettier. 
+
+#### Configure i3 bind key for Alacritty
+
+The last step is to configure i3 to run Alacritty. Edit i3 config file and 
+replace the existing `i3-sensible-terminal` by `alacritty`, as below:
+
+```
+vim ~/.config/i3/config
+```
+
+```bash
+# start a terminal
+#bindsym $mod+Return exec i3-sensible-terminal
+bindsym $mod+Return exec /usr/bin/alacritty
+```
+
+Press `$mod+Enter` to open Alacritty window.
+
+Now, the terminal configuration is complete.
+
+### Wireless interaction: iwd
+
+[Iwd](https://wiki.archlinux.org/title/Iwd) is a minimal wireless daemon. 
+I like to use the iwctl interactive prompt to handle wireless connections.
+
+Install it as below:
+
+```
+sudo pacman -S iwd
+```
+
+After that, you can execute general commands, such as:
+
+```
+$ sudo iwctl help
+$ sudo iwctl station list
+$ sudo iwctl station wlan0 show
+$ sudo iwctl station wlan0 connect isengard pwdIseng
+
+```
+
+### Run Dialog: rofi
+
+[Rofi](https://wiki.archlinux.org/title/Rofi) is a nice run dialog.
+
+Install it as below:
+
+```
+sudo pacman -S rofi
+```
+
+After that, edit i3 config file to bind it to $mod+d:
+
+```
+vim ~/.config/i3/config
+```
+
+```bash
+# start dmenu (a program launcher)
+#bindsym $mod+d exec --no-startup-id dmenu_run
+bindsym $mod+d exec --no-startup-id rofi -show drun
+```
+
+### Browser: qutebrowser
+
+[Qutebrowser](https://wiki.archlinux.org/title/Qutebrowser) is a 
+keyboard-focused web browser. It supports the vim keymap, which is 
+a very nice feature in terms of productivity.
+
+Install it as below:
+
+```
+sudo pacman -S qutebrowser
+```
+
+After that, just use `rofi` run dialog to start it.
+
+
+
 ### Mount an external drive for data
 
 In my setup, my personal data will be located in an external drive, plugged 
@@ -608,9 +922,149 @@ And that's it. You can restart to validate the solution. You can also plug
 the external drive at any time and type `sudo mount -a`; this command will 
 read the `/etc/fstab` file and apply the mount action immediately.
 
+### i3wm utilities
+
+### Polybar
+
+### set background
+
+#### Convert jpg to png
+
+### i3wm: lock screen
+
+The i3 window manager does not have lock screen functionality by default. 
+What we want here is to be able to lock/unlock the screen, and also that 
+the system executes an autolock after some minutes of inactivity. 
+
+So, the following utilities must be installed:
+
+- i3lock: for locking funcionality
+- xautolock: to execute i3lock based on time frame
+
+> There is a very informative [Githib Gist in that regard](https://gist.github.com/rometsch/6b35524bcc123deb7cd30b293f2088d8). This section uses some of the concepts explained there. 
+
+#### Installing utilities
+
+Let's install those in a basic way:
+
+```
+$ sudo pacman -S i3lock xautolock
+```
+
+#### Configuring i3lock
+
+Now, we need to setup i3wm keybinding. The `Ctrl+Alt+l` (last one is a 
+lowercase L) combination will be set to lock the screen. It would also be 
+great if, instead of locking the screen in plain black color, it would be 
+possible to lock using some predefined wallpaper. Let's configure this way:
+
+```
+$ vim ~/.config/i3/config
+```
+
+```bash
+# keybinding to lock screen
+# -c 000000 makes the screen turn black instead of the default white after the 
+#   screen is locked.
+# -i uses a background image when locking the screen
+bindsym Control+Mod1+l exec "i3lock -c 000000 -i /home/daniel/.config/wallpapers/1920x1080/ships_sea_light_69192_1920x1080.png"
+```
+
+> It seems like the entire path of the wallpaper image should be used in the 
+`-i` param. The relative path (~/.config...) doesn't seem to work properly.
+
+At this point, if we reload i3wm and try to lock the screen, it will not be 
+possible to unlock. That is because the lock application is owned by the 
+`root:root`, and when you try to unlock with your user password, it will not 
+be understood.
+
+```
+$ ls -la $(which i3lock)
+-rwxr-xr-x 1 root root 51712 Jun 22  2022 /usr/bin/i3lock*
+```
+
+We need to unlock using your own user's password, but it doesn't feel 
+right to change the ownership of the root user for the i3lock program because 
+of it. After some digging, the solution I found for this issue was to change 
+the group ownership of `i3lock` to the `users` group, and then to add my own 
+user to that group.
+
+```
+$ sudo chown root:users /usr/bin/i3lock
+
+$ sudo usermod -aG users $USER
+```
+
+This can be validated in some ways:
+
+```
+$ ls -la $(which i3lock)
+-rwxr-xr-x 1 root users 51712 Jun 22  2022 /usr/bin/i3lock*
+`
+$ groups $USER
+video users daniel
+
+$ cat /etc/group | grep -i users
+users:x:984:daniel
+```
+
+> The line of `/etc/group` are divided in 4 parts [^10]: 
+> - group_name: It is the name of group. If you run ls -l command, you will see this name printed in the group field.
+> - Password: Generally password is not used, hence it is empty/blank. It can store encrypted password. This is useful to implement privileged groups.
+> - Group ID (GID): Each user must be assigned a group ID. You can see this number in your /etc/passwd file.
+> - Group List: It is a list of user names of users who are members of the group. The user names, must be separated by commas.
+
+After that, one can reload i3wm (via `$mod+Shift+r`) and try. When pressing 
+`Ctrl+Alt+l`, the screen will lock with a specific backgroung image. Then type 
+your user's password and press ENTER to unlock.
+
+#### Configuring autolock
+
+Since the i3lock it properly set, it is time to configure autolock.
+We'll just add a new line in the i3wm config file:
+
+```
+$ vim ~/.config/i3/config
+```
+
+```bash
+# auto lock the screen
+# -detectsleep locks the screen properly when the computer goes to sleep,
+# -time 3 sets the time after which to lock to 3 minutes and
+# -locker "..." sets up i3lock as the command to lock.
+exec "xautolock -detectsleep -time 3 -locker \"i3lock -c 000000 -i /home/daniel/.config/wallpapers/1920x1080/ships_sea_light_69192_1920x1080.png\""
+```
+
+The comments are self-explanatory. The `autolock` is just a wrapper to run 
+`i3lock` after some period of time.
+
+> Improvement needed: This configuration locks the screen if keyboard or mouse 
+are not used after a period of time. It works great for that purpose, but 
+it also locks the screen during Netflix movies (which is not cool); so this 
+solution must be evolved to not to lock when streaming video is running in the 
+browser (even if mouse or keyboard are not used).
+
+### Pulseaudio
 
 
-TODO: add setup details (configure external drive, etc)
+
+### qutebrowser
+
+### Picom
+
+### Viewnior
+
+### Alacritty
+
+### Fish
+
+### tmux
+
+### NeoVim
+
+#### Installing
+
+#### Adding plugins
 
 ## References
 
@@ -623,4 +1077,6 @@ TODO: add setup details (configure external drive, etc)
 [^7]: [Arch Linux: rEFInd - Beginning](https://wiki.archlinux.org/title/REFInd#)
 [^8]: [Arch Wiki: rEFInd - Manual Installation](https://wiki.archlinux.org/title/REFInd#Manual_installation)
 [^9]: [Red Hat: An introduction to the Linux /etc/fstab file](https://www.redhat.com/sysadmin/etc-fstab)
-
+[^10]: [Understanding /etc/group File in Linux](https://www.cyberciti.biz/faq/understanding-etcgroup-file/)
+[^11]: [Install and start Xorg](https://www.ejmastnak.com/tutorials/arch/startx/)
+[^12]: [Github: Alacritty Themes](https://github.com/alacritty/alacritty-theme)
