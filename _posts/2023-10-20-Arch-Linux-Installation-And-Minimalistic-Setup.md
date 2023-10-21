@@ -22,7 +22,7 @@ Arch Linux environment with my personal minimalistic approach.
 
 ### Hardware 
 
-This is the laptop hardware spec I will adopt in this article:
+This is the laptop hardware spec I adopted in this article:
 
 - Dell Latitude 3420
   - BIOS version 1.29.0
@@ -53,15 +53,18 @@ This is the laptop hardware spec I will adopt in this article:
   - Keyboard layout: Portuguese Brazilian (ABNT-2)
   - Time Zone: America/Sao Paulo (UTC-3)
 
-### Requirements
+Also, an USB flash drive will be required (to install Arch Linux), along with 
+Internet access.
 
-The requirements for this setup are the following:
+### System Requirements
+
+The requirements for this system are the following:
 
 - **Security at boot**: Dell Security Password applied at BIOS, in order to 
 password validation to be prompted at every boot. It is an additional layer 
 to protect against unauthorized access (theft prevention, mostly)
 - **Dual boot**: with previous Windows 11 system (Windows is still a 
-requirement in some particular scenarios - regarding compatibility, mostly)
+requirement in some particular scenarios - mostly related to compatibility)
 - **External data files**: my data files reside on an external drive, so the 
 local disk only have OS and application files 
 - **Minimalism is the key**: the idea is to have a simple and clean 
@@ -71,14 +74,15 @@ environment, without distractions in order to maximize productivity.
 
 These are key concepts that are important to know beforehand:
 
-- In dual boot: Windows 11 only supports x86_64 and a boot in UEFI mode 
-from GPT disk [^5]: this is important to know, so all analysis must 
-consider that the boot mode must be UEFI;
-- Windows cannot recognize other OS than itself on boot - but Linux can; 
-- Dell SecureBoot is supported only by Windows, and not by ArchLinux. So, 
-it will be disabled;
-- Once Dell SecureBoot is disabled, Windows will activate BitLocker. So, 
-it is mandatory to know/define your Bitlocker PIN;
+- **Dual boot**: Windows 11 only supports x86_64 and a boot in UEFI mode from 
+GPT disk [^5]: this is important to know, so all analysis must consider that 
+the boot mode must be UEFI;
+- **Dual boot**: Windows cannot recognize other OS than itself on boot - but 
+Linux can; 
+- **SecureBoot**: Dell SecureBoot is supported only by Windows, and not by 
+ArchLinux. So, it must be disabled;
+- **BitLocker**: Once Dell SecureBoot is disabled, Windows will activate 
+BitLocker. So, it is mandatory to know your Bitlocker PIN;
 
 ## Preparation: Windows
 
@@ -155,7 +159,8 @@ For this scenario (UEFI-only booting, since we're using Windows 11), it
 is enough to extract the ISO contents onto a FAT-formatted USB flash 
 drive. [^3]
 
-So, execute the following steps to write the ISO in the USB flash drive: [^3]:
+So, execute the following steps in order to write the ISO in the USB flash 
+drive: [^3]:
 
 - Partition the USB flash drive and format it to FAT32.
 - Right click on archlinux-version-x86_64.iso and select Mount.
