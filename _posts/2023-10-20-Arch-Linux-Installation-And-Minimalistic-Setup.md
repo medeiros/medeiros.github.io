@@ -274,10 +274,16 @@ partition [^7]. It will probably be **/boot**. In order to verify,
 execute as below:
 
 ```
-# findmnt /boot
+$ findmnt /boot
 TARGET SOURCE         FSTYPE OPTIONS
 /boot  /dev/nvme0n1p1 vfat   rw,relatime,fmask=0022,...
+
+$ lsblk | grep boot
+├─nvme0n1p1 259:1    0   320M  0 part /boot
 ```
+
+It appears that `/boot` is a mount point that maps to the EFI partition 
+(vfat, 320MB). But let's investigate deeper.
 
 Since Windows is already in place in this laptop, this _esp_ directory 
 should not be empty. There should be an EFI directory, with vendor subdirs, 
@@ -324,6 +330,8 @@ TARGET
 
 This partuuid code will be required later on, during rEFInd configuration.
 
+> It is not mandatory that partuuid may be used in that case. Other options 
+may be adopted as well - using partuuid is my particular approach.
 
 #### Installing rEFInd boot loader
 
@@ -336,11 +344,11 @@ sudo pacman -S refind
 After that, let's proceed with the manual installation.
 
 > The Arch Linux Wiki Page [explains in 
-> depth](https://wiki.archlinux.org/title/REFInd#Manual_installation) how to 
-> perform this installation, but this can be hard to apply, since the 
-> definitions are broad and generic. This section aim to simplify this 
-> process by defining the exact steps to perform in this particular 
-> context [^8].
+depth](https://wiki.archlinux.org/title/REFInd#Manual_installation) how to 
+perform this installation, but this can be hard to apply, since the 
+definitions are broad and generic. This section aim to simplify this 
+process by defining the exact steps to execute in this particular 
+context [^8].
 
 First, copy the executable file to the ESP directory:
 
@@ -538,9 +546,9 @@ for personal usage.
 In my setup, my personal data will be located in an external drive, plugged 
 in a USB port. 
 I want to always mount this drive at startup if the external drive is 
-plugged, but ignore at startup if not plugged.
+plugged, but ignore at startup otherwise.
 
-The idea is to add an entry in `/etc/fstab` file.
+The solution is to add a custom entry in `/etc/fstab` file.
 
 First, let's plug the device and check how it is mapped:
 
@@ -582,17 +590,17 @@ UUID=<add-uuid> /home/daniel/data ext4 rw,nofail,x-systemd.device-timeout=3  0 2
 ```
 Understanding this entry in depth:
 - the external device is mapped as a `data` subdir, inside my home dir. I like 
-this kind of abstraction in Linux, where everything is a file and also it can 
-give me the pleasant illusion that an external drive can be treated is part of 
-the home filesystem;
+this kind of abstraction in Linux, where "everything is a file", and also it 
+can give me the pleasant illusion that an external drive can be treated is part 
+of the home filesystem;
 - the external drive that I own is an ext4 Linux filesystem, hence it must 
 be mounted as ext4;
 - the option `rw` mounts the drive with read/write permission;
 - the option `nofail` ignores mounting if the device is not plugged;
-- the option `x-systemd.device-timeout` waits for 3 seconds for the external 
-drive to be plugged before give up;
-- the param `0` indicates is a deprecated backup operation, which means "no 
-backup" (if 1, it means "dump utility backup") [^9]
+- the option `x-systemd.device-timeout` works with `nofail`, and waits for 3 
+seconds for the external drive to be plugged in before give up;
+- the param `0` indicates that is a (deprecated) backup operation, which 
+means "no backup" (if 1, it means "dump utility backup") [^9]
 - the param `2` indicates file system check order: the value 2 means that 
 the check will occur after 1 (the root filesystem) [^9]
 
