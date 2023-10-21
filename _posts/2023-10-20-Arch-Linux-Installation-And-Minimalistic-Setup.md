@@ -917,7 +917,7 @@ another (the originals will be retained):
 mogrify -format png *.jpg
 ```
 
-### Background: feh
+### Background image: feh
 
 [Feh](https://wiki.archlinux.org/title/Feh) is a highly configurable program 
 that allows you, among other things, to set your wallpaper.
@@ -1488,7 +1488,7 @@ it also locks the screen during Netflix movies (which is not cool); so this
 solution must be evolved to not to lock when streaming video is running in the 
 browser (even if mouse or keyboard are not used).
 
-### Beautifier: Picom
+### Env Beautifier: Picom
 
 [Picom](https://wiki.archlinux.org/title/Picom) is a tool to make the 
 interfaces and applications prettier.
