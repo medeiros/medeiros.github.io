@@ -1556,6 +1556,33 @@ And that's it. Use it at will.
 
 ##### Adding plugins
 
+#### Premium streaming content: chromium-widevine
+
+`qutebrowser` is not able to run premium streaming content out of the box. 
+So, for that reason it is necessary to install `chromium-widevine`.
+
+The installation is a little bit different: we need to use AUR.
+
+- Create a directory for this build: 
+```
+$ mkdir -p /home/daniel/.config/AUR/chromium-widevine
+```
+- Access https://aur.archlinux.org/packages/chromium-widevine ;
+- Download the [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=chromium-widevine) file and save it in the previously created dir;
+- Execute the following commands (at the same directory of PKGBUILD) to 
+create package and then install:
+
+```
+$ makepkg -s
+
+$ sudo pacman -U chromium-widevine-1:4.10.2710.0-1-x86_64.pkg.tar.zst
+
+$ makepkg --clean
+```
+
+That's it. Now you can reload qutebrowser and it will be able to open 
+and run content from Netflix, Spotify and etc.
+
 ### Final configurations 
 
 #### Mount an external drive for data
