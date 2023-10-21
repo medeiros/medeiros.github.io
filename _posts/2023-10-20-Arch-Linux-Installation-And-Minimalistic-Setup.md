@@ -524,6 +524,72 @@ That's it! Your laptop is dual boot ready, with Windows 11 and Arch Linux!
 The following actions are related to the configuration of Arch Linux 
 for personal usage. 
 
+### External drive
+
+In my setup, my personal data will be located in an external drive, plugged 
+in a USB port. 
+I want to always mount this drive at startup if the external drive is 
+plugged, but ignore at startup if not plugged.
+
+The idea is to add an entry in `/etc/fstab` file.
+
+First, let's plug the device and check how it is mapped:
+
+```
+$ sudo fdisk -l
+
+Disk /dev/sda: 931.48 GiB, 1000170586112 bytes, 1953458176 sectors
+Disk model: Elements SE 25FE
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x0112dc8c
+
+Device     Boot Start        End    Sectors   Size Id Type
+/dev/sda1        2048 1953458175 1953456128 931.5G 83 Linux
+```
+
+My external drive is mapped as `/dev/sda1`.
+
+Now, I want to obtain the UUID related to this device:
+
+```
+$ ls -l /dev/disk/by-uuid/ | grep sda1
+
+lrwxrwxrwx 1 root root 10 Oct 21 08:57 11e22d6a-11b1-2a2b-3b30-dd1412d1221x -> ../../sda1
+```
+
+I want to map this device to an entry point `~/data` (inside my home directory).
+So, an entry must be added to the `/etc/fstab`, as following: 
+
+```
+$ sudo nvim /etc/fstab
+```
+
+```bash
+# /dev/sda1
+UUID=<add-uuid> /home/daniel/data ext4 rw,nofail,x-systemd.device-timeout=3  0 2
+```
+Some keynotes:
+- te external device is mapped as a `data` subdir, inside my home dir. So, it 
+gives me the illusion that is part of the home filesystem;
+- the external drive that I have is a ext4 Linux filesystem, hence it must 
+be mounted as ext4;
+- the option `nofail` ignores mounting if the device is not plugged;
+- the option `x-systemd.device-timeout` waits for 3 seconds for the external 
+drive to be plugged before give up;
+- the param `0` indicates is a deprecated backup operation, which means "no 
+backup" (if 1, it means "dump utility backup") [^9]
+- the param `2` indicates file system check order: the value 2 means that 
+the check will occur after 1 (the root filesystem) [^9]
+
+And that's it. You can restart to validate the solution. You can also plug 
+the external drive at any time and type `sudo mount -a`; this command will 
+read the `/etc/fstab` file and apply immediately.
+
+
+
 TODO: add setup details (configure external drive, etc)
 
 ## References
@@ -536,3 +602,5 @@ TODO: add setup details (configure external drive, etc)
 [^6]: [Arch boot process: Boot loader](https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader)
 [^7]: [Arch Linux: rEFInd - Beginning](https://wiki.archlinux.org/title/REFInd#)
 [^8]: [Arch Wiki: rEFInd - Manual Installation](https://wiki.archlinux.org/title/REFInd#Manual_installation)
+[^9]: [Red Hat: An introduction to the Linux /etc/fstab file](https://www.redhat.com/sysadmin/etc-fstab)
+
