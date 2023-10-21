@@ -83,7 +83,7 @@ Linux can;
 - **SecureBoot**: Dell SecureBoot is supported only by Windows, and not by 
 ArchLinux. So, it must be disabled;
 - **BitLocker**: Once Dell SecureBoot is disabled, Windows will activate 
-BitLocker. So, it is mandatory to know your Bitlocker PIN;
+BitLocker. So, it is mandatory to know your Bitlocker PIN.
 
 ## Preparation: Windows
 
