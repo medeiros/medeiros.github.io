@@ -54,7 +54,10 @@ This is the laptop hardware spec I adopted in this article:
   - Time Zone: America/Sao Paulo (UTC-3)
 
 Also, an USB flash drive will be required (to install Arch Linux), along with 
-Internet access.
+Internet access. 
+
+I already have a external drive (Linux ext4) that will be referred in this 
+article as well.
 
 ### System Requirements
 
