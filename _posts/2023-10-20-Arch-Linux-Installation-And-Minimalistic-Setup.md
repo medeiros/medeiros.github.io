@@ -606,7 +606,7 @@ the check will occur after 1 (the root filesystem) [^9]
 
 And that's it. You can restart to validate the solution. You can also plug 
 the external drive at any time and type `sudo mount -a`; this command will 
-read the `/etc/fstab` file and apply immediately.
+read the `/etc/fstab` file and apply the mount action immediately.
 
 
 
