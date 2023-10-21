@@ -1374,7 +1374,7 @@ NEXT                            LEFT LAST                          PASSED UNIT  
 Sat 2023-10-21 18:07:22 -03 1min 13s Sat 2023-10-21 17:57:22 -03 8min ago change-wallpaper.timer change-wallpaper.service
 ```
 
-### Lock screen
+### Lock screen: i3lock & xautolock
 
 The i3 window manager does not have lock screen functionality by default. 
 What we want here is to be able to lock/unlock the screen, and also that 
@@ -1462,9 +1462,9 @@ After that, one can reload i3wm (via `$mod+Shift+r`) and try. When pressing
 `Ctrl+Alt+l`, the screen will lock with a specific backgroung image. Then type 
 your user's password and press ENTER to unlock.
 
-#### Configuring autolock
+#### Configuring xautolock
 
-Since the i3lock it properly set, it is time to configure autolock.
+Since the i3lock it properly set, it is time to configure xautolock.
 We'll just add a new line in the i3wm config file:
 
 ```
