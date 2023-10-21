@@ -74,11 +74,11 @@ the local disk will only maintain OS and application files;
 - **Minimalism is the key**: my minimalistic drive is to create a simple and 
 productive environment, so I will choose my setup carefully, considering 
 that new programs and configurations:
-- should provide me with a sense of aesthetics;
-- should have a clear meaning;
-- should be funcional;
-- should improve my productivity;
-- should be logical. 
+  - should provide me with a sense of aesthetics;
+  - should have a clear meaning;
+  - should be funcional;
+  - should improve my productivity;
+  - should be logical. 
 These are in tune with one definition of minimalism that I like: _**"all the 
 things that I have must be clearly funcional or give me joy"**_.
 
