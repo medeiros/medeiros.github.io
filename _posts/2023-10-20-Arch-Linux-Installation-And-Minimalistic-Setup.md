@@ -75,7 +75,7 @@ the local disk will only maintain OS and application files;
 productive environment, so I will choose my setup carefully, considering 
 that new programs and configurations:
   - should provide me with a sense of aesthetics;
-  - should have a clear meaning;
+  - should have a clear purpose;
   - should be funcional;
   - should improve my productivity;
   - should be logical. 
