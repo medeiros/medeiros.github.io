@@ -1270,6 +1270,21 @@ animation-low-framerate = 200
 
 ```
 
+##### Config i3 to launch polybar
+
+The last step is to config i3 to launch polybar and disable the 
+previous i3 status bar. Make sure the end of `config` file is as below: 
+
+```
+$ vim ~/.config/i3/config
+```
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+
+#bar {
+#        status_command i3status
+#}
+```
+
 #### Random/Timed Wallpaper: Systemd/User and shell scripting
 
 This solution uses a 
@@ -1484,9 +1499,53 @@ solution must be evolved to not to lock when streaming video is running in the
 browser (even if mouse or keyboard are not used).
 
 
-#### Picom
+#### Beautifier: Picom
+
+[Picom](https://wiki.archlinux.org/title/Picom) is a tool to make the 
+interfaces and applications prettier.
+
+One can install picom as usual:
+
+```
+$ sudo pacman -S picom
+```
+
+After that, the config file must be created:
+
+```
+$ mkdir ~/.config/picom
+
+$ cp /etc/xdg/picom.conf ~/.config/picom/picom.conf
+```
+
+And then a opacity rule must be added for Alacritty terminal:
+
+```
+$ vim ~/.config/picom/picom.conf
+```
+
+```bash
+opacity-rule = [
+  # Makes Alacritty 95% opaque when focused...
+  "95:class_g = 'Alacritty' && focused",
+  # ... and 40% opaque when not focused.
+  "40:class_g = 'Alacritty' && !focused",
+];
+```
 
 #### Viewnior
+
+[Viewnior](https://siyanpanayotov.com/project/viewnior/download/) is a 
+simple image viewer program that can be used to show several images in 
+a directory.
+
+One can install it in Arch as usual:
+
+```
+$ sudo pacman -S viewnior
+```
+
+And that's it. Use it at will.
 
 #### NeoVim
 
