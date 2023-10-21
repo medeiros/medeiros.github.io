@@ -591,7 +591,7 @@ UUID=<add-uuid> /home/daniel/data ext4 rw,nofail,x-systemd.device-timeout=3  0 2
 Understanding this entry in depth:
 - the external device is mapped as a `data` subdir, inside my home dir. I like 
 this kind of abstraction in Linux, where "everything is a file", and also it 
-can give me the pleasant illusion that an external drive can be treated is part 
+can give me the pleasant illusion that an external drive can be treated as part 
 of the home filesystem;
 - the external drive that I own is an ext4 Linux filesystem, hence it must 
 be mounted as ext4;
