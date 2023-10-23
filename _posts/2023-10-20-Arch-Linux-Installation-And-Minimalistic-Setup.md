@@ -79,8 +79,10 @@ that new programs and configurations:
   - should be funcional;
   - should improve my productivity;
   - should be logical. 
-These are in tune with one definition of minimalism that I like: _**"all the 
-things that I have must be clearly funcional or give me joy"**_.
+
+These minimalist items are in tune with one definition of minimalism that I 
+like: _**"all the things that I have must be clearly funcional or give me 
+joy"**_.
 
 ### Key concepts
 
