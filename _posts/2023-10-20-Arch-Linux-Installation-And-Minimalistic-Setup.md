@@ -700,7 +700,8 @@ sudo pacman -S tmux
 
 Regarding configuration, I want to change some default bind keys to make 
 easier for me to create vertical and horizontal panes, and I want to use 
-fish shell every time I use tmux. So, my config file is as below:
+fish shell every time I use tmux. I also want to configure a nice visual 
+interface. So, my config file is as below:
 
 ```
 mkdir -p ~/.config/tmux
