@@ -1553,6 +1553,97 @@ And that's it. Use it at will.
 
 to do: finalize it
 
+### Creating a dev environment with Fish, tmux and NeoVim
+
+Since tmux, fish anbd nvim are already installed, let's add a few functions 
+to create a layout environment for development.
+
+The functions below are fish functions that, when triggered, will execute 
+tmux commands to setup a layout for development of my github personal site:
+
+```
+vim ~/.config/fish/functions/tmux_layout_mysite.fish 
+```
+```bash
+function tmux_layout_mysite
+
+        if test -z (findmnt /home/daniel/data|head -1)
+                echo data device not mounted
+                return 0
+        end
+
+        set session s0
+        set session_name (tmux ls -F "#{session_name}" 2>/dev/null | grep "^$session\$" )
+
+        set window1 mysite
+        set window1path "~/data/code/opensource/medeiros.github.io"
+        set window2 cmd
+
+        if test -z $session_name
+                tmux $TMUX_OPTS new-session -s s0 -d -n $window1
+                #tmux new-window -a -t $session -n $window1
+                tmux split-window -t $session:$window1
+                tmux resize-pane -t $session:$window1.1 -y 20%
+                tmux send-keys -t $session:$window1.0 "nvim" Enter
+                tmux send-keys -t $session:$window1.1 "cd $window1path; git status" Enter
+
+                tmux new-window -a -t $session -n $window2
+                tmux send-keys -t $session:$window2 "cd ~; ls -lah" Enter
+
+                tmux switch -t $session:$window1.0
+        else
+                tmux $TMUX_OPTS attach -t s0
+                tmux switch -t $session
+                return 0
+        end
+
+end
+```
+
+And now the function to kill dev tmux session:
+
+```
+vim ~/.config/fish/functions/tmux_layout_mysite_kill.fish 
+```
+```bash
+function tmux_layout_mysite_kill
+        set session s0
+        set session_name (tmux ls -F "#{session_name}" 2>/dev/null | grep "^$session\$" )
+
+        set window1 mysite
+        set window2 cmd
+
+        if ! test -z $session_name
+                tmux switch -t 0
+                tmux kill-window -t $session:$window2
+                tmux kill-window -t $session:$window1
+        else
+                return 0
+        end
+end
+```
+
+The configuration is done. After that, when typying at fish shell: 
+
+```
+tmux_layout_mysite
+```
+
+The development environment will be created. More specifically, a tmux session 
+will be created, with two windows: one window with two panes (one for nvim and 
+one for git), and a second window for general fish shell.
+
+When done, one can type at fish shell:
+
+```
+tmux_layout_mysite_kill
+```
+
+To kill the development session.
+
+> These are simple examples, but very powerful. One can use them as reference 
+to create its own specific automations.
+
 ### Premium streaming content: chromium-widevine
 
 `qutebrowser` is not able to run premium streaming content out of the box. 
