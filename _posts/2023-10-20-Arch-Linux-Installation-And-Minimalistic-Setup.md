@@ -703,7 +703,9 @@ easier for me to create vertical and horizontal panes, and I want to use
 fish shell every time I use tmux. So, my config file is as below:
 
 ```
-vim ~/.tmux.conf
+mkdir -p ~/.config/tmux
+
+vim ~/.config/tmux/tmux.conf
 ```
 
 ```bash
