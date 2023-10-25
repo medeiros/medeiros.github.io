@@ -1823,6 +1823,72 @@ And that's it. You can restart to validate the solution. You can also plug
 the external drive at any time and type `sudo mount -a`; this command will 
 read the `/etc/fstab` file and apply the mount action immediately.
 
+### Set i3 startup programs in proper workspaces
+
+In my setup, when i3 starts, I want it to open `alacritty` in my first 
+workspace and `qutebrowser` in my second workspace. The "tradicional" way of 
+doing this is something like below (in `~/.config/i3/config` file):
+
+```bash 
+exec --no-startup-id i3-msg 'workspace 1; exec alacritty; workspace 2; exec qutebrowser'
+```
+However, it won't work as expected for all programs. In this case, it works 
+well for `alacritty` but not for `qutebrowser`; for `qutebrowser`, it seems to 
+always start in the Workspace 1, even when workspace 2 was explicitly set.
+
+[As explained here](https://i3wm.org/docs/userguide.html#assign_workspace), the 
+problem is that the map might be executed when the application is not mapped to 
+the window yet (which seems to be the case for browsers). So, it is recommended 
+that _"you match on window classes (and instances, when appropriate) 
+instead of window titles whenever possible because some applications first 
+create their window, and then worry about setting the correct title."_ [^14].
+
+Execute `xprop` at command line and then click on qutebrowser window. It will
+give you an output similiar to this:
+
+```
+...
+WM_NAME(COMPOUND_TEXT) = "i3: i3 User’s Guide - qutebrowser"
+_NET_WM_NAME(UTF8_STRING) = "i3: i3 User’s Guide - qutebrowser"
+_MOTIF_WM_HINTS(_MOTIF_WM_HINTS) = 0x3, 0x3e, 0x7e, 0x0, 0x0
+_NET_WM_WINDOW_TYPE(ATOM) = _NET_WM_WINDOW_TYPE_NORMAL
+_XEMBED_INFO(_XEMBED_INFO) = 0x0, 0x1
+WM_CLIENT_LEADER(WINDOW): window id # 0x1a00024
+WM_HINTS(WM_HINTS):
+                Client accepts input or input focus: True
+                window id # of group leader: 0x1a00024
+WM_CLIENT_MACHINE(STRING) = "ataraxia"
+_NET_WM_PID(CARDINAL) = 22683
+_NET_WM_SYNC_REQUEST_COUNTER(CARDINAL) = 27263011
+WM_CLASS(STRING) = "qutebrowser", "qutebrowser"
+WM_PROTOCOLS(ATOM): protocols  WM_DELETE_WINDOW, WM_TAKE_FOCUS, _NET_WM_PING, _NET_WM_SYNC_REQUEST
+WM_NORMAL_HINTS(WM_SIZE_HINTS):
+                user specified location: 2, 58
+                user specified size: 1916 by 1020
+                program specified minimum size: 127 by 32
+                window gravity: NorthWest 
+```
+
+Note the entry `WM_CLASS(STRING)`, with two params: the first param 
+corresponds to the instance and the second param corresponds to the class. 
+The class is important here, because will be used below.
+
+Now, edit the `~/.config/i3/config` file and add the following lines: 
+
+```
+assign [class="qutebrowser"] 2
+exec --no-startup-id i3-msg 'exec qutebrowser; workspace 1; exec alacritty'
+```
+
+What happens now (when i3 starts) is:
+
+- The `assign` command will make sure that `qutebrowser` will always open on 
+Workspace 2;
+- The `exec` command will run `qutebrowser` (that will be properly opened in 
+Workspace 2, as assigned), then will change to workspace 1 and then will run 
+`alacritty` (since `alacritty` has no windows issues in that regard, it will 
+properly run on the current Workspace 1).
+
 ### Make shell fun with cowsay and fortune
 
 This section is just for fun in your terminal. Install the following 
@@ -1889,4 +1955,5 @@ to do: finalize it
 [^11]: [Install and start Xorg](https://www.ejmastnak.com/tutorials/arch/startx/)
 [^12]: [Github: Alacritty Themes](https://github.com/alacritty/alacritty-theme)
 [^13]: [Fish - Configurable Greeting](https://fishshell.com/docs/current/interactive.html#configurable-greeting)
-
+[^14]: [i3wm: Automatically putting clients on specific workspaces
+](https://i3wm.org/docs/userguide.html#assign_workspace)
