@@ -1833,7 +1833,7 @@ $ sudo pacman -S cowsay fortune-mod
 ```
 
 The, create a fish function `~/.config/fish/functions/fish_greeting.fish` 
-to call these programs when the fish shell starts (greeting message) [^13], 
+to call these programs when the fish shell starts (greeting message) [^13] , 
 as below:
 
 ```
