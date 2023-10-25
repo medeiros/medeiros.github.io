@@ -1823,6 +1823,51 @@ And that's it. You can restart to validate the solution. You can also plug
 the external drive at any time and type `sudo mount -a`; this command will 
 read the `/etc/fstab` file and apply the mount action immediately.
 
+### Make shell fun with cowsay and fortune
+
+This section is just for fun in your terminal. Install the following 
+programs:
+
+```
+$ sudo pacman -S cowsay fortune-mod 
+```
+
+The, create a fish function `.config/fish/functions/fish_greeting.fish` 
+to call these programs when the fish shell starts (greeting message [^13]), 
+as below:
+
+```
+vim ~/.config/fish/functions/fish_greeting.fish
+```
+
+```bash
+function fish_greeting
+        fortune | cowsay
+end
+```
+
+Now, every time you open, your terminal, a cow give you some words of 
+wisdom:
+
+```
+ ______________________________________
+/ A mouse is a device used to point at \
+| the xterm you want to type in.       |
+|                                      |
+| -- Unknown                           |
+|                                      |
+\ -- alt.sysadmin.recovery ( )         /
+ --------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+daniel@ataraxia ~>
+```
+
+
 ## Conclusions
 
 to do: finalize it 
@@ -1842,3 +1887,4 @@ to do: finalize it
 [^11]: [Install and start Xorg](https://www.ejmastnak.com/tutorials/arch/startx/)
 [^12]: [Github: Alacritty Themes](https://github.com/alacritty/alacritty-theme)
 - [Find Your Footing After Installing Arch Linux](https://www.ejmastnak.com/tutorials/arch/about/)
+[^13]: [Fish - Configurable Greeting](https://fishshell.com/docs/current/interactive.html#configurable-greeting)
