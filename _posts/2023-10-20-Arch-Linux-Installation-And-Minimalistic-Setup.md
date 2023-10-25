@@ -1832,8 +1832,8 @@ programs:
 $ sudo pacman -S cowsay fortune-mod 
 ```
 
-The, create a fish function `.config/fish/functions/fish_greeting.fish` 
-to call these programs when the fish shell starts (greeting message [^13]), 
+The, create a fish function `~/.config/fish/functions/fish_greeting.fish` 
+to call these programs when the fish shell starts (greeting message) [^13], 
 as below:
 
 ```
@@ -1888,3 +1888,4 @@ to do: finalize it
 [^12]: [Github: Alacritty Themes](https://github.com/alacritty/alacritty-theme)
 - [Find Your Footing After Installing Arch Linux](https://www.ejmastnak.com/tutorials/arch/about/)
 [^13]: [Fish - Configurable Greeting](https://fishshell.com/docs/current/interactive.html#configurable-greeting)
+
