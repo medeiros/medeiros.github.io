@@ -1846,7 +1846,7 @@ function fish_greeting
 end
 ```
 
-Now, every time you open, your terminal, a cow give you some words of 
+Now, every time you open your terminal, a cow give you some words of 
 wisdom:
 
 ```
