@@ -1916,14 +1916,12 @@ Now, every time you open your terminal, a cow give you some words of
 wisdom:
 
 ```
- ______________________________________
-/ A mouse is a device used to point at \
-| the xterm you want to type in.       |
-|                                      |
-| -- Unknown                           |
-|                                      |
-\ -- alt.sysadmin.recovery ( )         /
- --------------------------------------
+ _________________________________________
+/ The more complex the mind, the greater  \
+| the need for the simplicity of play.    |
+|                                         |
+\ -- Kirk, "Shore Leave", stardate 3025.8 /
+ -----------------------------------------
         \   ^__^
          \  (oo)\_______
             (__)\       )\/\
