@@ -1874,6 +1874,8 @@ to do: finalize it
 
 ## References
 
+- [Find Your Footing After Installing Arch Linux](https://www.ejmastnak.com/tutorials/arch/about/)
+
 [^1]: [Change Bitlocker PIN in Windows10](https://www.thewindowsclub.com/change-bitlocker-pin-in-windows-10))
 [^2]:[Arch Wiki: Dual boot With Windows](https://wiki.archlinux.org/title/Dual_boot_with_Windows), section "2.1.2 - Installation / Windows Before Linux / BIOS Systems / UEFI Systems" 
 [^3]: [ArchWiki: USB flash installation medium](https://wiki.archlinux.org/title/USB_flash_installation_medium): see section "2.3.2 - Using manual formatting/UEFI only/In Windows" 
@@ -1888,4 +1890,3 @@ to do: finalize it
 [^12]: [Github: Alacritty Themes](https://github.com/alacritty/alacritty-theme)
 [^13]: [Fish - Configurable Greeting](https://fishshell.com/docs/current/interactive.html#configurable-greeting)
 
-- [Find Your Footing After Installing Arch Linux](https://www.ejmastnak.com/tutorials/arch/about/)
