@@ -1886,6 +1886,6 @@ to do: finalize it
 [^10]: [Understanding /etc/group File in Linux](https://www.cyberciti.biz/faq/understanding-etcgroup-file/)
 [^11]: [Install and start Xorg](https://www.ejmastnak.com/tutorials/arch/startx/)
 [^12]: [Github: Alacritty Themes](https://github.com/alacritty/alacritty-theme)
-- [Find Your Footing After Installing Arch Linux](https://www.ejmastnak.com/tutorials/arch/about/)
 [^13]: [Fish - Configurable Greeting](https://fishshell.com/docs/current/interactive.html#configurable-greeting)
 
+- [Find Your Footing After Installing Arch Linux](https://www.ejmastnak.com/tutorials/arch/about/)
