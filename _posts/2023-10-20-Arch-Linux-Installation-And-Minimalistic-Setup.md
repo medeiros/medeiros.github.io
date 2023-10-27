@@ -1958,13 +1958,15 @@ According to
 `autorandr` _"allow you to automatically detect when a new display is connected 
 and then change the layout based on that. This can be useful for laptop users 
 who frequently work in multiple different environments that require different 
-setups"_ [^16] . So, it should be installed as below:
+setups"_ [^16] . 
+
+It should be installed as below:
 
 ```
 $ sudo pacman -S autorandr 
 ```
 
-And that's it. More information about `autorandr` can be found on their 
+And that's it. More information about `autorandr` can be found on the 
 [Github repository](https://github.com/phillipberndt/autorandr).
 
 #### Create fish functions for multihead and keyboard mapping
