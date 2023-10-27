@@ -1950,6 +1950,22 @@ to change my modes depending on the situation.
 
 To do so, my approach is as below:
 
+#### Install autorandr
+
+According to 
+[Arch Wiki page](https://wiki.archlinux.org/title/multihead#Dynamic_display_configuration), 
+`autorandr` _"allow you to automatically detect when a new display is connected 
+and then change the layout based on that. This can be useful for laptop users 
+who frequently work in multiple different environments that require different 
+setups"_ [^16]. So, it should be installed as below:
+
+```
+$ sudo pacman -S autorandr 
+```
+
+And that's it. More information about `autorandr` can be found on their 
+[Github repository](https://github.com/phillipberndt/autorandr).
+
 #### Create fish functions for multihead and keyboard mapping
 
 The following function define my monitor usage using `xrandr`:
@@ -2119,4 +2135,5 @@ to do: finalize it
 [^14]: [i3wm: Automatically putting clients on specific workspaces
 ](https://i3wm.org/docs/userguide.html#assign_workspace)
 [^15]: [Alacritty: different font size on multiple monitors](https://wiki.archlinux.org/title/Alacritty#Different_font_size_on_multiple_monitors)
+[^16]: [Arch Multihead: dynamic display configuration](https://wiki.archlinux.org/title/multihead#Dynamic_display_configuration)
 
