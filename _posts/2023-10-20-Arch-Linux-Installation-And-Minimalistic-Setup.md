@@ -1945,7 +1945,7 @@ by long hours;
 - **Remote**: in this mode, my laptop is not connected with keyboard or 
 monitor external devices. My laptop's keyboard layout is `br-abnt2`.
 
-So, it is important to me to have a simple and funcional system that can  
+So, it is important to me to have a simple and funcional system that can 
 change my 'modes' depending on the situation.
 
 To do so, my approach is as below:
@@ -1957,7 +1957,7 @@ According to
 `autorandr` _"allow you to automatically detect when a new display is connected 
 and then change the layout based on that. This can be useful for laptop users 
 who frequently work in multiple different environments that require different 
-setups"_ [^16]. So, it should be installed as below:
+setups"_ [^16] . So, it should be installed as below:
 
 ```
 $ sudo pacman -S autorandr 
@@ -2016,8 +2016,9 @@ function _print
 end
 ```
 
-And the following functions are responsible to set between modes. The 
-criteria to do so it to identify if there is a connected HDMI monitor:
+And the following functions are responsible to apply changes based on the 
+current mode. The criteria to define it is to identify if there is a connected 
+HDMI monitor or not:
 
 ```
 vim ~/.config/fish/functions/set_current_workmode.fish 
@@ -2050,13 +2051,13 @@ function _prefix
 end
 ```
 
-After that, the function responsible to identify the workmode and set 
-monitor and kayboard accordingly are set. How it is necessary to add 
-the trigger.
+After that, the functions responsible to identify the current workmode 
+and to set monitor and keyboard accordingly are all set. Now it is 
+necessary to add the trigger.
 
 #### Configure function execution at fish startup
 
-I choose to run the workmode identification function everytime a new 
+I choose to run the 'work mode identification' function everytime a new 
 fish shell is started. To do so, it is just necessary to edit the 
 `config.fish` file and make it call the `set_current_workmode` 
 function, as below:
