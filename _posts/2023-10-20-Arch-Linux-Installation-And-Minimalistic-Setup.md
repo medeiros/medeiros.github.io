@@ -72,8 +72,9 @@ compatibility);
 - **External data files**: my data files will reside on an external drive, so 
 the local disk will only maintain OS and application files; 
 - **Different workmodes**: in the 'home' workmode, my laptop will be connected 
-to an HDMI external monitor and I will be using a us-intl keyboard; in the 
-'remote' workmode, I will only be using laptop monitor and keyboard (br-abnt2). 
+to an HDMI external monitor and I will be using a `us-intl` keyboard; in the 
+'remote' workmode, I will only be using laptop monitor and keyboard 
+(`br-abnt2`). 
 - **Minimalism is the key**: my minimalistic drive is to create a simple and 
 productive environment, so I will choose my setup carefully, considering 
 that new programs and configurations:
@@ -1940,7 +1941,7 @@ As previously said (in the 'System Requirements' section of this post), my
 way of working with Arch Linux demands two different "work modes": 
 
 - **At home**: In this scenario, I connect an additional HDMI monitor and an 
-external us-intl keyboard in my laptop, for better experience while working 
+external `us-intl` keyboard in my laptop, for better experience while working 
 by long hours;
 - **Remote**: in this mode, my laptop is not connected with keyboard or 
 monitor external devices. My laptop's keyboard layout is `br-abnt2`.
@@ -2057,7 +2058,7 @@ necessary to add the trigger.
 
 #### Configure function execution at fish startup
 
-I choose to run the 'work mode identification' function everytime a new 
+I choose to run the 'work mode identification function everytime a new 
 fish shell is started. To do so, it is just necessary to edit the 
 `config.fish` file and make it call the `set_current_workmode` 
 function, as below:
