@@ -1942,7 +1942,7 @@ way of working with Arch Linux demands two different "work modes":
 
 - **At home**: In this scenario, I connect an additional HDMI monitor and an 
 external `us-intl` keyboard in my laptop, for better experience while working 
-by long hours;
+for long hours;
 - **Remote**: in this mode, my laptop is not connected with keyboard or 
 monitor external devices. My laptop's keyboard layout is `br-abnt2`.
 
