@@ -56,8 +56,8 @@ This is the laptop hardware spec I adopted in this article:
 Also, an USB flash drive will be required (to install Arch Linux), along with 
 Internet access. 
 
-I already have a external drive (Linux ext4) that will be referred in this 
-article as well.
+I already have a external drive (Linux ext4) and a external monitor, that will 
+be referred in this article as well.
 
 ### System Requirements
 
@@ -71,6 +71,9 @@ requirement in some particular scenarios - mostly related to data
 compatibility);
 - **External data files**: my data files will reside on an external drive, so 
 the local disk will only maintain OS and application files; 
+- **Different workmodes**: in the 'home' workmode, my laptop will be connected 
+to an HDMI external monitor and I will be using a us-intl keyboard; in the 
+'remote' workmode, I will only be using laptop monitor and keyboard (br-abnt2). 
 - **Minimalism is the key**: my minimalistic drive is to create a simple and 
 productive environment, so I will choose my setup carefully, considering 
 that new programs and configurations:
@@ -1931,6 +1934,166 @@ wisdom:
 daniel@ataraxia ~>
 ```
 
+### Configure Work Modes: home and remote
+
+As said in the 'System Requirements' section of this post, I have two different 
+"work modes": 
+
+- **At home**: I have a additional HDMI monitor and a external us-intl keyboard 
+that I wanna use with my laptop, for better experience while working by long 
+hours;
+- **Remote**: in this mode, I only have my laptop (no additional monitor, and 
+the laptop keyboard layout is br-abnt2).
+
+So, it is important to me to be able to have a simple and funcional system 
+to change my modes depending on the situation.
+
+To do so, my approach is as below:
+
+#### Create fish functions for multihead and keyboard mapping
+
+The following function define my monitor usage using `xrandr`:
+
+```
+vim ~/.config/fish/functions/multihead.fish 
+```
+```bash
+function multihead
+    xrandr --output eDP-1 --auto --output HDMI-1 --auto --right-of eDP-1
+    echo 'multihead set.: output eDP-1; output HDMI-1 right-of eDP-1 \
+            (see: xrandr -q)'
+end
+```
+
+The following functions set keyboard mapping:
+
+```
+vim ~/.config/fish/functions/kb_map.fish 
+```
+```bash
+function kb_map
+    set kbmap $argv[1]
+
+    if [ "$kbmap" = "us" ]
+        _apply us intl
+    else if [ "$kbmap" = "br" ]
+        _apply br abnt2
+    else
+        echo "invalid param. options: us|br"
+    end
+end
+
+function _apply
+    set layout $argv[1]
+    set variant $argv[2]
+
+    setxkbmap -model pc105 -layout $layout -variant $variant
+
+    echo -n "kb_map set.........: "; _print model; _print layout; \
+            _print variant; echo ' '
+end
+
+function _print
+    echo -n $argv[1]: (setxkbmap -print -verbose 10 | grep -i $argv[1] \
+            | tr -s ' ' | cut -d ' ' -f2)
+    echo -n '; '
+end
+```
+
+And the following functions are responsible to set between modes. The 
+criteria to do so it to identify if there is a connected HDMI monitor:
+
+```
+vim ~/.config/fish/functions/set_current_workmode.fish 
+```
+```bash
+function set_current_workmode    
+    _margin
+    if [ (xrandr -q | grep ' connected' | wc -l) = 2 ]
+        _detected_workmode 'home'
+        _prefix; multihead
+        _prefix; kb_map us
+    else
+        _detected_workmode 'remote'
+        _prefix; echo 'single monitor set'
+        _prefix; kb_map br
+    end
+    _margin
+end
+
+function _margin
+    echo ' '
+end
+
+function _detected_workmode
+    echo "Detected work mode: $argv[1]"
+end
+
+function _prefix
+    echo -n '   - '
+end
+```
+
+After that, the function responsible to identify the workmode and set 
+monitor and kayboard accordingly are set. How it is necessary to add 
+the trigger.
+
+#### Configure function execution at fish startup
+
+I choose to run the workmode identification function everytime a new 
+fish shell is started. To do so, it is just necessary to edit the 
+`config.fish` file and make it call the `set_current_workmode` 
+function, as below:
+
+```
+vim ~/.config/fish/config.fish
+```
+```bash
+if status is-interactive    
+    # Commands to run in interactive sessions can go here
+
+    set_current_workmode
+end
+```
+
+Now, when a new shell is open, fish will apply the work modes 
+depending on if the additional monitor is connected or not.
+
+#### Set Alacritty font size on multiple monitors
+
+This is an additional item. I realized that, when using an external monitor, 
+Alacritty font size is really small in this monitor, and it requires me to 
+always adjust manually (which is annoying).
+
+[According to this page](https://wiki.archlinux.org/title/Alacritty#Different_font_size_on_multiple_monitors), 
+_"by default, Alacritty attempts to scale fonts to the appropriate point size 
+on each monitor based on the Device pixel ratio. On some setups with multiple 
+displays, this behavior can result in vastly different physical sizes"_ [^15].
+So, the ideal for me is to force a constant pixel ratio, instead.
+
+For this, edit the Alacritty configuration file, as below:
+
+```
+vim ~/.config/alacritty/alacritty.yml
+```
+```bash 
+# Any items in the `env` entry below will be added as
+# environment variables. Some entries may override variables
+# set by alacritty itself.
+#env:
+  # TERM variable
+  #
+  # This value is used to set the `$TERM` environment variable for
+  # each instance of Alacritty. If it is not present, alacritty will
+  # check the local terminfo database and use `alacritty` if it is
+  # available, otherwise `xterm-256color` is used.
+  #TERM: alacritty
+env:
+  WINIT_X11_SCALE_FACTOR: "1.3"
+```
+
+This ratio size of 1.3 suits me well. Different values can be used at will.
+
 
 ## Conclusions
 
@@ -1955,3 +2118,5 @@ to do: finalize it
 [^13]: [Fish - Configurable Greeting](https://fishshell.com/docs/current/interactive.html#configurable-greeting)
 [^14]: [i3wm: Automatically putting clients on specific workspaces
 ](https://i3wm.org/docs/userguide.html#assign_workspace)
+[^15]: [Alacritty: different font size on multiple monitors](https://wiki.archlinux.org/title/Alacritty#Different_font_size_on_multiple_monitors)
+
