@@ -2134,8 +2134,7 @@ to do: finalize it
 [^11]: [Install and start Xorg](https://www.ejmastnak.com/tutorials/arch/startx/)
 [^12]: [Github: Alacritty Themes](https://github.com/alacritty/alacritty-theme)
 [^13]: [Fish - Configurable Greeting](https://fishshell.com/docs/current/interactive.html#configurable-greeting)
-[^14]: [i3wm: Automatically putting clients on specific workspaces
-](https://i3wm.org/docs/userguide.html#assign_workspace)
+[^14]: [i3wm: Automatically putting clients on specific workspaces](https://i3wm.org/docs/userguide.html#assign_workspace)
 [^15]: [Alacritty: different font size on multiple monitors](https://wiki.archlinux.org/title/Alacritty#Different_font_size_on_multiple_monitors)
 [^16]: [Arch Multihead: dynamic display configuration](https://wiki.archlinux.org/title/multihead#Dynamic_display_configuration)
 
