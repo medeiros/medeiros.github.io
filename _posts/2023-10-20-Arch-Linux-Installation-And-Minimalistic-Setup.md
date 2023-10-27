@@ -2063,11 +2063,11 @@ function set_current_workmode
     if [ (xrandr -q | grep ' connected' | wc -l) = 2 ]
         _detected_workmode 'home'
         _prefix; multihead
-        _prefix; kb_map us
+        _prefix; kb_map 'us'
     else
         _detected_workmode 'remote'
         _prefix; echo 'single monitor set'
-        _prefix; kb_map br
+        _prefix; kb_map 'br'
     end
     _margin
 end
@@ -2077,7 +2077,7 @@ function _margin
 end
 
 function _detected_workmode
-    echo "Detected work mode: $argv[1]"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S' )]: Detected work mode: $argv[1]"
 end
 
 function _prefix
