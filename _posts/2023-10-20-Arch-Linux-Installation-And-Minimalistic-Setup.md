@@ -71,10 +71,10 @@ requirement in some particular scenarios - mostly related to data
 compatibility);
 - **External data files**: my data files will reside on an external drive, so 
 the local disk will only maintain OS and application files; 
-- **Different workmodes**: in the 'home' workmode, my laptop will be connected 
-to an HDMI external monitor and I will be using a `us-intl` keyboard; in the 
-'remote' workmode, I will only be using laptop monitor and keyboard 
-(`br-abnt2`). 
+- **Different workmodes**: in the _home_ workmode, my laptop will be connected 
+to an HDMI external monitor and I will be using a external `us-intl` keyboard; 
+in the _remote_ workmode, I will be using laptop directly, without external 
+monitor or keyboard. My laptop keyboard layout is `br-abnt2`. 
 - **Minimalism is the key**: my minimalistic drive is to create a simple and 
 productive environment, so I will choose my setup carefully, considering 
 that new programs and configurations:
