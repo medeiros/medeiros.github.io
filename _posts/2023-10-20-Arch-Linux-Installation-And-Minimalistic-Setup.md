@@ -1879,7 +1879,7 @@ The class is important here, because will be used below.
 
 Now, edit the `~/.config/i3/config` file and add the following lines: 
 
-```
+```bash
 assign [class="Alacritty"] 1
 assign [class="qutebrowser"] 2
 exec --no-startup-id i3-msg 'exec qutebrowser; exec alacritty; workspace 1'
