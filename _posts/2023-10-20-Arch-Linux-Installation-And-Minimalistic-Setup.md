@@ -1890,8 +1890,8 @@ What happens now (when i3 starts) is:
 - The `assign` command will make sure that `alacritty` will always open on 
 Workspace 1, and `qutebrowser` will always open on Workspace 2;
 - The `exec` command will run `alacritty` (that will be properly opened in 
-Workspace 1, as assigned), then qutebrowser` (that will be properly opened in 
-Workspace 2, as assigned), then will change to Workspace 1.
+Workspace 1, as assigned) and qutebrowser` (that will be properly opened in 
+Workspace 2, as assigned); then, will change to Workspace 1.
 
 ### Make shell fun with cowsay and fortune
 
