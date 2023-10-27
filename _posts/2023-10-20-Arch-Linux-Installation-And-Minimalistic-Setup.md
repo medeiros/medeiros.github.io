@@ -1836,19 +1836,19 @@ doing this is something like below (in `~/.config/i3/config` file):
 ```bash 
 exec --no-startup-id i3-msg 'workspace 1; exec alacritty; workspace 2; exec qutebrowser'
 ```
-However, it won't work as expected for all programs. In this case, it works 
-well for `alacritty` but not for `qutebrowser`; for `qutebrowser`, it seems to 
-always start in the Workspace 1, even when workspace 2 was explicitly set.
+However, it won't work as expected for all programs. In this case, for both  
+`alacritty` and `qutebrowser`, it seems to always start in the Workspace 1, 
+even when workspace 2 was explicitly set.
 
 [As explained here](https://i3wm.org/docs/userguide.html#assign_workspace), the 
 problem is that the map might be executed when the application is not mapped to 
-the window yet (which seems to be the case for browsers). So, it is recommended 
-that _"you match on window classes (and instances, when appropriate) 
-instead of window titles whenever possible because some applications first 
-create their window, and then worry about setting the correct title."_ [^14].
+the window yet. So, it is recommended that _"you match on window classes (and 
+instances, when appropriate) instead of window titles whenever possible because 
+some applications first create their window, and then worry about setting the 
+correct title."_ [^14].
 
-Execute `xprop` at command line and then click on qutebrowser window. It will
-give you an output similiar to this:
+Execute `xprop` at command line and then click on `alacritty` and `qutebrowser` 
+windows. It will give you an output similiar to this:
 
 ```
 ...
@@ -1880,18 +1880,18 @@ The class is important here, because will be used below.
 Now, edit the `~/.config/i3/config` file and add the following lines: 
 
 ```
+assign [class="Alacritty"] 1
 assign [class="qutebrowser"] 2
-exec --no-startup-id i3-msg 'exec qutebrowser; workspace 1; exec alacritty'
+exec --no-startup-id i3-msg 'exec qutebrowser; exec alacritty; workspace 1'
 ```
 
 What happens now (when i3 starts) is:
 
-- The `assign` command will make sure that `qutebrowser` will always open on 
-Workspace 2;
-- The `exec` command will run `qutebrowser` (that will be properly opened in 
-Workspace 2, as assigned), then will change to workspace 1 and then will run 
-`alacritty` (since `alacritty` has no windows issues in that regard, it will 
-properly run on the current Workspace 1).
+- The `assign` command will make sure that `alacritty` will always open on 
+Workspace 1, and `qutebrowser` will always open on Workspace 2;
+- The `exec` command will run `alacritty` (that will be properly opened in 
+Workspace 1, as assigned), then qutebrowser` (that will be properly opened in 
+Workspace 2, as assigned), then will change to Workspace 1.
 
 ### Make shell fun with cowsay and fortune
 
@@ -1950,6 +1950,37 @@ So, it is important to me to have a simple and funcional system that can
 change my 'modes' depending on the situation.
 
 To do so, my approach is as below:
+
+#### Configure i3 workspaces
+
+I want to configure i3 so that, if an external monitor (HDMI-1) is connected, 
+it will be used for all my workspaces. Otherwise, it should use the laptop 
+monitor (eDP-1) for all my workspaces. [^17][^18]. For that, add the following 
+entries:
+
+```
+$ vim ~/.config/i3/config
+```
+```bash
+# Define output monitor for workspaces
++workspace $ws1 output HDMI-1 eDP-1
++workspace $ws2 output HDMI-1 eDP-1
++workspace $ws3 output HDMI-1 eDP-1
++workspace $ws4 output HDMI-1 eDP-1
++workspace $ws5 output HDMI-1 eDP-1
++workspace $ws6 output HDMI-1 eDP-1
++workspace $ws7 output HDMI-1 eDP-1
++workspace $ws8 output HDMI-1 eDP-1
++workspace $ws9 output HDMI-1 eDP-1
++workspace $ws10 output eDP-1
+```
+
+> If the external monitor is connected, all workspaces will be bound to that 
+monitor. But the laptop monitor still exists and it need a workspace as well. 
+That is why I configured the last workspace (10) to bind only to the laptop 
+monitor (eDP-1), even if the external monitor is connected. But if I choose 
+to bind workspace 10 to the HDMI-1 monitor, i3 automatically creates a 
+workspace 11 and bind it to the laptop monitor (_there should be at least one_).
 
 #### Install autorandr
 
@@ -2139,4 +2170,6 @@ to do: finalize it
 [^14]: [i3wm: Automatically putting clients on specific workspaces](https://i3wm.org/docs/userguide.html#assign_workspace)
 [^15]: [Alacritty: different font size on multiple monitors](https://wiki.archlinux.org/title/Alacritty#Different_font_size_on_multiple_monitors)
 [^16]: [Arch Multihead: dynamic display configuration](https://wiki.archlinux.org/title/multihead#Dynamic_display_configuration)
+[^17]: [i3wm: Workspaces screen](https://i3wm.org/docs/userguide.html#workspace_screen)
+[^18]: [i3wm: Assign workspaces on i3 to multiple displays](https://unix.stackexchange.com/questions/344329/assign-workspaces-on-i3-to-multiple-displays)
 
