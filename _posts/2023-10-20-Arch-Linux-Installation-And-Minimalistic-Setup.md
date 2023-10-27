@@ -1934,19 +1934,19 @@ wisdom:
 daniel@ataraxia ~>
 ```
 
-### Configure Work Modes: home and remote
+### Work Modes: home and remote
 
-As said in the 'System Requirements' section of this post, I have two different 
-"work modes": 
+As previously said (in the 'System Requirements' section of this post), my 
+way of working with Arch Linux demands two different "work modes": 
 
-- **At home**: I have a additional HDMI monitor and a external us-intl keyboard 
-that I wanna use with my laptop, for better experience while working by long 
-hours;
-- **Remote**: in this mode, I only have my laptop (no additional monitor, and 
-the laptop keyboard layout is br-abnt2).
+- **At home**: In this scenario, I connect an additional HDMI monitor and an 
+external us-intl keyboard in my laptop, for better experience while working 
+by long hours;
+- **Remote**: in this mode, my laptop is not connected with keyboard or 
+monitor external devices. My laptop's keyboard layout is `br-abnt2`.
 
-So, it is important to me to be able to have a simple and funcional system 
-to change my modes depending on the situation.
+So, it is important to me to have a simple and funcional system that can  
+change my 'modes' depending on the situation.
 
 To do so, my approach is as below:
 
