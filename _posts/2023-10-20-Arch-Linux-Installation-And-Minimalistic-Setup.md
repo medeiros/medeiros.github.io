@@ -2114,7 +2114,7 @@ depending on if the additional monitor is connected or not.
 #### Set Alacritty font size on multiple monitors
 
 This is an additional item. I realized that, when using an external monitor, 
-Alacritty font size is really small in this monitor, and it requires me to 
+Alacritty font size renders really small in that monitor, and it requires me to 
 always adjust manually (which is annoying).
 
 [According to this page](https://wiki.archlinux.org/title/Alacritty#Different_font_size_on_multiple_monitors), 
