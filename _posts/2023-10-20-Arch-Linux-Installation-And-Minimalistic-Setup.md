@@ -2092,7 +2092,7 @@ necessary to add the trigger.
 
 #### Configure function execution at fish startup
 
-I choose to run the 'work mode identification function everytime a new 
+I choose to run the 'work mode identification' function everytime a new 
 fish shell is started. To do so, it is just necessary to edit the 
 `config.fish` file and make it call the `set_current_workmode` 
 function, as below:
