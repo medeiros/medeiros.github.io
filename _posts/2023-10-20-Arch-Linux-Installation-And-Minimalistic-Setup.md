@@ -1963,16 +1963,16 @@ $ vim ~/.config/i3/config
 ```
 ```bash
 # Define output monitor for workspaces
-+workspace $ws1 output HDMI-1 eDP-1
-+workspace $ws2 output HDMI-1 eDP-1
-+workspace $ws3 output HDMI-1 eDP-1
-+workspace $ws4 output HDMI-1 eDP-1
-+workspace $ws5 output HDMI-1 eDP-1
-+workspace $ws6 output HDMI-1 eDP-1
-+workspace $ws7 output HDMI-1 eDP-1
-+workspace $ws8 output HDMI-1 eDP-1
-+workspace $ws9 output HDMI-1 eDP-1
-+workspace $ws10 output eDP-1
+workspace $ws1 output HDMI-1 eDP-1
+workspace $ws2 output HDMI-1 eDP-1
+workspace $ws3 output HDMI-1 eDP-1
+workspace $ws4 output HDMI-1 eDP-1
+workspace $ws5 output HDMI-1 eDP-1
+workspace $ws6 output HDMI-1 eDP-1
+workspace $ws7 output HDMI-1 eDP-1
+workspace $ws8 output HDMI-1 eDP-1
+workspace $ws9 output HDMI-1 eDP-1
+workspace $ws10 output eDP-1
 ```
 
 > If the external monitor is connected, all workspaces will be bound to that 
