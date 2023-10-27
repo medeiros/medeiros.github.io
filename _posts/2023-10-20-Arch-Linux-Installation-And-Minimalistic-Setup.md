@@ -1975,7 +1975,7 @@ workspace $ws9 output HDMI-1 eDP-1
 workspace $ws10 output eDP-1
 ```
 
-> If the external monitor is connected, all workspaces will be bound to that 
+> If an external monitor is connected, all workspaces will be bound to that 
 monitor. But the laptop monitor still exists and it need a workspace as well. 
 That is why I configured the last workspace (10) to bind only to the laptop 
 monitor (eDP-1), even if the external monitor is connected. But if I choose 
