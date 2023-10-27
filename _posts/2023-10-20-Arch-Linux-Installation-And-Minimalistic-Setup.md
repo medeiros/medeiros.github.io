@@ -1976,11 +1976,12 @@ workspace $ws10 output eDP-1
 ```
 
 > If an external monitor is connected, all workspaces will be bound to that 
-monitor. But the laptop monitor still exists and it need a workspace as well. 
+monitor. But the laptop monitor still exists and it needs a workspace as well. 
 That is why I configured the last workspace (10) to bind only to the laptop 
 monitor (eDP-1), even if the external monitor is connected. But if I choose 
-to bind workspace 10 to the HDMI-1 monitor, i3 automatically creates a 
-workspace 11 and bind it to the laptop monitor (_there should be at least one_).
+to bind workspace 10 to the HDMI-1 monitor, i3 will automatically create a 
+workspace 11 and bind it to the laptop monitor (_there should be at least 
+one workspace per monitor_).
 
 #### Install autorandr
 
