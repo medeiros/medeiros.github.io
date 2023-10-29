@@ -264,8 +264,12 @@ Mount point | Partition | Partition type | Size
 
 - _section 3.3. Time Zone_: for Brazil, use `ln -sf 
 /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime`
-- _sectiion 3.4. Localization_: in `/etc/vconsole.conf`, for Brazil, set 
-`KEYMAP=br-abnt2`. No need to change the locale.
+- _section 3.4. Localization_: 
+  - in `/etc/vconsole.conf`, for Brazil, set `KEYMAP=br-abnt2`;
+  - in `/etc/locale.conf`, change the `LANG=en_US.UTF-8` entry to 
+  `LANG=pt_BR.UTF-8` (so the us-intl keyboard consider the 
+  `<dead_cedilla> <C>` combination to map for 'ç' instead of the 
+  character U0106 ('ć') [^19] . 
 
 ### Configuring Dual Boot with rEFInd
 
@@ -2173,4 +2177,5 @@ to do: finalize it
 [^16]: [Arch Multihead: dynamic display configuration](https://wiki.archlinux.org/title/multihead#Dynamic_display_configuration)
 [^17]: [i3wm: Workspaces screen](https://i3wm.org/docs/userguide.html#workspace_screen)
 [^18]: [i3wm: Assign workspaces on i3 to multiple displays](https://unix.stackexchange.com/questions/344329/assign-workspaces-on-i3-to-multiple-displays)
+[^19]: [How to setup keyboard for Brazillian Portuguese usage in Arch Linux](https://daniel.arneam.com/blog/linux/2018-11-20-How-to-set-us-keyboard-for-brazillian-portuguese-usage-in-arch-linux/#problem-locale)
 
