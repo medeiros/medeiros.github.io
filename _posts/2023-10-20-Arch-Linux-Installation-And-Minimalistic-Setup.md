@@ -267,9 +267,8 @@ Mount point | Partition | Partition type | Size
 - _section 3.4. Localization_: 
   - in `/etc/vconsole.conf`, for Brazil, set `KEYMAP=br-abnt2`;
   - in `/etc/locale.conf`, change the `LANG=en_US.UTF-8` entry to 
-  `LANG=pt_BR.UTF-8` (so the us-intl keyboard consider the 
-  `<dead_cedilla> <C>` combination to map for 'ç' instead of the 
-  character U0106 ('ć') [^19] . 
+  `LANG=pt_BR.UTF-8` (so the us-intl keyboard maps the `<dead_cedilla> <C>` 
+  combination to 'ç' instead of the character U0106 ('ć') [^19] . 
 
 ### Configuring Dual Boot with rEFInd
 
