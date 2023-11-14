@@ -316,12 +316,12 @@ situação).
 Agora é hora de ligar o roteador e começar a prepará-lo para uso. Os passos 
 abaixo são para ligar o roteador e conectá-lo ao Modem:
 
-- Ligar o roteador na tomada
+- Ligar o roteador na tomada;
 - Plugar o cabo de rede -- este não é o cabo de rede que está ligado no 
-computador; é um cabo extra que vem com o roteador. 
+computador; é um cabo extra que vem com o roteador;
   - No Roteador: plugar o cabo na entrada WAN  
   - No Modem: plugar o cabo numa entrada LAN (qualquer uma)
-- Confirmar conectividade: modem deve piscar luzes na porta da conexão
+- Confirmar conectividade: modem deve piscar luzes na porta da conexão.
 
 ### Configurar o Roteador 
 
