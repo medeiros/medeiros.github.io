@@ -24,7 +24,7 @@ conceito, utilizando o Modem Vivo Fibra Askey e o roteador Asus RT-AX82U.
 Conforme detalhado [em artigo anterior](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/), 
 o modem da Vivo Fibra (aquele que o técnico instala em casa quando assinamos 
 o plano de Internet) possui as funcionalidades de modem e roteador. E 
-funciona muito bem, mas pode chegar o momento em que precisemos de um 
+funciona muito bem - mas pode chegar o momento em que precisemos de um 
 roteador com mais funcionalidades - seja para melhor performance em jogos 
 online, maior capacidade de gerir muitos dispositivos em smarthome, e etc.
 Neste artigo, o dispositivo da Vivo será configurado para que funcione 
@@ -61,8 +61,8 @@ escrevi previamente -
 
 > Contudo, há de se saber que, tecnicamente falando, o dispositivo da Vivo em 
 questão agrega tanto as funcionalidades de modem quanto de roteador (porém 
-em nível básico), e o dispositivo da Asus é apenas um roteador, mas mais 
-especializado e com mais recursos.
+em nível básico), e o dispositivo da Asus atua especificamente como roteador, 
+bastante especializado e com muitos recursos.
 
 ### Sistema operacional: Arch Linux
 
@@ -88,7 +88,7 @@ neste artigo não devem ser realizados**.
 Este artigo sugere algumas ações que podem indisponibilizar o acesso à 
 Internet. Desta forma é importante que:
 
-- **só realize os procedimentos aqui citados se estiver confortável com 
+- **só se realize os procedimentos aqui citados se estiver confortável com 
 manutenção de rede doméstica**: Sempre tenha em mente que algumas ações 
 podem indisponibilizar sua Internet, e que você terá que resolver os 
 próprios problemas, sem suporte; Se não quer passar por este nervoso, 
