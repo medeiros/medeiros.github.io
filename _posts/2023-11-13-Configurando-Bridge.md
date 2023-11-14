@@ -22,12 +22,16 @@ conceito, utilizando o Modem Vivo Fibra Askey e o roteador Asus RT-AX82U.
 ## Introdução
 
 Conforme detalhado [em artigo anterior](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/), 
-o modem da Vivo Fibra possui as funcionalidades de modem e roteador. Neste 
-artigo, este dispositivo será configurado para que funcione apenas como modem, 
-e delegue a funcionalidade de roteador para um outro dispositivo, mais 
-performático.
+o modem da Vivo Fibra (aquele que o técnico instala em casa quando assinamos 
+o plano de Internet) possui as funcionalidades de modem e roteador. E 
+funciona muito bem, mas pode chegar o momento em que precisemos de um 
+roteador com mais funcionalidades - seja para melhor performance em jogos 
+online, maior capacidade de gerir muitos dispositivos em smarthome, e etc.
+Neste artigo, o dispositivo da Vivo será configurado para que funcione 
+apenas como modem, e delegue a funcionalidade de roteador para um outro 
+dispositivo, mais performático.
 
-Dentre as vantagens de usar um roteador mais específico, estão:
+Dentre as vantagens de usar um roteador mais específico, podem-se citar:
 
 - possibilidade de lidar com configurações mais específicas (como maior 
 granularidade no controle de renovação de DHCP, ou separação mais clara 
@@ -36,7 +40,8 @@ entre banda de 2.4GHz e 5GHz);
 dos devices como celular e notebooks;
 - possibilidade de criar redes Guest para disponibilizar o Wi-Fi para visitas
 apenas para uso de Internet, sem que tenham acesso à rede interna da residência;
-- dentre outros
+- possibilidade de isolamento de redes para maior performance em jogos online;
+- dentre muitas outras necessidades que fogem do convencional.
 
 > Caso as diferenças entre modem e roteador não estejam claras, recomendo 
 a [leitura do artigo previamente mencionado](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/) 
