@@ -54,7 +54,7 @@ Para fins de clareza e desambiguação, este artigo faz uso dos termos "_Modem_ 
 _Modem Vivo_" para se referir ao hardware da Vivo Fibra Askey (maiores 
 informações sobre este device podem ser encontrados em dois outros artigos que 
 escrevi previamente - 
-([^1]) ([^2)], e faz uso do termo "_Roteador_" para se referir ao hardware da 
+([^1]) ([^2]), e faz uso do termo "_Roteador_" para se referir ao hardware da 
 ASUS (RT-AX82U ([^3])). 
 
 > Contudo, há de se saber que, tecnicamente falando, o dispositivo da Vivo em 
