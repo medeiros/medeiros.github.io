@@ -21,7 +21,7 @@ conceito, utilizando o Modem Vivo Fibra Askey e o roteador Asus RT-AX82U.
 
 ## Introdução
 
-Conforme detalhado [em artigo anterior](http://daniel.arneam.com/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/), 
+Conforme detalhado [em artigo anterior](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/), 
 o modem da Vivo Fibra possui as funcionalidades de modem e roteador. Neste 
 artigo, este dispositivo será configurado para que funcione apenas como modem, 
 e delegue a funcionalidade de roteador para um outro dispositivo, mais 
