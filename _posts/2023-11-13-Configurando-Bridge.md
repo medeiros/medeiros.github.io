@@ -9,7 +9,7 @@ tags: smarthome
 comments: true
 image: /assets/img/blog/smarthome/roteador-asus-rt-ax82u.jpeg
 ---
-> Em [artigo anterior](http://daniel.arneam.com/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/), 
+> Em [artigo anterior](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/), 
 o conceito de separação de Modem e Roteador foi apresentado, juntamente com 
 a utilizacão de um modo "Bridge" para fazer a ponte entre os dois 
 dispositivos. Neste artigo, apresento uma implementação prática deste 
@@ -39,7 +39,7 @@ apenas para uso de Internet, sem que tenham acesso à rede interna da residênci
 - dentre outros
 
 > Caso as diferenças entre modem e roteador não estejam claras, recomendo 
-a [leitura do artigo previamente mencionado](http://daniel.arneam.com/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/) 
+a [leitura do artigo previamente mencionado](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/) 
 antes de prosseguir neste artigo. O artigo prévio elucida estes conceitos 
 (de modem e roteador) de forma bastante clara e didática.  
 
@@ -73,7 +73,7 @@ dispositivo (como TV ou Telefone, por exemplo), **os procedimentos descritos
 neste artigo não devem ser realizados**.
 
 > Se o conceito de _Bridge_ não estiver claro, sugere-se a leitura 
-[deste artigo](http://daniel.arneam.com/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/).
+[deste artigo](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/).
 
 #### Não siga este artigo se não tiver um bom conhecimento de redes
 
@@ -116,7 +116,7 @@ configurações do modem da Vivo).
 
 Neste artigo, farei uso de:
 
-- Um modem da [Vivo Fibra - Askey](http://daniel.arneam.com/blog/smarthome/2020-10-24-Pareando-Dispositivo-24GHz-com-Modem-Vivo-Vibra-Askey/#o-problema);
+- Um modem da [Vivo Fibra - Askey](/blog/smarthome/2020-10-24-Pareando-Dispositivo-24GHz-com-Modem-Vivo-Vibra-Askey/#o-problema);
 - Um roteador da Asus - [RT-AX82U](https://www.asus.com/br/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-ax82u/);
 - Um notebook;
 - E um cabo de rede.
