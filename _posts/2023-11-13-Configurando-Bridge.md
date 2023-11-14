@@ -156,13 +156,13 @@ Os passos são os seguintes:
 - Conecte o notebook com o modem pelo cabo de rede 
 - Desconecte o Wi-Fi. Para isto, no Arch Linux, execute:
 
-```
+```bash
 sudo iwctl station wlan0 disconnect
 ```
 
 Nenhum output será gerado. Na sequência, digite:
 
-```
+```bash
 iwctl station wlan0 show
 ``` 
 
@@ -180,7 +180,7 @@ Station: wlan0
 Para verificar que a Internet está ativa (ou seja, vindo pelo cabo de rede, já 
 que o Wi-Fi está desconectado), faça um _ping_ e veja o resultado:
 
-```
+```bash
 daniel@ataraxia ~> ping duckduckgo.com
 PING duckduckgo.com (191.235.123.80) 56(84) bytes de dados.
 64 bytes de 191.235.123.80 (191.235.123.80): icmp_seq=1 ttl=113 tempo=5.78 ms
@@ -385,7 +385,7 @@ preciso;
 - Conecte o Notebook no Wi-Fi do roteador. No Arch Linux, pode-se 
 proceder da seguinte forma:
 
-```
+```bash
 sudo iwctl station wlan0 scan
 sudo iwctl station wlan0 get-networks
 ```
@@ -399,13 +399,13 @@ Epiktetos                         psk                 ****
 
 Então, basta escolher uma rede e conectar a ela:
 
-```
+```bash
 sudo iwctl station wlan0 connect MarkusAurelius
 ```
 
 E testar a Internet com um _ping_:
 
-```
+```bash
 daniel@ataraxia ~> ping duckduckgo.com
 PING duckduckgo.com (191.235.123.80) 56(84) bytes de dados.
 64 bytes de 191.235.123.80 (191.235.123.80): icmp_seq=1 ttl=113 tempo=6.68 ms
