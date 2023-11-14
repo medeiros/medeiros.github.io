@@ -105,7 +105,7 @@ ser suficiente: será necessário reaplicar as customizações, ou a Internet
 não funcionará como antes. Tenha a certeza de conhecer as customizações 
 do seu Modem (caso hajam), para poder reaplicá-las no eventual caso de 
 restaurar para o modo fábrica.
-- **sugiro não realizar este procedimento se a rede Wi-Fi for a sua única 
+- **não realize este procedimento se a rede Wi-Fi for a sua única 
 fonte de acesso à Internet**: Entendo que só deve prosseguir se tiver um 
 plano de dados da operadora de telefonia com acesso à Internet, pois 
 pode ser preciso realizar pesquisas na Internet (tutoriais no Youtube ou 
