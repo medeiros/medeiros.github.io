@@ -51,9 +51,12 @@ e roteador de forma bastante clara e didática.
 ### Glossário dos termos utilizados neste artigo
 
 Para fins de clareza e desambiguação, este artigo faz uso dos termos "_Modem_ /
-_Modem Vivo_" para se referir ao hardware da Vivo Fibra Askey (detalhes do 
-device podem ser encontrados no artigo anteriormente mencionado), e faz uso do 
-termo "_Roteador_" para se referir ao hardware da Asus 
+_Modem Vivo_" para se referir ao hardware da Vivo Fibra Askey (maiores 
+informações sobre este device podem ser encontrados em dois outros artigos que 
+escrevi previamente - 
+[aqui](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/) e 
+[aqui](/blog/smarthome/2020-10-24-Pareando-Dispositivo-24GHz-com-Modem-Vivo-Vibra-Askey/)
+), e faz uso do termo "_Roteador_" para se referir ao hardware da Asus 
 ([RT-AX82U](https://www.asus.com/br/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-ax82u/)). 
 
 > Contudo, há de se saber que, tecnicamente falando, o dispositivo da Vivo em 
