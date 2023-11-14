@@ -45,8 +45,8 @@ apenas para uso de Internet, sem que tenham acesso à rede interna da residênci
 
 > Caso as diferenças entre modem e roteador não estejam claras, recomendo 
 a [leitura do artigo previamente mencionado](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/) 
-antes de prosseguir neste artigo. O artigo prévio elucida estes conceitos 
-(de modem e roteador) de forma bastante clara e didática.  
+antes de prosseguir neste artigo. Tal artigo elucida os conceitos de modem 
+e roteador de forma bastante clara e didática.  
 
 ### Glossário dos termos utilizados neste artigo
 
