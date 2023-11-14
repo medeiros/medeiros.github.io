@@ -444,7 +444,7 @@ simplificado apenas à função de _dispatcher_ do sinal de Internet ao
 roteador - e mais nada. 
 
 Portanto, os próximos passos estão relacionados à exploração das 
-funcionalidades do software de configuração de router da Asus. Esta 
+funcionalidades do software de configuração de router da ASUS. Esta 
 configuração está acessível via HTTP em 192.168.50.1 - com autenticação 
 pelo usuário administrador do roteador, previamente criado.
 
