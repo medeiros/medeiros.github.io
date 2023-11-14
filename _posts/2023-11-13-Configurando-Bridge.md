@@ -453,6 +453,7 @@ pelo usuário administrador do roteador, previamente criado.
 
 - [Arch Linux](https://www.archlinux.org)
 - [Modem Console](http://192.168.15.1/instalador)
+
 [^1]: [Melhorando a rede WiFi pela separação de Modem e Roteador](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/),
 [^2]: [Pareando Dispositivo 2.4GHz com Modem Vivo Fibra Askey](/blog/smarthome/2020-10-24-Pareando-Dispositivo-24GHz-com-Modem-Vivo-Vibra-Askey/)
 [^3]: [ASUS Router: RT-AX82U](https://www.asus.com/br/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-ax82u/)
