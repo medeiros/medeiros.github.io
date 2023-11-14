@@ -311,7 +311,7 @@ deverá funcionar, pois após o Reset, a customização terá que ser novamente
 aplicada (por você ou até mesmo por um técnico da Vivo, dependendo da 
 situação).
 
-### Ligue o roteador e conecte-o via cabo ao modem
+### Ligar o roteador e conectá-lo (via cabo) ao modem
 
 Agora é hora de ligar o roteador e começar a prepará-lo para uso. Os passos 
 abaixo são para ligar o roteador e conectá-lo ao Modem:
