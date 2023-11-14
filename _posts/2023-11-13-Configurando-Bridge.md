@@ -9,7 +9,11 @@ tags: smarthome
 comments: true
 image: /assets/img/blog/smarthome/roteador-asus-rt-ax82u.jpeg
 ---
-> Todo: add info
+> Em [artigo anterior](http://daniel.arneam.com/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/), 
+o conceito de separação de Modem e Roteador foi apresentado, juntamente com 
+a utilizacão de um modo "Bridge" para fazer a ponte entre os dois 
+dispositivos. Neste artigo, apresento uma implementação prática deste 
+conceito, utilizando o Modem Vivo Fibra Askey e o roteador Asus RT-AX82U. 
 {:.lead}
 
 - Table of Contents
