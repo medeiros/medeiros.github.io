@@ -338,7 +338,7 @@ connected router";
 - Selecione a primeira opção: "Asus RT/GT/TUF/GS series Tour";
 - Na tela "App permissions", selecione OK e permita com que o app ASUS Router 
 tenha acesso ao device location;
-- Deve aparecer um ponto de conexão Wi-Fi com o nome "ASUS_E0". Clique 
+- Deve aparecer um ponto de conexão Wi-Fi com o nome "**ASUS_E0**". Clique 
 sobre ele;
 - Na caixa de diálogo "Connect to device - ASUS Router app wants to use a 
 temporary Wi-Fi network to connect to your device", confirme (clique em 
@@ -355,7 +355,7 @@ nas respectivas portas WAN/LAN (vide
 [aqui](#ligue-o-roteador-e-conecte-o-via-cabo-ao-modem)) e clique em "Retry";
 - Aguarde a abertura da tela "System Setup". Nesta tela, informe o usuário 
 e senha do ISP (vide 
-[aqui](#ligue-o-roteador-e-conecte-o-via-cabo-ao-modem)) e clique em "Check";
+[aqui](#anotar-o-usu%C3%A1rio-do-isp)) e clique em "Check";
 - Na tela de "Special Requirements", não marque nada. Apenas clique em "Next";
 - Na tela "Create Wi-Fi Network":
   - Selecione o checkbox "Separate 2.4GHz and 5GHz";
