@@ -147,7 +147,9 @@ problemas que porventura possam surgir, e que não estarão mapeados neste artig
 O primeiro passo é garantir que haja conexão via cabo, e deixar de usar Wi-Fi. 
 
 > Como desejo desligar o Wi-Fi do modem da Vivo (e deixar apenas no roteador), 
-vou fazer uso da conexão via cabo para que eu não perca a conexão com o modem.
+vou fazer uso da conexão via cabo neste momento (até ter o Wi-Fi habilitado no 
+roteador - ao final deste artigo), para que eu não perca a conexão com o modem 
+durante todo o procedimento.
 
 Os passos são os seguintes:
 
