@@ -9,7 +9,7 @@ tags: smarthome
 comments: true
 image: /assets/img/blog/smarthome/roteador-asus-rt-ax82u.jpeg
 ---
-> Em artigo anterior [^1], o conceito de separação de Modem e Roteador foi 
+> Em artigo anterior ([^1]), o conceito de separação de Modem e Roteador foi 
 apresentado, juntamente com a utilizacão de um modo "Bridge" para fazer a 
 ponte entre os dois dispositivos. Neste artigo, apresento uma implementação 
 prática deste conceito, utilizando o Modem Vivo Fibra Askey e o roteador 
@@ -21,15 +21,15 @@ ASUS RT-AX82U.
 
 ## Introdução
 
-Conforme detalhado em artigo anterior [^1], o modem da Vivo Fibra 
-(aquele que o técnico instala em casa quando assinamos 
-o plano de Internet) possui as funcionalidades de modem e roteador. E 
-funciona muito bem - mas pode chegar o momento em que precisemos de um 
-roteador com mais funcionalidades - seja para melhor performance em jogos 
-online, maior capacidade de gerir muitos dispositivos em smarthome, e etc.
-Neste artigo, o dispositivo da Vivo será configurado para que funcione 
-apenas como modem, e delegue a funcionalidade de roteador para um outro 
-dispositivo, mais especializado.
+Conforme detalhado em artigo anterior ([^1]), o modem da Vivo Fibra 
+(aquele que o técnico instala em casa quando assinamos o plano de Internet) 
+possui as funcionalidades de modem e roteador. E funciona muito bem - mas 
+pode chegar o momento em que precisemos de um roteador com mais 
+funcionalidades - seja para melhor performance em jogos online, maior 
+capacidade de gerir muitos dispositivos em smarthome, e etc. Neste artigo, 
+o dispositivo da Vivo será configurado para que funcione apenas como modem, 
+e delegue a funcionalidade de roteador para um outro dispositivo, mais 
+especializado.
 
 Dentre as vantagens de usar um roteador especializado, podem-se citar:
 
@@ -44,9 +44,9 @@ apenas para uso de Internet, sem que tenham acesso à rede interna da residênci
 - dentre diversas outras necessidades que fogem do convencional.
 
 > Caso as diferenças entre modem e roteador não estejam claras, recomendo 
-a leitura do artigo previamente mencionado [^1] 
-antes de prosseguir neste artigo. Tal artigo procura elucidar os conceitos 
-de modem e roteador de forma clara e didática.  
+a leitura do artigo previamente mencionado ([^1]) antes de prosseguir neste 
+artigo. Tal artigo procura elucidar os conceitos de modem e roteador de forma 
+clara e didática.  
 
 ### Glossário dos termos utilizados neste artigo
 
@@ -54,8 +54,8 @@ Para fins de clareza e desambiguação, este artigo faz uso dos termos "_Modem_ 
 _Modem Vivo_" para se referir ao hardware da Vivo Fibra Askey (maiores 
 informações sobre este device podem ser encontrados em dois outros artigos que 
 escrevi previamente - 
-[^1] [^2], e faz uso do termo "_Roteador_" para se referir ao hardware da ASUS 
-(RT-AX82U [^3]). 
+([^1]) ([^2)], e faz uso do termo "_Roteador_" para se referir ao hardware da 
+ASUS (RT-AX82U ([^3])). 
 
 > Contudo, há de se saber que, tecnicamente falando, o dispositivo da Vivo em 
 questão agrega tanto as funcionalidades de modem quanto de roteador (porém 
@@ -80,7 +80,7 @@ dispositivo (como TV ou Telefone, por exemplo), **os procedimentos descritos
 neste artigo não devem ser realizados**.
 
 > Se o conceito de _Bridge_ não estiver claro, sugere-se a leitura 
-do artigo previamente mencionado, que ilucida este ponto [^1].
+do artigo previamente mencionado, que elucida este ponto ([^1]).
 
 #### Não siga este artigo se não tiver um bom conhecimento de redes
 
@@ -125,7 +125,7 @@ configurações do modem da Vivo).
 Neste artigo, farei uso de:
 
 - Um modem da [Vivo Fibra - Askey](/blog/smarthome/2020-10-24-Pareando-Dispositivo-24GHz-com-Modem-Vivo-Vibra-Askey/#o-problema);
-- Um roteador da ASUS (RT-AX82U [^3]);
+- Um roteador da ASUS (RT-AX82U ([^3]));
 - Um notebook;
 - E um cabo de rede.
 
@@ -453,7 +453,6 @@ pelo usuário administrador do roteador, previamente criado.
 
 - [Arch Linux](https://www.archlinux.org)
 - [Modem Console](http://192.168.15.1/instalador)
-
 [^1]: [Melhorando a rede WiFi pela separação de Modem e Roteador](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/),
 [^2]: [Pareando Dispositivo 2.4GHz com Modem Vivo Fibra Askey](/blog/smarthome/2020-10-24-Pareando-Dispositivo-24GHz-com-Modem-Vivo-Vibra-Askey/)
 [^3]: [ASUS Router: RT-AX82U](https://www.asus.com/br/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-ax82u/)
