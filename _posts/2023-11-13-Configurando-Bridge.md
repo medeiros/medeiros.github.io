@@ -137,7 +137,7 @@ Estes passos foram realizados na configuração da minha rede doméstica.
 
 > Os passos devem ser executados em ordem.
 
-> Peço que leia a seção "_Riscos e Disclaimer_", acima, antes de prosseguir 
+> Peço que leia a seção "_Riscos e Disclaimers_", acima, antes de prosseguir 
 com a execução dos passos deste artigo, pois tais passos podem indisponibilizar 
 sua Internet - e é importante ter conhecimento técnico para lidar com os 
 problemas que porventura possam surgir, e que não estarão mapeados neste artigo.
