@@ -105,18 +105,18 @@ não funcionará como antes. Tenha a certeza de conhecer as customizações
 do seu Modem (caso hajam), para poder reaplicá-las no eventual caso de 
 ter que restaurar para o modo fábrica.
 - **não realize este procedimento se a rede Wi-Fi for a sua única 
-fonte de acesso à Internet**: Entendo que só deve realizar os passos 
+fonte de acesso à Internet**: Entendo que só se deve realizar os passos 
 deste artigo se tiver um plano de dados da operadora de telefonia com 
 acesso à Internet, pois pode ser preciso realizar pesquisas na Internet 
 (tutoriais no Youtube ou posts de outros sites especializados) caso 
-surja algum problema que indisponibilize seu Wi-Fi (_"nunca fique 
+surja algum problema que indisponibilize seu modem (_"nunca fique 
 no escuro"_);
 - **saiba que este artigo é apenas um guia que conta o meu relato pessoal 
 de como executei o procedimento em minha rede privada doméstica**: Escrevo 
 isto esperando que ajude outras pessoas a elucidar o cenário (e até mesmo 
 para mim mesmo no futuro), mas não dou suporte em casos de problemas que 
-possam surgir ao tentar executar estes procedimentos. Ao assumir executar 
-estes passos, saiba que estará por conta própria. Por isto é importante saber 
+possam surgir ao tentar executar estes procedimentos. Ao assumir a execução 
+destes passos, saiba que estará por conta própria. Por isto é importante saber 
 o que se está fazendo e os impactos neste contexto (de modificar 
 configurações do modem da Vivo).
 
