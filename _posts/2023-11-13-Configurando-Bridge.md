@@ -452,7 +452,8 @@ pelo usuário administrador do roteador, previamente criado.
 ## Referências
 
 - [Arch Linux](https://www.archlinux.org)
-- [Modem Console](http://192.168.15.1/instalador)
+- [Modem: interface Web de Console](http://192.168.15.1/instalador)
+- [Router: interface Web de Console](http://192.168.50.1)
 
 [^1]: [Melhorando a rede WiFi pela separação de Modem e Roteador](/blog/smarthome/2020-10-24-Separando-Modem-de-Roteador/),
 [^2]: [Pareando Dispositivo 2.4GHz com Modem Vivo Fibra Askey](/blog/smarthome/2020-10-24-Pareando-Dispositivo-24GHz-com-Modem-Vivo-Vibra-Askey/)
