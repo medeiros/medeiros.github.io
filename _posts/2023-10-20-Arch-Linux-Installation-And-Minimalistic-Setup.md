@@ -2149,10 +2149,150 @@ env:
 
 This ratio size of 1.3 suits me well. Different values can be used at will.
 
+### Configure Dropbox process 
+
+Dropbox is not available in Arch repository. There is an AUR alternative 
+([^20]), but I prefer to follow the procedure described in the Dropbox 
+website ([^21]).
+
+So, execute the following command to download and install Dropbox 
+(64-bit)([^21]):
+
+```
+cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" \
+    | tar xzf -
+```
+
+After that, the `~/.dropbox-dist` directory will be created. In order to 
+run Dropbox process, one can simply call `. ~/.dropbox-dist/dropboxd`.
+So, an authorization for access will be presented and, after confirmation, 
+a `~/Dropbox` directory will be created, and the remote data will be 
+properly downloaded.
+
+To my setup, there are two key points to consider in that regard.
+
+#### I don't want my Dropbox data in the ~/Dropbox directory
+
+My setup requirement states that all data must be in the external drive. 
+Dropbox also does not allow us to configure the ~/Dropbox data elsewhere. 
+
+The solution is to create an symbolic link, as below:
+
+```
+ln -s ~/data/Dropbox ~/Dropbox
+```
+
+So, now the Dropbox data can reside in the external drive.
+
+> But what if the external drive is not mounted? This is the second key 
+point to consider.
+
+#### I can only run Dropbox if data dir is mounted
+
+If is the case in which Dropbox should keep running all the time, one should 
+configure Dropbox as a `systemd` service ([^22]). However, this is not my 
+particular case. I want to run Dropbox process only when my `~/data` dir is 
+mounted; that is because my Dropbox directory may reside inside `data` dir.
+
+So, the following fish file was created to manage this. A `mountdata` command 
+allows me to keep data mount point and Dropbox process synchronized:
+
+```bash
+# ~/.config/fish/functions/mountdata.fish
+
+function mountdata 
+	set opt $argv[1]
+
+	if [ "$opt" = "start" ]
+		_mount_data
+	else if [ "$opt" = "stop" ]
+		_umount_data
+	else if [ "$opt" = "startdropbox" ]
+		_start_dropbox_process
+	else if [ "$opt" = "stopdropbox" ]
+		_stop_dropbox_process
+	else if  [ "$opt" = "status" ]
+		_status_mount
+	else
+		echo "no valid param informed."
+		echo "  options: "
+		echo "    start........: mount data dir (if not mounted yet)"
+		echo "                   and start dropbox "
+		echo "    stop.........: umount data dir (if mounted "
+		echo "                   and stop dropbox"
+		echo "    startdropbox.: start dropbox (if data is mounted)"
+		echo "    stopdropbox..: stop dropbox"
+		echo "    status.......: general status"
+	end
+end
+
+function _mount_data
+	if test (mountpoint -q ~/data; echo $status) -eq 0
+		echo "data already mounted"
+		return 1
+	else
+		sudo mount /home/daniel/data
+		_start_dropbox_process
+		echo "==> ~/data" && ls ~/data
+		echo "==> ~/Dropbox symlink (to ~/data/Dropbox)" && ls ~/Dropbox
+		echo "==> ~/Dropbox/" && ls ~/Dropbox/
+		return 0
+	end
+end
+
+function _umount_data
+	if test (mountpoint -q ~/data; echo $status) -eq 0
+		_stop_dropbox_process
+		sudo umount /home/daniel/data
+		return 0
+	else
+		echo "data already unmounted"
+		return 1
+	end
+end
+
+function _start_dropbox_process
+	if test -z (ps -ef | grep -i 'dropbox' | grep -v 'grep')
+		nohup ~/.dropbox-dist/dropboxd &
+	else
+		echo "dropbox already running"
+	end
+end
+
+function _stop_dropbox_process
+	killall dropbox
+end
+
+function _status_mount
+	if test (mountpoint -q ~/data; echo $status) -eq 0
+		echo "[mounted] data is mounted"
+	else 
+		echo "[unmounted] data is not mounted"
+	end
+
+	if test -z (ps -ef | grep -i 'dropbox' | grep -v 'grep')
+		echo "[stopped] dropbox is not running"
+	else
+		echo "[running] dropbox is running"
+	end
+end
+
+```
+
+Every time I plug my external drive, I run `mountdata start` command to 
+mount the `~/data` directory and then start Dropbox process. The 
+`mountdata status` command can be used at any time to check the conditions 
+of both `~/data` mount point and Dropbox process.
 
 ## Conclusions
 
-to do: finalize it 
+This article was an attempt to document a practical procedure to install Arch 
+Linux from scratch. My idea, while writing this, was to stop to reinvent the 
+wheel every time I install Arch Linux, reducind the downtime - and also to make 
+clear to myself, after a while, why I'm using some particular set of softwares.
+
+I hope this can somehow be useful, in some level, for people configuring their 
+own Arch Linux environment.
 
 ## References
 
@@ -2177,4 +2317,6 @@ to do: finalize it
 [^17]: [i3wm: Workspaces screen](https://i3wm.org/docs/userguide.html#workspace_screen)
 [^18]: [i3wm: Assign workspaces on i3 to multiple displays](https://unix.stackexchange.com/questions/344329/assign-workspaces-on-i3-to-multiple-displays)
 [^19]: [How to setup keyboard for Brazillian Portuguese usage in Arch Linux](https://daniel.arneam.com/blog/linux/2018-11-20-How-to-set-us-keyboard-for-brazillian-portuguese-usage-in-arch-linux/#problem-locale)
-
+[^20]: [Dropbox AUR](https://aur.archlinux.org/packages/dropbox)
+[^21]: [Dropbox: Install Linux](https://www.dropbox.com/install-linux)
+[^22]: [Dropbox as a systemd service](https://www.bbkane.com/blog/dropbox-as-a-systemd-service/)
