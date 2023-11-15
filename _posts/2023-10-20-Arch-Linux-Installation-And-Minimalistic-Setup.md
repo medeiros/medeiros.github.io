@@ -2169,7 +2169,8 @@ So, an authorization for access will be presented and, after confirmation,
 a `~/Dropbox` directory will be created, and the remote data will be 
 properly downloaded.
 
-To my setup, there are two key points to consider in that regard.
+To my setup, there are two key points to consider in that regard, as 
+can be seen in the next sections.
 
 #### I don't want my Dropbox data in the ~/Dropbox directory
 
