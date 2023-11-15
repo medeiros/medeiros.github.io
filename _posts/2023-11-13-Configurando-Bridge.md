@@ -192,7 +192,7 @@ PING duckduckgo.com (191.235.123.80) 56(84) bytes de dados.
 rtt min/avg/max/mdev = 5.294/5.566/5.784/0.203 ms
 ```
 
-### Acessando a interface de configuração
+### Acessar a interface de configuração
 
 Agora que estamos com Internet via cabo, o próximo passo é acessar o console 
 de administração do Modem da Vivo. Para isto, acesse o seguinte URL via 
