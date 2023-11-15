@@ -2174,7 +2174,7 @@ To my setup, there are two key points to consider in that regard.
 #### I don't want my Dropbox data in the ~/Dropbox directory
 
 My setup requirement states that all data must be in the external drive. 
-Dropbox also does not allow us to configure the ~/Dropbox data elsewhere. 
+Dropbox also does not allow us to configure the directory for data. 
 
 The solution is to create an symbolic link, as below:
 
