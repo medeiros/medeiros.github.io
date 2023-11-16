@@ -2281,9 +2281,10 @@ end
 ```
 
 Every time I plug my external drive, I run `mountdata start` command to 
-mount the `~/data` directory and then start Dropbox process. The 
-`mountdata status` command can be used at any time to check the conditions 
-of both `~/data` mount point and Dropbox process.
+mount the `~/data` directory and then start Dropbox process (that will
+refer for Dropbox files inside of it). The `mountdata status` command can 
+be used at any time to check the conditions of both `~/data` mount point 
+and Dropbox process.
 
 ## Conclusions
 
