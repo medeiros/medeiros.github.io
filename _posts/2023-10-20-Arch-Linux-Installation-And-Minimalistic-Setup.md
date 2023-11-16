@@ -2186,7 +2186,7 @@ ln -s ~/data/Dropbox ~/Dropbox
 So, now the Dropbox data can reside in the external drive.
 
 > But what if the external drive is not mounted? This is the second key 
-point to consider.
+point to consider - see below.
 
 #### I can only run Dropbox if data dir is mounted
 
