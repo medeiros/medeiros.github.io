@@ -9,6 +9,7 @@ source "https://rubygems.org"
 # This will help ensure the proper Jekyll version is running.
 # Happy Jekylling!
 gem "jekyll", "~> 3.9.5" #previous: 4.1 3.9.0
+gem "nokogiri", "~> 1.13.10"
 
 gem "jekyll-theme-hydejack", path: "./#jekyll-theme-hydejack"
 
