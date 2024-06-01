@@ -2,3 +2,5 @@ _site
 *.lock
 vendor
 .fleet/
+
+!Gemfile.lock
