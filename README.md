@@ -33,6 +33,7 @@ bundle install
 
 ## Running Jekyll 
 ```
+/bin/bash --login
 ./start.sh
 ```
 
