@@ -6,7 +6,7 @@ description: >
 categories: linux
 tags: [docker, containerization, cloud]
 comments: true
-image: /assets/img/blog/arch/archlinux.png
+image: /assets/img/blog/docker/docker.jpg
 ---
 > This page explains the basic of Docker architecture and configuration. It 
 aims to reinforce knowledge of this technology.
