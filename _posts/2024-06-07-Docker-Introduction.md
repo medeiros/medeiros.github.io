@@ -3,7 +3,7 @@ layout: post
 title: "Docker Introduction"
 description: >
   Introduction of Docker: basic steps to understand, configure and run Docker 
-categories: linux
+categories: containerization
 tags: [docker, containerization, cloud]
 comments: true
 image: /assets/img/blog/docker/docker.jpg

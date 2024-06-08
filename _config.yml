@@ -64,6 +64,8 @@ menu:
     url:               /blog/kafka/
   - title:             AWS
     url:               /blog/aws/
+  - title:             Containerization
+    url:               /blog/containerization/
   - title:             SmartHome (pt_BR)
     url:               /blog/smarthome/
   #- title:             Documentation
