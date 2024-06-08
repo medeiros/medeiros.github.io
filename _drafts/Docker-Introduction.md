@@ -114,8 +114,11 @@ The steps are the following:
 
 - Download the [Docker credentials pass binary release for Linux](https://github.com/docker/docker-credential-helpers/releases)
 - Rename the downloaded file to `docker-credential-pass`
+
 ```
 mv docker-credential-pass-v0.8.2.linux-amd64 docker-credential-pass
+
+chmod +x docker-credential-pass
 ```
 
 - Add the binary file path to the `PATH` env var, so Docker can 
@@ -132,7 +135,8 @@ set -x PATH $PATH ~/data/app/docker-credential-helpers/
 Now that we have `pass`, `gpg` and `docker-credential-helper for pass` 
 properly configured, we need to configure Docker to use `pass`.
 
-Edit the Docker config file and make sure that is set as below:
+Edit the Docker config file, remove the previous content and make sure that 
+is set as below:
 
 ```
 nvim ~/.docker/config.json
@@ -166,11 +170,32 @@ Password Store
         └── <your docker user login>
 ```
 
+You can also check the docker config file:
+
+```
+bat ~/.docker/config.json
+
+───────┬──────────────────────────────────────────────
+       │ File: /home/daniel/.docker/config.json
+───────┼──────────────────────────────────────────────
+   1   │ {
+   2   │     "auths": {
+   3   │         "https://index.docker.io/v1/": {}
+   4   │     },
+   5   │     "credsStore": "pass"
+   6   │ }
+───────┴──────────────────────────────────────────────
+
+```
+
+And you can see that the "auths" entry was added.
+
 Now your docker login credentials security were improved.
+
 
 ## Conclusions
 
-This article is aimed to reinforce knowledge of Docker fundamentals. 
+This article aimed to reinforce knowledge of Docker fundamentals. 
 
 ## References
 
