@@ -193,6 +193,94 @@ And you can see that the "auths" entry was added.
 Now your docker login credentials security were improved.
 
 
+## Docker Basic Concepts
+
+The following is a very simple Docker command:
+
+```bash
+docker run  debian      echo "hello world"
+----------  ----------  ------------------
+docker cmd  image name  container command
+```
+
+Explanation:
+
+- `docker run`: create a new docker container and run it.
+- `debian`: this is the image name of the container
+  - if not exists, it will be downloaded;
+  - one can verify the existing images by typing `docker image ls`
+- `echo "hello world"`: this is the command to be executed 
+  - a docker container run the command and then finalizes it
+
+When executing this command, the `debian` image will be downloaded (if 
+not yet in the environment), the container will be created and then 
+the command `echo "hello world"` will be executed (the output will be 
+the 'hello world' message in the terminal).
+
+After the execution, the container still exists - it was created and is 
+not running (status=Exited): 
+
+```bash
+daniel@ataraxia ~> docker ps -a
+
+CONTAINER ID   IMAGE     COMMAND                CREATED              STATUS                          PORTS     NAMES
+90d910e2614a   debian    "echo 'hello world'"   About a minute ago   Exited (0) About a minute ago             friendly_moser
+```
+If we try to run this container again, the output would be the name of the 
+container:
+
+```bash
+daniel@ataraxia ~ [1]> docker start friendly_moser
+friendly_moser
+daniel@ataraxia ~>
+```
+This is because there is no STDIN usage defined for this container.
+So we add the `-i` param, and now we can see the expected result:
+
+```bash
+daniel@ataraxia ~> docker start friendly_moser -i
+hello world
+```
+
+It is not possible to login into this container because it was created 
+without interactive tty mode, and because the main command is echo, instead 
+of a bash shell. So, let's create a new container with this is mind:
+
+```bash
+daniel@ataraxia ~> docker run -it --name test debian /bin/bash
+root@a13f7ed087d5:/# 
+```
+
+The `-it` param was added to create this as a STDIN container and attach to 
+the current terminal. Also, the main process is a bash shell instead of a 
+echo command. So now we gained access to the container via bash shell.
+In addition to that, the container is now named `test`.
+
+If a new terminal is opened and `docker ps` is run, we can see that this 
+new container is running:
+
+```bash
+daniel@ataraxia ~> docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED         STATUS         PORTS     NAMES
+a13f7ed087d5   debian    "/bin/bash"   7 minutes ago   Up 7 minutes             test
+```
+
+And if we exit the container we can see now that it is no longer running:
+
+```bash
+root@a13f7ed087d5:/# exit
+exit
+daniel@ataraxia ~ [127]> docker ps -a
+CONTAINER ID   IMAGE     COMMAND                CREATED          STATUS                       PORTS     NAMES
+a13f7ed087d5   debian    "/bin/bash"            9 minutes ago    Exited (127) 8 seconds ago             test
+90d910e2614a   debian    "echo 'hello world'"   27 minutes ago   Exited (0) 19 minutes ago              friendly_moser
+d
+```
+
+So, the container runs while its main process is executing (in this case, `bash`).
+
+todo: add log, inspect, add fortune, cowsay, commit e remove
+
 ## Conclusions
 
 This article aimed to reinforce knowledge of Docker fundamentals. 
