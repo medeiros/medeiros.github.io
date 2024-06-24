@@ -279,7 +279,10 @@ d
 
 So, the container runs while its main process is executing (in this case, `bash`).
 
-todo: add log, inspect, add fortune, cowsay, commit e remove
+```
+this page is currently a draft - to be added: add log, inspect, add fortune, 
+cowsay, commit e remove
+```
 
 ## Conclusions
 
