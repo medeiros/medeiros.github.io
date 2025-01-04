@@ -25,7 +25,7 @@ rvm install 2.7.4
 
 ```
 rm -rf ./vendor/bundle
-rvm autolibs rvm_pkg  # so that OpenSSL dependency will be automatlically installed
+rvm autolibs rvm_pkg  # so that OpenSSL dependency will be automatically installed
 rvm install 2.7.4 
 rvm use 2.7.4
 bundle install 
